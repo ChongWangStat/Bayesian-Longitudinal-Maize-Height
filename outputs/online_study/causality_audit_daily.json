@@ -1,0 +1,9 @@
+{
+  "audit": "prefix invariance",
+  "definition": "For every camera and image-time prefix, recomputing from only that prefix must reproduce all results already emitted by the full run.",
+  "checked_prefixes": 391,
+  "checked_rows_cumulative": 51035,
+  "mismatch_count": 0,
+  "passed": true,
+  "mismatches": []
+}

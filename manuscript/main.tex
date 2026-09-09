@@ -1,0 +1,311 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{authblk}
+\usepackage{setspace}
+\usepackage[margin=1.25in]{geometry}
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+\usepackage{subcaption}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,array}
+\usepackage{lineno}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage[style=nejm,citestyle=numeric-comp,sorting=none]{biblatex}
+\addbibresource{references.bib}
+\linenumbers
+\onehalfspacing
+\input{numbers.tex}
+
+\title{Prior-Guided Bayesian Image Analysis for Physically Calibrated Longitudinal Maize Height}
+
+\author[1]{Haoming Wang}
+\author[1,2]{Chong Wang}
+\author[3,4,5]{Yawei Li}
+\author[3,5]{Cheng-Ting Yeh}
+\author[3,4,5]{Patrick S. Schnable}
+\author[1,*]{Peng Liu}
+\affil[1]{Department of Statistics, Iowa State University, Ames, Iowa, USA.}
+\affil[2]{Department of Veterinary Diagnostic and Production Animal Medicine, Iowa State University, Ames, Iowa, USA.}
+\affil[3]{Plant Sciences Institute, Iowa State University, Ames, Iowa, USA.}
+\affil[4]{Interdepartmental Genetics and Genomics Graduate Program, Iowa State University, Ames, Iowa, USA.}
+\affil[5]{Department of Agronomy, Iowa State University, Ames, Iowa, USA.}
+\affil[*]{Address correspondence to: pliu@iastate.edu}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Affordable longitudinal field phenotyping from fixed cameras is limited by ambiguous detections and uncertain pixel-to-centimeter calibration. We coupled a running plant-position state for current-image association with physically calibrated measurements and a robust particle filter for plant-specific height and growth. With settings fixed, every update uses only images available through time $t$ and immediately returns an as-of height distribution. Held-out red pole bands evaluated physical calibration across cameras and years. Against 132 manual measurements from all 33 plants in 12 rows, longitudinal estimation reduced mean absolute error from 12.03 to 10.97 cm (paired reduction 1.06 cm; 95\% row-cluster bootstrap interval, -0.16 to 2.39). Its point estimate was also lower than four fixed causal smoothers, including a Gaussian local-linear Kalman filter at 11.62 cm, although their paired difference was uncertain (0.66 cm; -0.43 to 1.79). After all noise scales were converted to target-row units, parameters learned on 2024 data gave 94.9\% coverage with a 97.8-cm mean 95\% width in 372 next-image forecasts from two held-out 2025 cameras. In a controlled ambiguity simulation, using the predicted height distribution during candidate selection reduced latent-height root mean squared error from 10.5 to 6.0 cm, compared with 8.6 cm for filtering after candidate selection. A matched real-image audit found no candidate conflict under the prespecified gates. These results support an affordable, transparent longitudinal workflow while identifying candidate diversity, interval sharpness, and independent manual validation as priorities.
+\end{abstract}
+
+\noindent\textbf{Keywords:} longitudinal field phenotyping; maize height; particle filter; position-guided association; stationary camera; uncertainty calibration
+
+\section{Introduction}
+
+Longitudinal plant-height trajectories describe growth rate, developmental timing, and response to environment more directly than a single mature measurement. Repeated manual measurement is costly and can disturb field plots, while fixed red-green-blue cameras can collect the same view throughout a season at comparatively low cost. Existing time-series phenotyping systems have produced useful growth curves in maize and other crops \cite{ge2016temporal,liang2018timeseries,wang2020functional}. The practical obstacle is that a camera produces pixels rather than a physical measurement. Canopy overlap, occlusion, wind, changes in illumination, and the transition from leaf tips to reproductive structures make the top and base of an individual plant ambiguous. A separate reference object can establish scale, but its geometry and usable range must be known. A longitudinal method must also state exactly when information becomes available and how uncertainty changes as new images accumulate.
+
+Several parts of this problem have been addressed separately. Time-lapse cameras with an in-scene scale can measure crop height, including operator-assisted rice measurements \cite{mano2017precise,manoigawa2017nondestructive}. Stereo and structured imaging can estimate canopy height accurately, but require additional hardware or controlled acquisition \cite{cai2018stereo,tabb2019cass}. Fixed-camera maize methods have pooled information across images, fitted nondecreasing growth curves, and used early images as labels for later overlapping plants \cite{guo2021kat4ia,guo2023sscnn}. Other field-maize pipelines reuse locations from earlier growth stages as seed points for later segmentation or use prior-stage maize positions to guide current time-series point-cloud segmentation and height extraction \cite{gao2022individual,li2023multisource}. These studies establish that temporal position information can guide later image analysis; they do not evaluate the same coupling of causal image analysis, physical calibration, and height-distribution updating studied here.
+
+State-space models provide a formal way to carry information through time. Kalman and particle filters are standard tools for sequential estimation \cite{west1997bayesian,durbin2012time,gordon1993particle}. Particle filtering has been used for real-time rice-height estimation from Sentinel-1 images, and a recent Bayesian pattern-matching framework estimates daily rice height from satellite vegetation indices and sparse field measurements \cite{yang2022ricepf,shimda2026bayesianheight}. A Kalman tracker has also been combined with a maize seedling detector for counting \cite{li2022kalman}, while Bayesian adaptive sampling has been applied to affordable time-lapse germination phenotyping \cite{mercier2025bayesian}. We therefore make no broad claim for the first use of Bayesian methods, temporal tracking, or a prior in plant phenotyping. The distinguishing contribution examined here is the specific coupling of a running plant-position state for current-image association, a plant-specific Bayesian height-growth distribution, physical calibration, and as-of uncertainty reporting. In the field implementation, the running position state guides association and base-position refinement. The stronger use of a predicted height distribution to choose among competing top candidates is evaluated as a controlled component in simulation. This distinction keeps the claim aligned with the executed evidence.
+
+The study integrates three elements for longitudinal field phenotyping. First, it uses in-scene physical references and recorded camera geometry, with separate definitions for 2021 camera-support poles and 2024--2025 red-band calibration poles. Second, it performs sequential, outlier-robust Bayesian updating and computes next-image predictive intervals from the full particlewise mixture rather than a Gaussian approximation. Third, it defines online operation as an as-of update: when a new image is appended, the algorithm analyzes the available image prefix and emits an as-of measurement after processing that image; later observations join the pool only when they arrive. The methodological novelty lies in placing a plant-specific Bayesian height-growth distribution inside this longitudinal image-analysis loop, while restricting each empirical claim to the component with an available reference. We evaluate held-out pole bands for calibration, image annotations for detection, simulated latent trajectories for candidate ambiguity, and all available 2021 plant-date field measurements for physical-height agreement.
+
+\section{Results}
+
+\subsection{Physical calibration and extrapolation}
+
+The alternating-band experiment produced a camera-cluster mean absolute error of \PoleDevMAEIn{} in (95\% camera-bootstrap interval, \PoleDevMAELoIn{}--\PoleDevMAEHiIn{}) in 2024 development cameras and \PoleTestMAEIn{} in (\PoleTestMAELoIn{}--\PoleTestMAEHiIn{}) in locked 2025 cameras (Table~\ref{tab:calibration}; Figure~\ref{fig:calibration}). The locked interval overlaps the development interval, which argues against a large year-specific failure but does not establish equivalence with only three test cameras.
+
+Correctly directed root extrapolation showed little aggregate signed bias but increasing dispersion with distance below the fitted bands. At 1 ft below the retained range, \DownOneBandN{} predictions from \DownOneBandCameras{} cameras had an unweighted camera-mean bias of \DownOneBandCameraBiasCm{} cm, mean absolute error of \DownOneBandCameraMAECm{} cm (95\% camera-bootstrap interval, \DownOneBandCameraMAELoCm{}--\DownOneBandCameraMAEHiCm{}), and root mean squared error of \DownOneBandCameraRMSECm{} cm. Across all 1--3-ft distances, unweighted camera-mean absolute error rose to \DownAllCameraMAECm{} cm (\DownAllCameraMAELoCm{}--\DownAllCameraMAEHiCm{}) and root mean squared error to \DownAllCameraRMSECm{} cm. One development camera contributed only five usable images and had much larger 3-ft error, visible in Figure~\ref{fig:calibration}; this is a failure condition rather than evidence for broadly reliable extrapolation.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{calibration_validation.pdf}
+\caption{Camera-level physical-calibration validation. (a) Alternating-band interpolation mean absolute error for each 2024 development camera (D) and locked 2025 camera (T); diamonds and vertical intervals are unweighted year means and 95\% whole-camera bootstrap intervals. (b) Mean signed error and (c) mean absolute error when lower bands are dropped, the retained upper bands are fit, and positions 1--3 ft below the fitted range are predicted. Thin lines are cameras; thick lines and intervals are unweighted camera means and whole-camera bootstrap intervals. D6, marked with an asterisk, has only five usable images. Individual bands are automatic candidates; the inferential unit is the camera.}
+\label{fig:calibration}
+\end{figure}
+
+\begin{table}[htbp]
+\caption{Held-out calibration performance. Interpolation intervals resample whole cameras. Root-direction rows give unweighted means of camera-level error summaries from the correctly directed upper-to-lower experiment.}
+\label{tab:calibration}
+\centering
+\begin{tabular}{lrrrrr}
+\toprule
+Experiment & Cameras & Predictions & Bias & MAE & RMSE \\
+ & & & \multicolumn{3}{c}{Physical error} \\
+\midrule
+2024 alternating bands & \PoleDevCameras & \PoleDevN & -- & \PoleDevMAEIn{} in & -- \\
+2025 alternating bands & \PoleTestCameras & \PoleTestN & -- & \PoleTestMAEIn{} in & -- \\
+1 ft below fitted range & \DownOneBandCameras & \DownOneBandN & \DownOneBandCameraBiasCm{} cm & \DownOneBandCameraMAECm{} cm & \DownOneBandCameraRMSECm{} cm \\
+1--3 ft below fitted range & \DownAllCameras & \DownAllN & \DownAllCameraBiasCm{} cm & \DownAllCameraMAECm{} cm & \DownAllCameraRMSECm{} cm \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Prior-guided candidate selection}
+
+In the controlled ambiguity experiment, the single-frame rule had plant-level height root mean squared error \PriorNoneRMSE{} cm (95\% plant-bootstrap interval, \PriorNoneRMSELo{}--\PriorNoneRMSEHi{}), and post-detection filtering reduced it to \PriorPostRMSE{} cm (\PriorPostRMSELo{}--\PriorPostRMSEHi{}). Allowing the predictive height distribution to score candidates before the update reduced it further to \PriorInsideRMSE{} cm (\PriorInsideRMSELo{}--\PriorInsideRMSEHi{}; Figure~\ref{fig:priorsim}). The paired reduction relative to post-detection filtering was \PriorVsPostGain{} cm (95\% interval, \PriorVsPostGainLo{}--\PriorVsPostGainHi{}). Prior-guided selection chose the truth-closest candidate \PriorTruthSelectionRate{}\% of the time. Benefits varied by simulated condition and were smallest when images were missing or growth plateaued early. This experiment establishes the candidate-choice mechanism under known ambiguity; it is not a claim that the same effect size occurred in the field data.
+
+In the matched real-image audit, post-detection filtering and height-prior candidate scoring selected the same candidate in \RealAuditAgreement{}\% of \RealAuditN{} evaluated plant-dates. Their mean absolute errors were therefore identical at \RealAuditPostMAE{} cm, compared with \RealAuditSingleMAE{} cm for the single-frame candidate. The natural-image subset contained no candidate-choice conflict under the prespecified gates, so this audit is a negative control rather than evidence for a field accuracy gain from candidate re-ranking.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{prior_in_detection_sim.pdf}
+\caption{Controlled candidate-ambiguity experiment with \PriorSimulationPlants{} simulated plants across \PriorSimulationScenarios{} scenarios. (a) Mean plant-level root mean squared error with 95\% plant-bootstrap intervals. (b) Within-scenario reduction relative to post-detection filtering; points are means across 60 plants and bars are normal 95\% intervals across plants. Positive values favor prior-guided candidate selection. (c) Percentage of frames in which prior-guided scoring selected the candidate closest to the known latent height. Every method saw the same candidates and used the same state dynamics; only the location at which the prior acted differed.}
+\label{fig:priorsim}
+\end{figure}
+
+\subsection{Predictive uncertainty transferred across years}
+
+Exact mixture-based predictive evaluation materially changed the interpretation of uncertainty (Table~\ref{tab:uncertainty}). Guessed noise settings covered \GuessedCoverage{}\% of next image-derived measurements with a mean 95\% width of \GuessedWidth{} cm. After the depth correction was applied to every centimeter-scale noise quantity, the 2024-derived model covered \CalibratedCoverage{}\% with a \CalibratedWidth{}-cm mean width over the full stream. On the held-out 2025 subset, coverage was \UncertaintyTestCoverageNinetyFive{}\% with a \UncertaintyTestWidthNinetyFive{}-cm mean width across \UncertaintyTestN{} forecasts from \UncertaintyTestCameras{} cameras. Its weighted interval score was \UncertaintyTestWIS{} cm. Lower nominal levels remained conservative (Supplementary Figure S3), so the near-nominal 95\% result should not be interpreted as complete distributional calibration. The calibrated Bayesian predictive mean had mean absolute error \ForecastBayesMAE{} cm and root mean squared error \ForecastBayesRMSE{} cm, compared with \ForecastLastMAE{}/\ForecastLastRMSE{} cm for the last observation carried forward and \ForecastLinearMAE{}/\ForecastLinearRMSE{} cm for two-point linear extrapolation. These comparisons target the next noisy image measurement, not manual physical height.
+
+The separate 2021 posterior intervals contained \FieldCovered{} of \FieldN{} manual heights (\FieldCoverage{}\%) and averaged \FieldIntervalWidth{} cm wide. The corresponding endpoint figures were \FieldEndpointCovered{} of \FieldEndpointN{} (\FieldEndpointCoverage{}\%) with a \FieldEndpointIntervalWidth{}-cm mean width. Reporting coverage and width together shows that agreement was obtained with substantial uncertainty.
+
+\begin{table}[htbp]
+\caption{Uncertainty evaluations with distinct targets. Predictive intervals are formed before the next image-derived measurement; posterior intervals are formed after the current 2021 image and compared with manual field height.}
+\label{tab:uncertainty}
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{3.0cm}p{3.5cm}rrrr}
+\toprule
+Target & Configuration & $n$ & Clusters & Coverage (\%) & Mean width (cm) \\
+\midrule
+Next image-derived measurement & Guessed noise, all years & \PoleStreamForecasts & \PoleStreamCameras & \GuessedCoverage & \GuessedWidth \\
+Next image-derived measurement & 2024-derived, all years & \PoleStreamForecasts & \PoleStreamCameras & \CalibratedCoverage & \CalibratedWidth \\
+Next image-derived measurement & 2025 held-out test & \UncertaintyTestN & \UncertaintyTestCameras & \UncertaintyTestCoverageNinetyFive & \UncertaintyTestWidthNinetyFive \\
+2021 manual plant height & Posterior agreement interval & \FieldN & \FieldRows{} rows & \FieldCoverage & \FieldIntervalWidth \\
+2021 manual endpoint height & Posterior agreement interval & \FieldEndpointN & \FieldRows{} rows & \FieldEndpointCoverage & \FieldEndpointIntervalWidth \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Prefix updates reproduced exactly}
+
+All \CausalPrefixes{} camera-time prefix recomputations matched the corresponding rows of the complete run, with \CausalMismatches{} mismatches among \CausalRows{} cumulative row comparisons. This verifies prefix invariance for the cached detection-to-measurement pipeline under fixed settings. It does not show that model development occurred prospectively, and it does not cover raw-image detector training. Sequential position updating associated \SequentialMatches{} detections, compared with \FrozenMatches{} under frozen first-frame anchors, and reduced mean normalized association distance from \FrozenTrackDistance{} to \SequentialTrackDistance{}. Because 2024--2025 manual plant heights are unavailable, these association results should be read as operational diagnostics rather than physical-height accuracy.
+
+\subsection{Detector and field-height agreement}
+
+Five-fold detector validation matched \PixelMatched{} of \PixelInstances{} human masks (\PixelDetectionRate{}\%). The top keypoint was more difficult than the root (mean errors \PixelTopMAEPx{} and \PixelRootMAEPx{} pixels). Predicted vertical extent had an error of \PixelHeightMAEPx{} pixels, corresponding under the recorded 2021 geometric scale to mean absolute error \PixelHeightMAECm{} cm, signed error +\PixelHeightBiasCm{} cm, and root mean squared error \PixelHeightRMSECm{} cm; correlation with human mask extent was \PixelHeightCorr{}. These values replace the earlier centimeter conversion that had been fit using field height. They measure agreement with a human mask extent, not an independently clicked agronomic collar.
+
+Across all \FieldN{} 2021 field records, the single-frame image extent had signed error +\FieldSingleBias{} cm, mean absolute error \FieldSingleMAE{} cm, and root mean squared error \FieldSingleRMSE{} cm. The robust Bayesian posterior mean had corresponding values +\FieldBayesBias{}, \FieldBayesMAE{}, and \FieldBayesRMSE{} cm (Table~\ref{tab:field}; Figure~\ref{fig:field}). It had the lowest point-estimate error among the five fixed causal comparison methods. The paired mean-absolute-error reduction relative to the single frame was \FieldMAEGain{} cm (95\% row-cluster bootstrap interval, \FieldMAEGainLo{} to \FieldMAEGainHi{}), and relative to the Gaussian local-linear Kalman filter it was \FieldGaussianGain{} cm (\FieldGaussianGainLo{} to \FieldGaussianGainHi{}). Both intervals include zero, so the observed advantage over the strongest comparators is modest and uncertain at this pilot scale. At the last observation for each plant, mean absolute error changed from \FieldEndpointSingleMAE{} to \FieldEndpointBayesMAE{} cm; these endpoint values are secondary sensitivity results.
+
+\begin{table}[htbp]
+\caption{All-plants agreement with 2021 manual field height. Every method is causal in image order and uses fixed settings that were not tuned on manual height. The primary analysis includes every one of the \FieldN{} available plant-date records. Paired intervals in the text resample the \FieldRows{} field rows.}
+\label{tab:field}
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+Estimator & $n$ & Signed error (cm) & MAE (cm) & RMSE (cm) \\
+\midrule
+Single-frame image extent & \FieldN & +\FieldSingleBias & \FieldSingleMAE & \FieldSingleRMSE \\
+EWMA ($\alpha=0.5$) & \FieldN & \FieldEWMABias & \FieldEWMAMAE & \FieldEWMARMSE \\
+Running median (3 images) & \FieldN & \FieldMedianBias & \FieldMedianMAE & \FieldMedianRMSE \\
+Holt level--trend & \FieldN & \FieldHoltBias & \FieldHoltMAE & \FieldHoltRMSE \\
+Gaussian local-linear Kalman & \FieldN & +\FieldGaussianBias & \FieldGaussianMAE & \FieldGaussianRMSE \\
+Robust Bayesian particle filter & \FieldN & +\FieldBayesBias & \FieldBayesMAE & \FieldBayesRMSE \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{field_validation_2021.pdf}
+\caption{All-plants 2021 field validation. (a,b) Single-frame and Bayesian estimates against manual height for all \FieldN{} records; dashed lines mark equality. (c) Within-plant difference in mean absolute error, ordered by single-frame error; negative values favor the Bayesian estimate. (d--f) Trajectories selected by the fixed 10th-, 50th-, and 90th-percentile rule on within-plant benefit, illustrating harm, median behavior, and benefit without residual-based exclusion. Shading is the 95\% latent-height posterior interval. The primary paired uncertainty is the row-cluster bootstrap interval reported in panel c and Table~\ref{tab:field}.}
+\label{fig:field}
+\end{figure}
+
+\section{Discussion}
+
+This study develops a physically interpretable route from an accumulating longitudinal fixed-camera image stream to an as-of plant-height distribution after each image. The key methodological contribution is the coupling: a running plant-position state informs current association and base refinement; physical references convert image extent to centimeters; and a robust particle filter propagates the plant-specific height-growth distribution and its uncertainty. Prior field-maize systems have reused earlier locations for later segmentation and height extraction \cite{gao2022individual,li2023multisource}, and plant vision has used Kalman tracking \cite{li2022kalman}. The contribution is therefore this particular integration and its explicit uncertainty audit rather than priority for temporal guidance itself.
+
+The evidence is strongest for component behavior and weakest for a large field accuracy gain. Held-out red-band interpolation transferred from six development cameras to three locked cameras with sub-inch error. The root-direction experiment also revealed why interpolation accuracy cannot be extrapolated casually: errors widened rapidly as the predicted point moved below the fitted band range, and one camera was particularly unstable. The candidate simulation showed that a height prior can prevent a confident but implausible candidate from entering the filter. The real-image audit, however, produced identical candidate choices for the two temporal methods. The height-prior candidate mechanism therefore remains demonstrated under controlled ambiguity rather than confirmed as a field advantage.
+
+The all-plants 2021 comparison provides a realistic scale for the current longitudinal benefit. Mean absolute error decreased by about 1 cm relative to a single frame and by 0.66 cm relative to a Gaussian local-linear Kalman filter, but both row-cluster intervals included no improvement. The result does not support a claim that longitudinal Bayesian filtering uniformly improves height. It does show that the robust particle filter achieved the best point estimate across a broader set of causal baselines without manual-height tuning. All records are shown, errors are expressed in centimeters, and residual-based exclusions are absent from the primary analysis.
+
+Uncertainty is similarly transparent. Applying the depth conversion to the observation, process, and outlier scales corrected a consequential unit mismatch. With parameters estimated from 2024 only, 95\% coverage was 94.9\% on the held-out 2025 stream with a 97.8-cm mean width, while 50\%, 80\%, and 90\% intervals overcovered. Coverage and sharpness together therefore describe a conservative distribution rather than proving perfect calibration. Repeated same-time images, direct uncertainty labels, or a hierarchical design are needed to separate measurement and biological variation and narrow intervals without losing coverage.
+
+Several limitations determine the next experiments. First, the 2021 physical-height study contains only 33 plants in 12 rows, the 2025 interval test contains 372 forecasts from two sequential cameras, and the calibration test contains three cameras. Second, the 2024--2025 stream has no paired manual plant heights, while the 2021 comparison uses an archived segmentation extent and an externally learned growth field. This split validates components but not a single end-to-end system on an independent year. Third, the existing masks define the highest and lowest visible plant pixels; two independent readers have not yet completed the released protocol for the agronomic top, collar, flag leaf, and root landmarks on the \ManualPoleImages{} images. Fourth, the depth ratio assumes known distances, level ground, negligible roll, and stable camera geometry. Fifth, the released checkpoint permits inference on the curated images, but its complete original training provenance remains only partially documented.
+
+A publication-scale confirmation should freeze the detector, physical calibration, growth field, noise settings, and candidate gates on a development year; acquire an independent camera-year with paired plant and pole annotations; compare prior-in-image selection with the same detector followed by post-hoc filtering; and report camera- or row-cluster intervals for both accuracy and coverage. The present results justify that study and provide an auditable implementation, while the observed field improvement and interval width set realistic benchmarks for it.
+
+\section{Materials and Methods}
+
+\subsection{Experimental and technical design}
+
+Figure~\ref{fig:workflow} shows the information flow. Let $\mathcal I_{\leq t}$ be the images available through acquisition time $t$. The image arriving at $t$ is appended to this pool; the running position state from $t-1$ guides association, while the height-growth posterior is propagated before the new measurement is incorporated; detected top and base rows are converted to centimeters; and the updated height-growth posterior is returned. An image acquired after $t$ is absent from this computation. This is the operational meaning of \emph{online} used throughout the paper. The available data were analyzed retrospectively, so we call the evaluation a retrospective validation of a prefix-causal algorithm rather than a historical prospective deployment. Hyperparameters and growth-field estimates must be frozen from development or external data before future prospective use.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{online_bayesian_workflow.pdf}
+\caption{Workflow for the as-of image update. Solid blue stages are executed in the field pipeline: running position state, current detection and association, base-position refinement, physical conversion, and robust Bayesian height-growth update. The dashed amber candidate-scoring branch uses the predicted height distribution to choose among alternative top candidates and is evaluated only in the controlled simulation. At time $t$, only $\mathcal I_{\leq t}$ is available; with settings fixed, a later image starts a new update and does not alter an earlier output.}
+\label{fig:workflow}
+\end{figure}
+
+The study contains linked data sets with different roles (Table~\ref{tab:design}). The 2024 development and 2025 locked-test pole images evaluate calibration. A quality-controlled subset also supplies a daily image-derived plant stream for prequential uncertainty checks. The 2021 field data provide manual heights on five dates and an archived single-frame segmentation extent for all available plant-date records. A separate set of 2021 annotated images supports out-of-fold detector validation. The newly curated 2021 support-pole annotations document the physical installation and provide a fixed asset for future paired plant annotation; they are not treated as the red-band calibration poles.
+
+\begin{table}[htbp]
+\caption{Data sources, physical references, and inferential roles. Counts are reported at the unit used in each analysis.}
+\label{tab:design}
+\centering
+\small
+\begin{tabular}{p{2.1cm}p{3.0cm}p{4.2cm}p{4.1cm}}
+\toprule
+Data set & Units & Physical or annotation reference & Role \\
+\midrule
+2021 field heights & \FieldN{} records; \FieldPlants{} plants; \FieldRows{} rows; \FieldDates{} dates & Manual height and geometrically scaled image extent & All-plants physical-height agreement \\
+2021 detector set & \PixelImages{} images; \PixelInstances{} masks & Highest and lowest pixels of each human mask & Five-fold out-of-image detection agreement \\
+2021 support poles & \ManualPoleXMLFiles{} XML files; \ManualPoleImages{} retained images; \ManualPoleAnnotations{} traces & Nominal \SupportPoleLengthFt{}-ft support pole; ground contact to camera mount/optical-center height & Installation definition and annotation resource \\
+2024 pole development & 7 installed cameras; \PoleDevCameras{} usable in held-out validation & Red bands spaced 1 ft edge-to-edge & Calibration development and noise estimation \\
+2025 locked test & 3 installed and usable calibration cameras & Same red-band definition & Locked cross-camera/year calibration test \\
+Quality-controlled sequential stream & \PoleStreamRows{} records; \PoleStreamPlants{} tracks; \PoleStreamCameras{} cameras; \PoleStreamImages{} images & Red-band calibration and camera geometry & Next-image prediction and interval evaluation \\
+Candidate-ambiguity simulation & \PriorSimulationPlants{} plants in \PriorSimulationScenarios{} scenarios & Known latent height and correct candidate & Mechanism comparison with plant-cluster inference \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Physical references and geometry}
+
+The 2021 XML files contain labels \texttt{pole1} through \texttt{pole4}. Each label identifies a different stationary-camera support pole visible in that image; the number does not encode depth. The annotated vertical segment runs from ground contact to the nominal camera mounting or optical-center height, \SupportPoleLengthFt{} ft (\SupportPoleLengthCm{} cm). The field records also contain four horizontal layout intervals of \FieldMarkIntervalIn{} in, totaling \AdjacentRowSpacingIn{} in between adjacent rows. These horizontal marks are not tick marks on the support poles. The confirmed duplicate \texttt{C-039\_2021-07-30JPG.JPG} was removed while \texttt{C-039\_2021-07-30.JPG} was retained. The updated curated set has \ManualPoleImages{} unique XML-referenced images, \ManualPoleUsable{} usable traces, and \ManualPoleUnusable{} traces marked unusable (Figure~\ref{fig:supportpole}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{pole_annotation_2021.pdf}
+\caption{Representative 2021 camera-support-pole annotations in \texttt{C-039\_2021-07-30.JPG}. Blue traces were marked usable and the orange trace unusable in the source XML. Circles denote ground contact and triangles the nominal camera mounting or optical-center height. Each traced support pole has a documented physical length of \SupportPoleLengthCm{} cm. The inset shows the full retained image and crop boundary. The \FieldMarkIntervalIn{}-in field marks recorded for this installation describe horizontal row layout and are not vertical pole graduations.}
+\label{fig:supportpole}
+\end{figure}
+
+The 2024--2025 reference is a different object: an approximately 8--10-ft vertical calibration pole with red bands separated by 1 ft (30.48 cm), measured edge-to-edge. Its visible bottom is not assumed to be ground. Candidate band rows $y_j$ are assigned relative heights $z_j$, and a projective map is fit within each accepted reference image,
+\begin{equation}
+z(y)=\frac{a u+b}{c u+1}, \qquad u=\frac{y-\bar y}{s_y}.
+\label{eq:calibration}
+\end{equation}
+Fits are rejected for insufficient bands, excessive line or height residuals, irregular spacing, nonmonotonicity, or a near-singular denominator. Because plant height is the difference between the mapped top and base rows, the arbitrary height datum cancels.
+
+Recorded 2024--2025 geometry gives a camera height of 5.0 ft, camera-to-plant-row distance $D_{\mathrm{tgt}}=8.5$ ft, and camera-to-reference distance $D_{\mathrm{ref}}=10.0$ ft. Under a pinhole camera, negligible roll, and a shared level ground plane,
+\begin{equation}
+y-y_{\mathrm{horizon}}=f_{\mathrm{px}}\frac{H-z}{D}.
+\label{eq:pinhole}
+\end{equation}
+Subtracting Equation~\ref{eq:pinhole} at the top and base shows that an extent calibrated at the pole depth is converted to the target depth by
+\begin{equation}
+h_{\mathrm{target}}=\frac{D_{\mathrm{tgt}}}{D_{\mathrm{ref}}}h_{\mathrm{pole}}=0.85h_{\mathrm{pole}}.
+\label{eq:depth}
+\end{equation}
+Equation~\ref{eq:depth} is exact under the stated projection assumptions; uncertainty in distance, tilt, relief, lens distortion, wind, and maintenance remains empirical error. The 2021 single-frame height uses the separately documented camera geometry, 10.25 ft to the target row with a 4.5-mm focal length, 6.17-mm sensor width, and 1030-pixel stored field of view, giving \PixelCmPerPx{} cm/pixel with zero intercept.
+
+\subsection{Image measurements and prior-guided longitudinal association}
+
+For the 2024--2025 stream, a YOLOv8-pose model produces candidate plant instances with top and root keypoints. The first complete frame initializes six left-to-right tracks. At each later frame, observed root positions are matched to running track positions by minimum total horizontal distance, subject to a maximum normalized distance of 0.16. The track position and root row are then updated with a fixed gain of 0.5. The state carried from preceding images therefore guides current association and base refinement. The sequential configuration associated \SequentialMatches{} detections and recovered \SequentialExtraMatches{} associations relative to frozen first-frame anchors; it changed the root used in the physical extent for \PosteriorRootChanged{} matched records. This recursion has the form of an exponentially weighted moving average, or a steady-state Kalman update with fixed gain. The deployed assembler does not estimate position covariance and is not a fully Bayesian neural network.
+
+The 2021 all-plants comparison uses the archived per-image segmentation extent \texttt{height\_sam}, multiplied by the recorded geometric scale. Manual field height is used only for scoring. The separate detector validation derives two keypoints from each human mask: the uppermost plant pixel and the lowermost plant pixel. This is an operational mask-extent definition, not an independently annotated flag-leaf collar. Five image-level folds were formed; a YOLOv8n-pose model was trained for 100 epochs on the other folds and evaluated on images that did not contribute to its training.
+
+The height-prior candidate component was isolated in simulation. Each current image supplied one correct candidate with Gaussian error and, with probability \PriorSpuriousProbability{}, a competing high-confidence candidate displaced 25--60 cm upward or downward. Three estimators saw identical candidate sets: the highest-confidence single-frame candidate; the same candidate stream followed by a particle filter; and prior-in-detection selection, which maximized detector confidence times the predictive height density before filtering. Only the location at which the prior acted differed. A complementary real-image audit used the same cached YOLO candidates, fixed geometric scale, association gates, and downstream particle filter for both temporal methods. Human-mask root positions initialized tracks only in the first available image, and manual field heights were used only for scoring. This audit comprised \RealAuditN{} plant-dates from \RealAuditTracks{} tracks and \RealAuditCameras{} cameras.
+
+\subsection{Bayesian filtering of longitudinal height and growth}
+
+We use \emph{filtering} in the state-space sense: after image $t$ is processed, the target is $p(h_t,r_t\mid Y_{1:t})$, the current height-growth distribution conditional on measurements available through $t$. This is distinct from spatial image filtering or denoising and from retrospective smoothing, which would use later measurements $Y_{t+1:T}$ to revise an earlier state.
+
+For a plant observed at irregular interval $\Delta_t$, the latent height $h_t$ and growth rate $r_t$ follow
+\begin{align}
+h_t &= h_{t-1}+\Delta_t r_{t-1}+\eta_t, & \eta_t&\sim N(0,\sigma_h^2\Delta_t), \\
+r_t &= r_{t-1}+\zeta_t, & \zeta_t&\sim N(0,\sigma_r^2\Delta_t),
+\label{eq:state}
+\end{align}
+with $h_t$ truncated to $[0,450]$ cm and $r_t$ to $[-4,15]$ cm/day. The lower growth bound permits short apparent decreases rather than forcing an irreversible monotone ratchet. The image-derived measurement $Y_t$ has a robust two-component likelihood,
+\begin{equation}
+p(Y_t\mid h_t)=(1-\pi)\,\phi(Y_t;h_t,\sigma_t^2)+\pi\,\phi(Y_t;h_t,\sigma_{\mathrm{out}}^2),
+\label{eq:mixture}
+\end{equation}
+where $\sigma_t$ combines a base pose term, pole-fit residual, out-of-range distance, and band-regularity term. A bootstrap particle filter with 5000 particles propagates, weights, and resamples the state when effective sample size falls below half the particle count \cite{gordon1993particle}.
+
+Two interval targets are kept separate. A posterior interval summarizes uncertainty in latent height after image $t$ has been incorporated. A one-step predictive interval is formed before $Y_t$ is observed and targets the next image-derived measurement. If predicted height particles are $h_t^{(m)}$ with weights $w_m$, its cumulative distribution is
+\begin{equation}
+F_t(y)=\sum_m w_m\left[(1-\pi)\Phi\!\left(\frac{y-h_t^{(m)}}{\sigma_t}\right)+\pi\Phi\!\left(\frac{y-h_t^{(m)}}{\sigma_{\mathrm{out}}}\right)\right].
+\label{eq:predictive}
+\end{equation}
+The 0.025 and 0.975 quantiles are obtained by numerical inversion of Equation~\ref{eq:predictive}. This replaces the earlier Gaussian variance approximation, which did not preserve the outlier-mixture tails.
+
+The daily 2024 development increments set $\sigma_h=\ProcessHeightSD{}$ cm/$\sqrt{\mathrm{day}}$, $\pi=\OutlierProbability{}$, and $\sigma_{\mathrm{out}}=\OutlierSD{}$ cm from a robust median/median-absolute-deviation core-tail split over \CalibrationIntervals{} within-track intervals. Height, measurement standard deviation, process scale, and outlier scale are all expressed after the same 0.85 pole-to-target depth conversion. These values combine process and measurement variation because one observation per plant-time cannot identify those components separately. A comparison run retains the prespecified guessed values 1.5 cm/$\sqrt{\mathrm{day}}$, 0.08, and 60 cm, also expressed in target-row units. No 2025 observation enters the empirical noise estimates.
+
+For the 2021 external field comparison, the per-image observation standard deviation ranges from 12 to 30 cm with recorded daily wind, and the process-height scale is estimated from image increments without manual height. A nonparametric growth-rate field $\hat r(h)$ is learned from 2024--2025 pole-stream increments and transferred to 2021. No 2021 manual height enters the single-frame measurement, growth field, filter, or noise parameters. This use of later-year development data makes the exercise retrospective cross-year validation, while each 2021 update remains prefix-causal within its image sequence.
+
+\subsection{Validation and statistical analysis}
+
+Physical calibration was evaluated by fitting alternating 1-ft automatically detected red bands and predicting the withheld bands. Cameras, rather than band records, were the sampling units for bootstrap intervals. Six 2024 cameras formed the development set and three 2025 cameras were locked until the procedure was fixed. Root-direction extrapolation was evaluated separately: the lowest bands were removed, Equation~\ref{eq:calibration} was fit only to the retained upper bands, and positions 1--3 ft below the fitted range were predicted. This direction matches plant-base use; the reverse lower-to-upper experiment is not described as root extrapolation. The automatic band candidates still require a documented human spot check before these results are treated as confirmatory calibration validation.
+
+Detector agreement was summarized by detection rate, keypoint error, height-extent error, and correlation in five-fold cross-fitting. The candidate-ambiguity simulation used 60 plants in each of eight misspecified growth and observation scenarios. Mean plant-level root mean squared errors and their 95\% intervals were calculated by 20,000 plant bootstrap replicates. The real-image candidate audit resampled whole cameras. Predictive uncertainty was evaluated at 50\%, 80\%, 90\%, and 95\% levels, together with logarithmic score and weighted interval score; the 2024-derived settings were evaluated separately on the untouched 2025 stream. The all-plants field analysis retained every available 2021 record and compared the robust particle filter with the single-frame extent, an exponentially weighted mean, a three-image running median, a fixed Holt level-trend smoother, and a Gaussian local-linear Kalman filter. Comparator settings were fixed without manual-height tuning. Paired mean-absolute-error differences were bootstrapped 20,000 times by resampling the 12 field rows and preserving their internal dependence. Endpoint and previously residual-screened analyses are reported only as sensitivity analyses in the Supplementary Materials.
+
+Prefix causality was tested by rerunning every camera-time prefix and comparing all values already emitted with the corresponding rows from the complete run. The audit covered \CausalPrefixes{} prefixes and \CausalRows{} cumulative row comparisons.
+
+\subsection{Reproducibility}
+
+The public source package includes analysis scripts, fixed seeds, tabular outputs, all 61 curated 2021 pole-calibration images, 12 XML pole files, the released 2021 pose checkpoint with its SHA-256 checksum, a complete candidate cache for those images, annotation sheets for two independent readers, figure sources, and manuscript source. Headline numbers are regenerated from canonical comma-separated-value or JavaScript Object Notation outputs rather than transcribed. The daily 2024--2025 raw-image archive remains too large for this release, so its published analyses start from checksum-identified derived measurements.
+
+\section*{Acknowledgments}
+
+\subsection*{General}
+We thank the Schnable Laboratory and the Plant Sciences Institute at Iowa State University for the stationary-camera imaging system, installation records, and field data.
+
+\subsection*{Author Contributions}
+Author contribution roles will be confirmed by all authors and entered before submission.
+
+\subsection*{Funding}
+This work was supported by the Plant Sciences Institute, Iowa State University. Grant numbers and awardees, if applicable, will be added before submission.
+
+\subsection*{Conflicts of Interest}
+The authors declare that there is no conflict of interest regarding the publication of this article.
+
+\subsection*{Data Availability}
+Analysis code, the 61 curated 2021 images, 12 support-pole XML files, the released pose checkpoint, candidate predictions, derived data, independent-annotation packet, figure sources, and manuscript source are available in the \href{https://github.com/ChongWangStat/Bayesian-Longitudinal-Maize-Height}{public GitHub repository}. The repository includes explicit code and data licenses and a SHA-256 manifest. The larger 2024--2025 raw-image archive remains in institutional storage; checksum-identified derived measurements needed for the reported analyses are public.
+
+\subsection*{Declaration of Generative AI Use}
+Generative AI tools (Claude, Anthropic, and Codex, OpenAI) assisted data exploration, code review, figure and manuscript preparation, and language editing under direct author supervision. All numerical results were produced by the included analysis code, and the authors take responsibility for the design, verification, interpretation, and final text.
+
+\section*{Supplementary Materials}
+Materials and Methods S1. Detailed model, causal-update, calibration, and reproducibility specification. Figure S1. Pinhole geometry and reference-to-target depth correction. Figure S2. Example posterior trajectories. Figure S3. Multi-level predictive-interval calibration. Table S1. Full parameter and implementation specification. Table S2. Predictive-interval calibration. Table S3. Real-image candidate audit. Table S4. Per-plant mature-date field comparison. Table S5. Data and result provenance. Data S1. Curated 2021 images and support-pole annotations. Data S2. Two-reader plant-landmark packet. Data S3. Canonical derived outputs and audit files. A separate Supplementary Materials PDF accompanies this manuscript.
+
+\printbibliography
+\end{document}

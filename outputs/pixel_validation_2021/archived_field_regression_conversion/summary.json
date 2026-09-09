@@ -1,0 +1,19 @@
+{
+  "n_images": 30,
+  "n_gt_instances": 150,
+  "n_matched": 149,
+  "detection_rate": 0.9933333333333333,
+  "height_mae_px": 29.50079284258337,
+  "height_bias_px": 9.3747917021681,
+  "height_rmse_px": 38.26437358955731,
+  "height_corr": 0.8372056596657653,
+  "height_mae_cm": 12.577054117567403,
+  "height_bias_cm": 3.996748941909624,
+  "height_rmse_cm": 16.313225884424607,
+  "top_kpt_mae_px": 28.316325972709375,
+  "root_kpt_mae_px": 18.197148402822013,
+  "n_folds": 5,
+  "epochs": 100,
+  "imgsz": 640,
+  "seed": 20210806
+}

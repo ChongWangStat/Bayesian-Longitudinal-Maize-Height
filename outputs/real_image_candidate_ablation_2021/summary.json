@@ -1,0 +1,46 @@
+{
+  "design": {
+    "cameras": 6,
+    "plant_tracks": 17,
+    "plant_dates": 63,
+    "physical_scale_cm_per_pixel": 0.415886,
+    "manual_height_used_for_tuning": false,
+    "initial_root_anchors": "human-mask root positions from the first available image",
+    "bootstrap_cluster": "camera",
+    "bootstrap_replicates": 20000,
+    "seed": 20260909
+  },
+  "selection_agreement": 1.0,
+  "metrics": [
+    {
+      "method": "Single frame",
+      "n": 63,
+      "bias_cm": -9.549906376944412,
+      "mae_cm": 13.383981799980047,
+      "rmse_cm": 18.005861907235065
+    },
+    {
+      "method": "Identical candidates plus post-detection filter",
+      "n": 63,
+      "bias_cm": -9.272055844924466,
+      "mae_cm": 13.074152719256212,
+      "rmse_cm": 17.71669889781884
+    },
+    {
+      "method": "Height prior in candidate scoring plus identical filter",
+      "n": 63,
+      "bias_cm": -9.272055844924466,
+      "mae_cm": 13.074152719256212,
+      "rmse_cm": 17.71669889781884
+    }
+  ],
+  "post_filter_vs_prior_guided": {
+    "left_minus_right_mae_cm": 0.0,
+    "ci95_cm": [
+      0.0,
+      0.0
+    ],
+    "bootstrap_probability_gt_zero": 0.0
+  },
+  "interpretation": "The natural images did not contain a candidate-choice conflict under the prespecified gates: both temporal methods selected the same candidate. The real-image result is therefore a negative control, not evidence of an accuracy gain."
+}

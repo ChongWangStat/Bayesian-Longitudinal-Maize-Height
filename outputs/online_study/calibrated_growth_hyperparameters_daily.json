@@ -1,0 +1,12 @@
+{
+  "development_year": 2024,
+  "height_column": "depth_corrected_height_cm",
+  "n_weekly_intervals": 1172,
+  "n_core": 1112,
+  "n_outlier": 60,
+  "nominal_interval_days": 1.0,
+  "process_height_sd_cm_sqrt_day": 16.866,
+  "outlier_probability": 0.0512,
+  "outlier_sd_cm": 70.62,
+  "note": "process_height_sd_cm_sqrt_day is a combined process+measurement one-step noise scale, not a pure biological growth-rate variance; the two are not separately identified from one image per camera per week. Calibrated on development-year data only; never touches the locked test-year cameras."
+}

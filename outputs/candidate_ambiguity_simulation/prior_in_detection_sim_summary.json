@@ -1,0 +1,46 @@
+{
+  "seed": 20260724,
+  "bootstrap_seed": 20260823,
+  "bootstrap_replicates": 20000,
+  "plants": 480,
+  "scenarios": 8,
+  "spurious_candidate_probability": 0.3,
+  "truth_closest_selection_rate": 0.9702546296296296,
+  "plant_cluster_bootstrap": {
+    "single_frame_rmse_cm": {
+      "mean": 10.482263940348881,
+      "ci95": [
+        9.83522514653425,
+        11.133532509734103
+      ]
+    },
+    "post_hoc_rmse_cm": {
+      "mean": 8.606177230629477,
+      "ci95": [
+        8.072476542852447,
+        9.159378904527808
+      ]
+    },
+    "prior_in_detection_rmse_cm": {
+      "mean": 6.009957231137421,
+      "ci95": [
+        5.465068921918757,
+        6.573503973884582
+      ]
+    },
+    "single_minus_prior_in_detection_rmse_cm": {
+      "mean": 4.472306709211463,
+      "ci95": [
+        3.7262777095902253,
+        5.226760387851035
+      ]
+    },
+    "post_hoc_minus_prior_in_detection_rmse_cm": {
+      "mean": 2.596219999492058,
+      "ci95": [
+        1.9970055314829722,
+        3.2024196432903054
+      ]
+    }
+  }
+}

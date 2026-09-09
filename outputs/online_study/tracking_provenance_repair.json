@@ -1,0 +1,33 @@
+{
+  "reason": "repair stale metadata label; numeric columns are not modified",
+  "evidence": {
+    "matched_detections": 2018,
+    "rows_where_posterior_root_differs_from_raw_root": 1963
+  },
+  "files": [
+    {
+      "path": "data\\processed\\online_longitudinal_pole_heights_daily.csv",
+      "rows_relabelled": 2283,
+      "sha256_before": "3cb5b2571539893d50c2c50af9a9863504259495f02e54700254a937a5470e3a",
+      "sha256_after": "4768978578749bed24c9925b864450c8e2074e5c1a30682c76e26f9fd8828349"
+    },
+    {
+      "path": "outputs\\online_study\\depth_corrected_heights_daily.csv",
+      "rows_relabelled": 2283,
+      "sha256_before": "18412f595a08fdd140731fa26de09ed6193ac4b1c714a0d155341b171268062b",
+      "sha256_after": "bcf3350ad7437d439c3dd96aff2d6e4a9256e7adbce874589d56a2e18ea17cb2"
+    },
+    {
+      "path": "outputs\\online_study\\pole_camera_bayesian_daily\\online_bayesian_height_posteriors.csv",
+      "rows_relabelled": 1686,
+      "sha256_before": "343c31fc66523b6afe6d30b0e3252158fb6a4596230af03df7d77bd5f069bdac",
+      "sha256_after": "0a8375889cb3c01585c66d8229a8aec152d362af435622df86ca58f04852d423"
+    },
+    {
+      "path": "outputs\\online_study\\pole_camera_bayesian_daily_guessed\\online_bayesian_height_posteriors.csv",
+      "rows_relabelled": 1686,
+      "sha256_before": "41767a525fb2d1a287e561b75d18889870e88ee6ba73d77494eb5cc0e084f581",
+      "sha256_after": "752e2652b21d96df3d83323d8a2ed643374e0c05c9c034dd86eb1a0906dce424"
+    }
+  ]
+}

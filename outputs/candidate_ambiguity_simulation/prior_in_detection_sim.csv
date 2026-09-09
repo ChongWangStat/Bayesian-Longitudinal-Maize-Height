@@ -1,0 +1,4 @@
+method,prior,height_rmse_cm,coverage_95
+"Single-frame (cross-sectional, no prior)",none,10.48,
+Post-hoc filter (prior after detection),on output,8.61,0.955
+Prior-in-detection (prior inside analysis),in detection,6.01,0.953

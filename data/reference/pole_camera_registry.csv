@@ -1,0 +1,11 @@
+dataset_key,camera_genotype,pole_start_date,pole_reference_year,camera_to_row_ft,camera_to_pole_ft,camera_height_ft,row_to_pole_gap_ft,depth_correction_factor,source
+2025-IA_Woodruff_UFMu,25-W571.UFMu-03509,2025-06-10,2025,8.5,10.0,5.0,1.5,0.85,Yawei settings table (2020-2025 Stationary camera settings.xlsx) + email thread
+2025-IA_Bruner_UFMu,25-BR546.UFMu-00589,2025-06-16,2025,8.5,10.0,5.0,1.5,0.85,Yawei settings table (2020-2025 Stationary camera settings.xlsx) + email thread
+2025-IA_Woodruff_UFMu,25-W577.W22_R1-r_x_UFMu-10960,2025-06-10,2025,8.5,10.0,5.0,1.5,0.85,Yawei settings table (2020-2025 Stationary camera settings.xlsx) + email thread
+2024-IA_Woodruff_UFMu,C-W-0015-L.23-M1619-5_M1619-8,2024-07-01,2024,8.5,10.0,5.0,1.5,0.85,Yawei settings table (2020-2025 Stationary camera settings.xlsx) + email thread
+2024-IA_Woodruff_UFMu,C-W-0015-R.23-M1619-5_M1619-8,2024-07-01,2024,8.5,10.0,5.0,1.5,0.85,Yawei settings table (2020-2025 Stationary camera settings.xlsx) + email thread
+2024-IA_Woodruff_UFMu,C-W-0010-L.21-M1745-1,2024-06-28,2024,8.5,10.0,5.0,1.5,0.85,Yawei settings table (2020-2025 Stationary camera settings.xlsx) + email thread
+2024-IA_Marsden_UFMu,C-M-0013-L.23-M1619-4_M1619-8,2024-06-28,2024,8.5,10.0,5.0,1.5,0.85,Yawei settings table (2020-2025 Stationary camera settings.xlsx) + email thread
+2024-IA_Marsden_UFMu,C-M-0013-R.23-M1619-4_M1619-8,2024-06-28,2024,8.5,10.0,5.0,1.5,0.85,Yawei settings table (2020-2025 Stationary camera settings.xlsx) + email thread
+2024-IA_Marsden_UFMu,C-M-0006-L.21-M1744-4,2024-06-28,2024,8.5,10.0,5.0,1.5,0.85,Yawei settings table (2020-2025 Stationary camera settings.xlsx) + email thread
+2024-IA_Marsden_UFMu,C-M-0006-R.21-M1744-4,2024-06-28,2024,8.5,10.0,5.0,1.5,0.85,Yawei settings table (2020-2025 Stationary camera settings.xlsx) + email thread

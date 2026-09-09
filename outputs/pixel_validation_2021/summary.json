@@ -1,0 +1,21 @@
+{
+  "n_images": 30,
+  "n_gt_instances": 150,
+  "n_matched": 149,
+  "detection_rate": 0.9933333333333333,
+  "height_mae_px": 29.50079284258337,
+  "height_bias_px": 9.374791702168102,
+  "height_rmse_px": 38.26437358955731,
+  "height_corr": 0.8372056596657651,
+  "height_mae_cm": 12.268965395525123,
+  "height_bias_cm": 3.898844197100038,
+  "height_rmse_cm": 15.913615541005688,
+  "top_kpt_mae_px": 28.316325972709375,
+  "root_kpt_mae_px": 18.197148402822013,
+  "n_folds": 5,
+  "epochs": 100,
+  "imgsz": 640,
+  "seed": 20210806,
+  "cm_per_px": 0.41588595469255657,
+  "cm_conversion": "recorded 2021 camera geometry: D/f with D=10.25 ft, 4.5 mm focal length, 6.17 mm sensor width, and 1030-px stored field of view; zero intercept"
+}

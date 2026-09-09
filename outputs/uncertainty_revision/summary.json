@@ -1,0 +1,301 @@
+{
+  "design": "All noise scales are expressed after the 0.85 pole-to-target depth conversion. Parameters are estimated from 2024 only; 2025 is held out.",
+  "summary": [
+    {
+      "model": "guessed",
+      "split": "all",
+      "n": 1638,
+      "cameras": 8,
+      "plants": 47,
+      "bias_cm": 3.6072129140544456,
+      "mae_cm": 16.359319274579814,
+      "rmse_cm": 23.526780426895723,
+      "mean_log_score": -4.56343110166268,
+      "mean_wis_cm": 9.099240815971557,
+      "mean_pit": 0.4708660145936346
+    },
+    {
+      "model": "guessed",
+      "split": "2024_development",
+      "n": 1266,
+      "cameras": 6,
+      "plants": 36,
+      "bias_cm": 3.7414592377905693,
+      "mae_cm": 16.537659214600076,
+      "rmse_cm": 23.73628436802544,
+      "mean_log_score": -4.578252788394102,
+      "mean_wis_cm": 9.193932568376981,
+      "mean_pit": 0.47103960776369463
+    },
+    {
+      "model": "guessed",
+      "split": "2025_locked_test",
+      "n": 372,
+      "cameras": 2,
+      "plants": 11,
+      "bias_cm": 3.1503423606944096,
+      "mae_cm": 15.752388188381826,
+      "rmse_cm": 22.799371517640658,
+      "mean_log_score": -4.512989554883165,
+      "mean_wis_cm": 8.776983400527296,
+      "mean_pit": 0.47027523783746267
+    },
+    {
+      "model": "unit_consistent",
+      "split": "all",
+      "n": 1638,
+      "cameras": 8,
+      "plants": 47,
+      "bias_cm": -0.05238327364190011,
+      "mae_cm": 15.133046509548457,
+      "rmse_cm": 21.33877375712729,
+      "mean_log_score": -4.440331802357202,
+      "mean_wis_cm": 8.081249356456187,
+      "mean_pit": 0.504646204967442
+    },
+    {
+      "model": "unit_consistent",
+      "split": "2024_development",
+      "n": 1266,
+      "cameras": 6,
+      "plants": 36,
+      "bias_cm": -0.28297194924923785,
+      "mae_cm": 15.002070142886604,
+      "rmse_cm": 20.860098432213835,
+      "mean_log_score": -4.426793405866652,
+      "mean_wis_cm": 7.930199479737993,
+      "mean_pit": 0.5073374012587972
+    },
+    {
+      "model": "unit_consistent",
+      "split": "2025_locked_test",
+      "n": 372,
+      "cameras": 2,
+      "plants": 11,
+      "bias_cm": 0.7323620578604918,
+      "mae_cm": 15.578788660607335,
+      "rmse_cm": 22.892944883441064,
+      "mean_log_score": -4.48640602267181,
+      "mean_wis_cm": 8.595306194964875,
+      "mean_pit": 0.4954874562984748
+    }
+  ],
+  "intervals": [
+    {
+      "model": "guessed",
+      "split": "all",
+      "nominal_coverage": 0.5,
+      "empirical_coverage": 0.3803418803418803,
+      "mean_width_cm": 16.37072739738955,
+      "median_width_cm": 15.603965457185268,
+      "n": 1638
+    },
+    {
+      "model": "guessed",
+      "split": "all",
+      "nominal_coverage": 0.8,
+      "empirical_coverage": 0.645909645909646,
+      "mean_width_cm": 32.44920160573205,
+      "median_width_cm": 31.00645852418539,
+      "n": 1638
+    },
+    {
+      "model": "guessed",
+      "split": "all",
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.7716727716727717,
+      "mean_width_cm": 44.698657805637765,
+      "median_width_cm": 42.89028782856467,
+      "n": 1638
+    },
+    {
+      "model": "guessed",
+      "split": "all",
+      "nominal_coverage": 0.95,
+      "empirical_coverage": 0.8858363858363858,
+      "mean_width_cm": 66.63582768273433,
+      "median_width_cm": 64.56522749994656,
+      "n": 1638
+    },
+    {
+      "model": "guessed",
+      "split": "2024_development",
+      "nominal_coverage": 0.5,
+      "empirical_coverage": 0.3767772511848341,
+      "mean_width_cm": 16.343223944410816,
+      "median_width_cm": 15.599766050830347,
+      "n": 1266
+    },
+    {
+      "model": "guessed",
+      "split": "2024_development",
+      "nominal_coverage": 0.8,
+      "empirical_coverage": 0.636650868878357,
+      "mean_width_cm": 32.38034014417751,
+      "median_width_cm": 30.977065661245845,
+      "n": 1266
+    },
+    {
+      "model": "guessed",
+      "split": "2024_development",
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.764612954186414,
+      "mean_width_cm": 44.62107859225659,
+      "median_width_cm": 42.86286498713125,
+      "n": 1266
+    },
+    {
+      "model": "guessed",
+      "split": "2024_development",
+      "nominal_coverage": 0.95,
+      "empirical_coverage": 0.8854660347551343,
+      "mean_width_cm": 66.65455678135173,
+      "median_width_cm": 64.53756000364604,
+      "n": 1266
+    },
+    {
+      "model": "guessed",
+      "split": "2025_locked_test",
+      "nominal_coverage": 0.5,
+      "empirical_coverage": 0.3924731182795699,
+      "mean_width_cm": 16.46432785833331,
+      "median_width_cm": 15.66420165236217,
+      "n": 372
+    },
+    {
+      "model": "guessed",
+      "split": "2025_locked_test",
+      "nominal_coverage": 0.8,
+      "empirical_coverage": 0.6774193548387096,
+      "mean_width_cm": 32.683552708764466,
+      "median_width_cm": 31.069016569497244,
+      "n": 372
+    },
+    {
+      "model": "guessed",
+      "split": "2025_locked_test",
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.7956989247311828,
+      "mean_width_cm": 44.9626773866608,
+      "median_width_cm": 43.02714224548722,
+      "n": 372
+    },
+    {
+      "model": "guessed",
+      "split": "2025_locked_test",
+      "nominal_coverage": 0.95,
+      "empirical_coverage": 0.8870967741935484,
+      "mean_width_cm": 66.57208833098805,
+      "median_width_cm": 64.69807888564321,
+      "n": 372
+    },
+    {
+      "model": "unit_consistent",
+      "split": "all",
+      "nominal_coverage": 0.5,
+      "empirical_coverage": 0.6398046398046398,
+      "mean_width_cm": 30.66509744333344,
+      "median_width_cm": 29.17040423143129,
+      "n": 1638
+    },
+    {
+      "model": "unit_consistent",
+      "split": "all",
+      "nominal_coverage": 0.8,
+      "empirical_coverage": 0.8748473748473748,
+      "mean_width_cm": 59.403336226205916,
+      "median_width_cm": 56.46628060995159,
+      "n": 1638
+    },
+    {
+      "model": "unit_consistent",
+      "split": "all",
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.9377289377289377,
+      "mean_width_cm": 78.36327246033272,
+      "median_width_cm": 74.53063196382436,
+      "n": 1638
+    },
+    {
+      "model": "unit_consistent",
+      "split": "all",
+      "nominal_coverage": 0.95,
+      "empirical_coverage": 0.963980463980464,
+      "mean_width_cm": 98.11939135944043,
+      "median_width_cm": 93.76223351656212,
+      "n": 1638
+    },
+    {
+      "model": "unit_consistent",
+      "split": "2024_development",
+      "nominal_coverage": 0.5,
+      "empirical_coverage": 0.636650868878357,
+      "mean_width_cm": 30.675105568934708,
+      "median_width_cm": 29.05072102382057,
+      "n": 1266
+    },
+    {
+      "model": "unit_consistent",
+      "split": "2024_development",
+      "nominal_coverage": 0.8,
+      "empirical_coverage": 0.8783570300157978,
+      "mean_width_cm": 59.42027205937184,
+      "median_width_cm": 56.29076235103816,
+      "n": 1266
+    },
+    {
+      "model": "unit_consistent",
+      "split": "2024_development",
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.9407582938388626,
+      "mean_width_cm": 78.41038053686412,
+      "median_width_cm": 74.35973602797472,
+      "n": 1266
+    },
+    {
+      "model": "unit_consistent",
+      "split": "2024_development",
+      "nominal_coverage": 0.95,
+      "empirical_coverage": 0.9684044233807267,
+      "mean_width_cm": 98.20185037701941,
+      "median_width_cm": 93.6521140024449,
+      "n": 1266
+    },
+    {
+      "model": "unit_consistent",
+      "split": "2025_locked_test",
+      "nominal_coverage": 0.5,
+      "empirical_coverage": 0.6505376344086021,
+      "mean_width_cm": 30.631037532012982,
+      "median_width_cm": 29.333552388246716,
+      "n": 372
+    },
+    {
+      "model": "unit_consistent",
+      "split": "2025_locked_test",
+      "nominal_coverage": 0.8,
+      "empirical_coverage": 0.8629032258064516,
+      "mean_width_cm": 59.3456997617219,
+      "median_width_cm": 56.84826009013497,
+      "n": 372
+    },
+    {
+      "model": "unit_consistent",
+      "split": "2025_locked_test",
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.9274193548387096,
+      "mean_width_cm": 78.20295303858875,
+      "median_width_cm": 75.06774458526465,
+      "n": 372
+    },
+    {
+      "model": "unit_consistent",
+      "split": "2025_locked_test",
+      "nominal_coverage": 0.95,
+      "empirical_coverage": 0.9489247311827957,
+      "mean_width_cm": 97.83876470284092,
+      "median_width_cm": 94.24020589363023,
+      "n": 372
+    }
+  ]
+}

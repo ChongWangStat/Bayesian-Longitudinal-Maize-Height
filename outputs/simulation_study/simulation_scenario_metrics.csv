@@ -1,0 +1,10 @@
+scenario,n_plants,n_obs,height_bias_cm,height_mae_cm,height_rmse_cm,growth_rate_bias_cm_day,growth_rate_rmse_cm_day,coverage_95,mean_interval_width_cm
+well_specified,60,720,-1.47,10.31,13.95,-0.09,1.283,0.942,46.08
+gradual_linear,60,720,0.44,7.49,9.19,-0.068,0.355,0.985,43.67
+rapid_then_plateau,60,720,1.41,7.6,9.38,0.498,1.669,0.981,43.64
+plateau_early,60,720,0.44,7.98,9.76,0.495,2.728,0.978,45.79
+irregular_times,60,720,0.58,7.54,9.24,0.498,1.906,0.975,45.1
+missing_images,60,540,0.88,7.47,9.07,0.471,1.894,0.978,45.3
+heavy_outliers,60,720,2.83,12.67,18.07,0.499,1.958,0.919,50.64
+depth_uncertainty,60,720,-0.51,13.96,16.15,0.538,1.948,0.8,44.34
+localization_error,60,720,0.23,10.25,12.28,0.513,1.939,0.929,44.89

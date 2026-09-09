@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<annotations>
+  <version>1.1</version>
+  <meta>
+    <task>
+      <id>2577093</id>
+      <name>C-039(CAM827)</name>
+      <size>6</size>
+      <mode>annotation</mode>
+      <overlap>0</overlap>
+      <bugtracker></bugtracker>
+      <created>2026-09-08 15:49:31.985937+00:00</created>
+      <updated>2026-09-08 16:13:16.949261+00:00</updated>
+      <subset>default</subset>
+      <start_frame>0</start_frame>
+      <stop_frame>5</stop_frame>
+      <frame_filter></frame_filter>
+      <segments>
+        <segment>
+          <id>4453231</id>
+          <start>0</start>
+          <stop>5</stop>
+          <url>https://app.cvat.ai/api/tasks/2577093/dataset/export/api/jobs/4455669</url>
+        </segment>
+      </segments>
+      <owner>
+        <username>Samwang26</username>
+        <email>wang26@iastate.edu</email>
+      </owner>
+      <assignee></assignee>
+      <labels>
+        <label>
+          <name>pole1</name>
+          <color>#fa3253</color>
+          <type>any</type>
+          <attributes>
+            <attribute>
+              <name>status</name>
+              <mutable>False</mutable>
+              <input_type>select</input_type>
+              <default_value>usable</default_value>
+              <values>usable
+unusable</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>pole2</name>
+          <color>#32b7fa</color>
+          <type>any</type>
+          <attributes>
+            <attribute>
+              <name>status</name>
+              <mutable>False</mutable>
+              <input_type>select</input_type>
+              <default_value>usable</default_value>
+              <values>usable
+unusable</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>pole3</name>
+          <color>#ff00cc</color>
+          <type>any</type>
+          <attributes>
+            <attribute>
+              <name>status</name>
+              <mutable>False</mutable>
+              <input_type>select</input_type>
+              <default_value>usable</default_value>
+              <values>usable
+unusable</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>pole4</name>
+          <color>#fafa37</color>
+          <type>any</type>
+          <attributes>
+            <attribute>
+              <name>status</name>
+              <mutable>False</mutable>
+              <input_type>select</input_type>
+              <default_value>usable</default_value>
+              <values>usable
+unusable</values>
+            </attribute>
+          </attributes>
+        </label>
+      </labels>
+    </task>
+    <dumped>2026-09-08 16:16:50.018238+00:00</dumped>
+  </meta>
+  <image id="0" name="C-039_2021-07-02.JPG" width="773" height="1030">
+    <polyline label="pole1" source="manual" occluded="0" points="409.00,611.30;415.30,940.40" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole2" source="manual" occluded="0" points="61.00,609.50;52.00,770.00" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole3" source="manual" occluded="0" points="526.10,622.00;527.00,760.00" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole4" source="manual" occluded="0" points="567.70,623.00;573.60,763.10" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+  </image>
+  <image id="1" name="C-039_2021-07-11.JPG" width="773" height="1030">
+    <polyline label="pole1" source="manual" occluded="0" points="423.40,621.80;431.80,944.70" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole2" source="manual" occluded="0" points="82.60,614.60;73.00,772.30" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole3" source="manual" occluded="0" points="543.80,628.80;544.80,768.20" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole4" source="manual" occluded="0" points="585.20,629.40;591.50,769.60" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+  </image>
+  <image id="2" name="C-039_2021-07-18.JPG" width="773" height="1030">
+    <polyline label="pole1" source="manual" occluded="0" points="398.30,615.50;406.30,939.10" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole2" source="manual" occluded="0" points="53.00,609.70;43.30,769.40" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole3" source="manual" occluded="0" points="517.90,621.80;519.00,729.00" z_order="0">
+      <attribute name="status">unusable</attribute>
+    </polyline>
+    <polyline label="pole4" source="manual" occluded="0" points="559.30,622.40;563.70,729.90" z_order="0">
+      <attribute name="status">unusable</attribute>
+    </polyline>
+  </image>
+  <image id="3" name="C-039_2021-07-30.JPG" width="773" height="1030">
+    <polyline label="pole1" source="manual" occluded="0" points="399.10,618.70;406.90,937.10" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole2" source="manual" occluded="0" points="54.40,611.90;44.20,769.80" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole3" source="manual" occluded="0" points="517.80,625.10;518.60,759.60" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole4" source="manual" occluded="0" points="559.40,625.50;564.60,759.50" z_order="0">
+      <attribute name="status">unusable</attribute>
+    </polyline>
+  </image>
+  <image id="4" name="C-039_2021-08-06.JPG" width="773" height="1030">
+    <polyline label="pole1" source="manual" occluded="0" points="398.30,616.60;406.40,937.80" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole2" source="manual" occluded="0" points="53.20,610.60;43.70,764.00" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole3" source="manual" occluded="0" points="517.50,623.40;518.40,752.50" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole4" source="manual" occluded="0" points="558.70,623.60;563.80,750.30" z_order="0">
+      <attribute name="status">unusable</attribute>
+    </polyline>
+  </image>
+  <image id="5" name="LH54.21-C-039_2021-07-12-10-57_CAM827.JPG" width="773" height="1030">
+    <polyline label="pole1" source="manual" occluded="0" points="400.60,617.50;408.10,940.10" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole2" source="manual" occluded="0" points="56.90,610.50;46.30,770.80" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole3" source="manual" occluded="0" points="520.10,623.60;521.00,760.50" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+    <polyline label="pole4" source="manual" occluded="0" points="561.50,623.80;567.40,763.40" z_order="0">
+      <attribute name="status">usable</attribute>
+    </polyline>
+  </image>
+</annotations>

@@ -1,0 +1,20 @@
+{
+  "xml_files": 12,
+  "retained_unique_images": 61,
+  "annotations": 199,
+  "usable_annotations": 172,
+  "unusable_annotations": 27,
+  "labels": [
+    "pole1",
+    "pole2",
+    "pole3",
+    "pole4"
+  ],
+  "excluded_duplicates": [],
+  "missing_referenced_images": [],
+  "physical_length_ft": 5.0,
+  "physical_length_cm": 152.4,
+  "field_mark_interval_in": 35.0,
+  "field_mark_intervals_per_row": 4,
+  "adjacent_row_spacing_in": 140.0
+}

@@ -1,0 +1,59 @@
+{
+  "forecast_target": "the next image-derived measurement; this is a consistency test, not validation against physical plant height",
+  "forecast_metrics": [
+    {
+      "estimator": "bayesian_one_step_predictive_mean",
+      "n": 1638,
+      "bias_cm": 3.6072129140544456,
+      "mae_cm": 16.359319274579814,
+      "rmse_cm": 23.526780426895723
+    },
+    {
+      "estimator": "last_observation_carried_forward",
+      "n": 1638,
+      "bias_cm": -3.6966396199383844,
+      "mae_cm": 16.6423074995752,
+      "rmse_cm": 23.633445076669943
+    },
+    {
+      "estimator": "two_point_linear_extrapolation",
+      "n": 1638,
+      "bias_cm": 1.2627870158211643,
+      "mae_cm": 19.946262737779847,
+      "rmse_cm": 27.52403729119961
+    }
+  ],
+  "predictive_interval_diagnostics": {
+    "50": {
+      "nominal_coverage": 0.5,
+      "n": 1638,
+      "empirical_coverage": 0.3803418803418803,
+      "mean_width_cm": 16.37072739738955,
+      "median_width_cm": 15.603965457185268
+    },
+    "80": {
+      "nominal_coverage": 0.8,
+      "n": 1638,
+      "empirical_coverage": 0.645909645909646,
+      "mean_width_cm": 32.44920160573205,
+      "median_width_cm": 31.00645852418539
+    },
+    "90": {
+      "nominal_coverage": 0.9,
+      "n": 1638,
+      "empirical_coverage": 0.7716727716727717,
+      "mean_width_cm": 44.698657805637765,
+      "median_width_cm": 42.89028782856466
+    },
+    "95": {
+      "nominal_coverage": 0.95,
+      "n": 1638,
+      "empirical_coverage": 0.8858363858363858,
+      "mean_width_cm": 66.63582768273433,
+      "median_width_cm": 64.56522749994656
+    }
+  },
+  "predictive_95_interval_coverage_of_image_measurement": 0.8858363858363858,
+  "mean_predictive_log_score": -4.56343110166268,
+  "mean_weighted_interval_score_cm": 9.099240815971557
+}

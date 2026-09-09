@@ -1,0 +1,3 @@
+variant,n_matched_detections,n_tracked_plants,mean_track_distance,mean_height_cm,height_trajectory_roughness_cm
+frozen anchors (current),1970,54,0.03956,182.35,20.31
+Bayesian position re-estimation,2018,54,0.02827,182.35,19.78

@@ -1,0 +1,14 @@
+{
+  "images": 61,
+  "images_with_candidates": 61,
+  "candidates": 320,
+  "cameras": 12,
+  "model": "models\\maize_pose_2021_best.pt",
+  "model_sha256": "d813f7176890fd04f478868f8834ceae0b6f05c9c88ddfc8910c8c695745a572",
+  "ultralytics_version": "8.4.145",
+  "imgsz": 640,
+  "confidence_threshold": 0.05,
+  "iou_threshold": 0.5,
+  "max_detections": 50,
+  "device": "cpu"
+}

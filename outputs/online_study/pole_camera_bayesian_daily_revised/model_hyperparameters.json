@@ -1,0 +1,20 @@
+{
+  "model": "robust sequential Monte Carlo local-linear-trend state model",
+  "causal_update": true,
+  "particles": 5000,
+  "seed": 20260723,
+  "default_measurement_sd_cm": 15.0,
+  "measurement_sd_multiplier": 1.0,
+  "initial_growth_mean_cm_day": 3.0,
+  "initial_growth_sd_cm_day": 2.0,
+  "process_height_sd_cm_sqrt_day": 16.866,
+  "process_growth_sd_cm_day_sqrt_day": 0.35,
+  "minimum_growth_cm_day": -4.0,
+  "maximum_growth_cm_day": 15.0,
+  "outlier_probability": 0.0512,
+  "outlier_sd_cm": 70.62,
+  "resample_ess_fraction": 0.5,
+  "measurement_equation": "y_t is a prespecified inlier/outlier Gaussian mixture around latent height h_t",
+  "predictive_interval": "weighted particle-mixture quantiles, including both inlier and outlier observation components",
+  "transition_equation": "h_t = h_(t-1) + dt*v_(t-1) + process noise; v_t = v_(t-1) + process noise"
+}

@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this code, data, or model, please cite the accompanying manuscript and this repository."
+title: "Prior-Guided Bayesian Image Analysis for Physically Calibrated Longitudinal Maize Height"
+type: software
+version: 1.0.0
+date-released: 2026-09-09
+authors:
+  - family-names: Wang
+    given-names: Haoming
+  - family-names: Wang
+    given-names: Chong
+  - family-names: Li
+    given-names: Yawei
+  - family-names: Yeh
+    given-names: Cheng-Ting
+  - family-names: Schnable
+    given-names: Patrick S.
+  - family-names: Liu
+    given-names: Peng
+repository-code: "https://github.com/ChongWangStat/Bayesian-Longitudinal-Maize-Height"
+license: MIT

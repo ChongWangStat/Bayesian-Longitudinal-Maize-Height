@@ -1,0 +1,30 @@
+{
+  "development_interpolation_alternating": {
+    "n_cameras": 6,
+    "n_obs": 1083,
+    "mae_in": 0.186,
+    "ci95_lo_in": 0.156,
+    "ci95_hi_in": 0.218
+  },
+  "development_extrapolation_lower_to_upper": {
+    "n_cameras": 6,
+    "n_obs": 1174,
+    "mae_in": 1.966,
+    "ci95_lo_in": 1.622,
+    "ci95_hi_in": 2.326
+  },
+  "locked_test_interpolation_alternating": {
+    "n_cameras": 3,
+    "n_obs": 427,
+    "mae_in": 0.208,
+    "ci95_lo_in": 0.158,
+    "ci95_hi_in": 0.262
+  },
+  "locked_test_extrapolation_lower_to_upper": {
+    "n_cameras": 3,
+    "n_obs": 457,
+    "mae_in": 2.429,
+    "ci95_lo_in": 1.385,
+    "ci95_hi_in": 3.43
+  }
+}

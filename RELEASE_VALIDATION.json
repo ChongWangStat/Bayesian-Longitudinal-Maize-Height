@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "images": 61,
+  "xml_files": 12,
+  "model_sha256": "d813f7176890fd04f478868f8834ceae0b6f05c9c88ddfc8910c8c695745a572",
+  "title_characters": 88,
+  "abstract_words": 244,
+  "field_particle_filter_mae_cm": 10.9671805928788,
+  "heldout_2025_coverage_95": 0.9489247311827957,
+  "heldout_2025_mean_width_cm": 97.83876470284092,
+  "annotation_status": "two blank independent sheets prepared; human passes pending"
+}

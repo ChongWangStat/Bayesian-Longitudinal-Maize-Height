@@ -1,0 +1,61 @@
+{
+  "configuration": "height_sam geometric scale; phi=1.0; growth field learned from the 2024-2025 pole stream; no 2021 field height used for fitting",
+  "whole_season_all_plants": {
+    "single_frame": {
+      "n": 132,
+      "plants": 33,
+      "rows": 12,
+      "bias_cm": 2.639655152495845,
+      "mae_cm": 12.026526477395292,
+      "rmse_cm": 16.813635318247837
+    },
+    "online_filter": {
+      "n": 132,
+      "plants": 33,
+      "rows": 12,
+      "bias_cm": 2.7346487827270094,
+      "mae_cm": 10.9671805928788,
+      "rmse_cm": 15.80699428196003
+    },
+    "paired_row_cluster_bootstrap": {
+      "cluster": "rowid",
+      "clusters": 12,
+      "replicates": 20000,
+      "seed": 20260908,
+      "mae_improvement_cm": 1.0593458845164925,
+      "ci95_cm": [
+        -0.16166217546250725,
+        2.3857277639444314
+      ]
+    }
+  },
+  "endpoint_all_plants": {
+    "single_frame": {
+      "n": 33,
+      "plants": 33,
+      "rows": 12,
+      "bias_cm": 2.7796112189860516,
+      "mae_cm": 14.45325005393743,
+      "rmse_cm": 19.43508968627
+    },
+    "online_filter": {
+      "n": 33,
+      "plants": 33,
+      "rows": 12,
+      "bias_cm": 6.1650665954539905,
+      "mae_cm": 12.377967465648481,
+      "rmse_cm": 17.015642716242265
+    },
+    "paired_row_cluster_bootstrap": {
+      "cluster": "rowid",
+      "clusters": 12,
+      "replicates": 20000,
+      "seed": 20260909,
+      "mae_improvement_cm": 2.075282588288948,
+      "ci95_cm": [
+        -1.4696094594898332,
+        6.8186388760063
+      ]
+    }
+  }
+}
