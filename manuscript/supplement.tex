@@ -21,7 +21,7 @@
 \renewcommand{\theequation}{S\arabic{equation}}
 
 \title{Supplementary Materials for\\
-Prior-Guided Bayesian Image Analysis for Physically Calibrated Longitudinal Maize Height}
+Bayesian Longitudinal Maize Height Estimation with Prior-Guided Image Analysis}
 
 \author{Haoming Wang, Chong Wang, Yawei Li, Cheng-Ting Yeh,\\
 Patrick S. Schnable, and Peng Liu\\[0.6em]
@@ -43,7 +43,7 @@ Two sequential operations must be distinguished. The field association code main
 
 The height and growth component is Bayesian. A weighted particle approximation represents the joint distribution of latent height and growth rate. Particles are propagated through the transition model, weighted with the inlier/outlier measurement likelihood, normalized, and resampled when the effective sample size crosses its prespecified threshold. Posterior summaries and one-step predictive distributions are calculated from those weighted particles.
 
-The stronger mechanism in which the predicted height distribution re-ranks competing top-keypoint candidates is evaluated in the controlled candidate-ambiguity simulation and in a matched real-image audit. It was not the top-keypoint rule used to produce the primary field-height results. Thus the field implementation supports claims about prior-guided plant association and base-keypoint updating, while the simulation establishes that a height prior can improve top-candidate choice under known ambiguity. The real-image audit tests whether the available natural candidate sets actually contain that ambiguity.
+The term \emph{prior-guided image analysis} refers to feedback across the image/model boundary, not simply to the presence of priors in a Bayesian model. The stronger mechanism in which the predicted height distribution re-ranks competing top-keypoint candidates is evaluated in the controlled candidate-ambiguity simulation and in a matched real-image audit. It was not the top-keypoint rule used to produce the primary field-height results. Thus the field implementation supports claims about prior-guided plant association and base-keypoint updating, while the simulation establishes that a height prior can improve top-candidate choice under known ambiguity. The real-image audit tests whether the available natural candidate sets actually contain that ambiguity.
 
 \begin{longtable}{L{2.45cm}L{4.05cm}L{3.25cm}L{3.25cm}}
 \caption{Full parameter and implementation specification for the two empirical analysis streams. A dash indicates that the operation was not applied in that stream.}\label{tab:s-parameters}\\
@@ -132,7 +132,7 @@ This operation lets the height prior affect which top candidate becomes the meas
 \section{Manual 2021 support-pole annotations}
 \label{sec:s-support-poles}
 
-The source annotation directory contains one CVAT XML file for each of 12 camera rows, named \texttt{C-XXX.xml}. An XML can contain multiple dated images, and each image can contain several polylines labeled \texttt{pole1} through \texttt{pole4}. These labels distinguish visible camera-support poles within an image. The numeric suffix does not specify pole depth or physical length.
+Haoming Wang manually created the physical-reference annotations. The source annotation directory contains one CVAT XML file for each of 12 camera rows, named \texttt{C-XXX.xml}. An XML can contain multiple dated images, and each image can contain several polylines labeled \texttt{pole1} through \texttt{pole4}. These labels distinguish visible camera-support poles within an image. The numeric suffix does not specify pole depth or physical length.
 
 For each polyline, the importer reads all vertices, takes the smallest image row as the nominal camera-mount endpoint and the largest image row as ground contact, and records the sum of segment lengths in pixels. The physical definition is the nominal vertical distance from ground contact to the camera mounting or optical-center height: \SupportPoleLengthFt{} ft (\SupportPoleLengthCm{} cm). Annotation status is read from the CVAT attribute named \texttt{status}. The imported data contain \ManualPoleAnnotations{} traces: \ManualPoleUsable{} marked usable and \ManualPoleUnusable{} marked unusable.
 
@@ -365,7 +365,7 @@ Asset & Canonical path or source & Role and limitation \\
 \endfoot
 \bottomrule
 \endlastfoot
-2021 pole XML & \path{data/manual_annotations/poles_2021/C-*.xml} & Copied from authenticated \path{Reports/pole_calibration}; one XML per camera row \\
+2021 pole XML & \path{data/manual_annotations/poles_2021/C-*.xml} & Haoming Wang's human physical-reference annotations; one XML per camera row \\
 2021 pole images & \path{data/raw/pole_calibration_images/} & All 61 curated images; confirmed duplicate omitted \\
 Imported 2021 pole table & \path{data/processed/manual_poles_2021/manual_pole_annotations_2021.csv} & Trace endpoints, status, pixel length, and physical definition after duplicate removal \\
 Pole definitions & \path{data/processed/manual_poles_2021/pole_definitions_2021.csv} & Documents 5-ft support length and distinguishes horizontal 35-in marks from red-band spacing \\
@@ -382,12 +382,12 @@ Primary field summary & \path{outputs/filter_height_sam_2021/all_plants_primary.
 Detector-unit correction & \path{outputs/pixel_validation_2021/summary.json} & Recomputed centimeter metrics using 0.41588595 cm/pixel rather than the withdrawn field-regression conversion \\
 Field baselines & \path{outputs/field_baselines_2021/} & Fixed causal comparators and row-cluster intervals \\
 Real-image candidate audit & \path{outputs/real_image_candidate_ablation_2021/} & Matched candidate comparison with human truth used only for scoring \\
-Two-reader packet & \path{annotation/} & Blinded sheets, protocol, image manifest, and scoring script; sheets remain unfilled \\
-Generated manuscript values & \path{manuscript/plant_phenomics_numbers.tex} and \path{manuscript/plant_phenomics_per_plant_table.tex} & Programmatic source for submission \path{numbers.tex} and \path{per_plant_table.tex} \\
+Generated manuscript values & \path{manuscript/numbers.tex} and \path{manuscript/per_plant_table.tex} & Programmatically generated values and per-plant table included by the submission source \\
 \end{longtable}
 \endgroup
 
 \small
+\enlargethispage{5\baselineskip}
 
 The main regeneration sequence is shown below. The daily-chain shell script requires a Bash environment. The 2021 filter also requires the locally documented weather workbook used to create its five date-specific gust values.
 
@@ -403,7 +403,7 @@ python analysis/field_baseline_comparison_2021.py
 python analysis/real_image_candidate_ablation_2021.py
 python analysis/summarize_uncertainty_revision.py
 python analysis/recalculate_pixel_validation_units.py
-python manuscript/generate_plant_phenomics_numbers.py
+python manuscript/generate_numbers.py
 # Regenerate the manuscript figures from the project root:
 python analysis/plot_online_bayesian_workflow.py
 python analysis/plot_pole_annotation_2021.py
@@ -413,8 +413,7 @@ python analysis/plot_field_validation_2021.py
 python analysis/plot_geometry_diagram.py
 \end{verbatim}
 
-\enlargethispage{2\baselineskip}
-The particle-filter output stores the base seed and all model settings. Plant-specific seeds are derived deterministically from the base seed and plant identifier. The all-plants bootstrap uses 20,000 replicates with its seed recorded in \path{all_plants_primary.json}. The repository includes code and data licenses, a SHA-256 manifest, the final available pose checkpoint, and all 61 curated 2021 images. The larger 2024--2025 raw-image archive and the original cross-fitting image set are not distributed; the public release includes the derived measurements needed to regenerate reported summaries. The two independent plant-annotation sheets are prospective assets and must not be described as completed agreement data until both readers finish them.
+The particle-filter output stores the base seed and all model settings. Plant-specific seeds are derived deterministically from the base seed and plant identifier. The all-plants bootstrap uses 20,000 replicates with its seed recorded in \path{all_plants_primary.json}. The repository includes an MIT code license, a SHA-256 manifest, the final available pose checkpoint, all 61 curated 2021 images, and the completed 199-trace human physical-reference audit. No separate reuse license has been assigned to non-code materials. The larger 2024--2025 raw-image archive and the original cross-fitting image set are not distributed; the public release includes the derived measurements needed to regenerate reported summaries.
 
 \normalsize
 

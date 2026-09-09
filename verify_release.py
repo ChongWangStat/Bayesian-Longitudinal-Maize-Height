@@ -8,9 +8,6 @@ import json
 import re
 from pathlib import Path
 
-import pandas as pd
-
-
 ROOT = Path(__file__).resolve().parent
 EXPECTED_MODEL_SHA256 = "d813f7176890fd04f478868f8834ceae0b6f05c9c88ddfc8910c8c695745a572"
 
@@ -34,6 +31,13 @@ def main() -> None:
     assert not (ROOT / "data/raw/pole_calibration_images/C-039_2021-07-30JPG.JPG").exists()
     assert (ROOT / "data/raw/pole_calibration_images/C-039_2021-07-30.JPG").exists()
     assert len(list((ROOT / "data/manual_annotations/poles_2021").glob("C-*.xml"))) == 12
+    pole_audit = json.loads(
+        (ROOT / "data/processed/manual_poles_2021/summary.json").read_text()
+    )
+    assert pole_audit["retained_unique_images"] == 61
+    assert pole_audit["annotations"] == 199
+    assert pole_audit["usable_annotations"] == 172
+    assert pole_audit["unusable_annotations"] == 27
     assert sha256(ROOT / "models/maize_pose_2021_best.pt") == EXPECTED_MODEL_SHA256
 
     tex = (ROOT / "manuscript/main.tex").read_text(encoding="utf-8")
@@ -43,6 +47,7 @@ def main() -> None:
     assert len(title) <= 100, len(title)
     assert len(words) <= 250, len(words)
     assert "Longitudinal" in title and "longitudinal" in abstract.lower()
+    assert "Prior-Guided Image Analysis" in title
     assert (ROOT / "manuscript/main.pdf").stat().st_size > 100_000
     assert (ROOT / "manuscript/supplement.pdf").stat().st_size > 100_000
 
@@ -64,11 +69,6 @@ def main() -> None:
     real = json.loads((ROOT / "outputs/real_image_candidate_ablation_2021/summary.json").read_text())
     near(real["selection_agreement"], 1.0, 1e-12)
 
-    for name in ("annotator_A.csv", "annotator_B.csv"):
-        sheet = pd.read_csv(ROOT / "annotation" / name, keep_default_na=False)
-        assert len(sheet) == 366
-        assert (sheet["plant_present"].astype(str).str.strip() == "").all()
-
     forbidden = ("C:" + "\\Users\\", "gh" + "o_", "file:" + "//")
     text_suffixes = {".py", ".md", ".tex", ".bib", ".csv", ".json", ".yml", ".yaml", ".cff", ".txt"}
     bad: list[str] = []
@@ -86,7 +86,10 @@ def main() -> None:
         "field_particle_filter_mae_cm": fm["Robust Bayesian particle filter"]["mae_cm"],
         "heldout_2025_coverage_95": test95["empirical_coverage"],
         "heldout_2025_mean_width_cm": test95["mean_width_cm"],
-        "annotation_status": "two blank independent sheets prepared; human passes pending",
+        "physical_annotation_status": (
+            "completed human audit by Haoming Wang: 199 traces on 61 images; "
+            "172 usable and 27 unusable"
+        ),
     }
     (ROOT / "RELEASE_VALIDATION.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))

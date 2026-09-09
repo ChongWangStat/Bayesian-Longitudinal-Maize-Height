@@ -1,0 +1,237 @@
+{
+  "figure": "calibration_validation",
+  "source_files": {
+    "interpolation": "outputs/pole_holdout_validation_daily/band_holdout_errors.csv",
+    "downward_root_direction": "outputs/pole_downward_bias/downward_extrapolation_errors.csv",
+    "camera_registry": "data/reference/pole_camera_registry.csv"
+  },
+  "experimental_unit": "Camera. Metrics are first computed within camera and then averaged without weighting cameras by their number of bands or images. The 95% intervals resample whole camera summaries. Individual bands are not treated as independent replicates.",
+  "bootstrap": {
+    "replicates": 20000,
+    "seed": 20260908,
+    "method": "Percentile bootstrap resampling cameras with replacement."
+  },
+  "interpolation_definition": "Alternating integer-height bands are retained for calibration and held out for interpolation. Error is predicted minus known band height.",
+  "downward_definition": "For each image, the lowest one to three bands are removed, a projective calibration is fit to the remaining upper bands, and removed bands are predicted 1-3 ft below the retained range. This is the plant-root direction. Negative signed error places the inferred point too low and would inflate top-minus-root plant height.",
+  "interpolation_summary": {
+    "2024": {
+      "n_cameras": 6,
+      "camera_mean": 0.4735800414231144,
+      "camera_median": 0.4699286124935921,
+      "ci95_low": 0.3982594296409081,
+      "ci95_high": 0.5542892415571895,
+      "n_predictions": 1083,
+      "n_images": 193,
+      "unit": "cm"
+    },
+    "2025": {
+      "n_cameras": 3,
+      "camera_mean": 0.5291004198650539,
+      "camera_median": 0.5198429225302229,
+      "ci95_low": 0.4023045462057417,
+      "ci95_high": 0.665153790859197,
+      "n_predictions": 427,
+      "n_images": 81,
+      "unit": "cm"
+    }
+  },
+  "downward_summary": {
+    "2024": {
+      "1.0": {
+        "distance_below_retained_range_ft": 1.0,
+        "distance_below_retained_range_cm": 30.48,
+        "signed_error_cm": {
+          "n_cameras": 7,
+          "camera_mean": 0.4978710603853758,
+          "camera_median": 0.20094456831251356,
+          "ci95_low": -0.2678004208872571,
+          "ci95_high": 1.6651100919301542
+        },
+        "absolute_error_cm": {
+          "n_cameras": 7,
+          "camera_mean": 2.1402404606328598,
+          "camera_median": 1.4167225495153821,
+          "ci95_low": 1.1785538487576965,
+          "ci95_high": 3.6452674494043396
+        },
+        "n_predictions": 729,
+        "n_images": 255
+      },
+      "2.0": {
+        "distance_below_retained_range_ft": 2.0,
+        "distance_below_retained_range_cm": 60.96,
+        "signed_error_cm": {
+          "n_cameras": 7,
+          "camera_mean": 0.8161745500512004,
+          "camera_median": 0.463663863763261,
+          "ci95_low": -0.498267482330204,
+          "ci95_high": 2.8540269765621
+        },
+        "absolute_error_cm": {
+          "n_cameras": 7,
+          "camera_mean": 4.026153112533948,
+          "camera_median": 2.462663892622338,
+          "ci95_low": 1.9452724167430746,
+          "ci95_high": 7.426712096632177
+        },
+        "n_predictions": 474,
+        "n_images": 248
+      },
+      "3.0": {
+        "distance_below_retained_range_ft": 3.0,
+        "distance_below_retained_range_cm": 91.44,
+        "signed_error_cm": {
+          "n_cameras": 7,
+          "camera_mean": 1.767843866436617,
+          "camera_median": 0.3429660522498615,
+          "ci95_low": -1.46404670046445,
+          "ci95_high": 7.062866811625104
+        },
+        "absolute_error_cm": {
+          "n_cameras": 7,
+          "camera_mean": 6.04034686394303,
+          "camera_median": 3.5493167099968583,
+          "ci95_low": 2.9810443036631793,
+          "ci95_high": 10.729568171024338
+        },
+        "n_predictions": 226,
+        "n_images": 226
+      }
+    },
+    "2025": {
+      "1.0": {
+        "distance_below_retained_range_ft": 1.0,
+        "distance_below_retained_range_cm": 30.48,
+        "signed_error_cm": {
+          "n_cameras": 3,
+          "camera_mean": 0.16469406123247585,
+          "camera_median": 0.14002680956911542,
+          "ci95_low": -0.005343165881852549,
+          "ci95_high": 0.35939854001016464
+        },
+        "absolute_error_cm": {
+          "n_cameras": 3,
+          "camera_mean": 1.3781136894954367,
+          "camera_median": 1.3666744652035239,
+          "ci95_low": 1.3236206570257771,
+          "ci95_high": 1.4440459462570094
+        },
+        "n_predictions": 381,
+        "n_images": 139
+      },
+      "2.0": {
+        "distance_below_retained_range_ft": 2.0,
+        "distance_below_retained_range_cm": 60.96,
+        "signed_error_cm": {
+          "n_cameras": 3,
+          "camera_mean": 0.1656579134375258,
+          "camera_median": 0.26895670141857964,
+          "ci95_low": -0.14091818095972541,
+          "ci95_high": 0.3689352198537232
+        },
+        "absolute_error_cm": {
+          "n_cameras": 3,
+          "camera_mean": 2.7177696217321894,
+          "camera_median": 2.6724858058076046,
+          "ci95_low": 2.580339966413376,
+          "ci95_high": 2.9004830929755863
+        },
+        "n_predictions": 242,
+        "n_images": 132
+      },
+      "3.0": {
+        "distance_below_retained_range_ft": 3.0,
+        "distance_below_retained_range_cm": 91.44,
+        "signed_error_cm": {
+          "n_cameras": 3,
+          "camera_mean": 0.7992007654322917,
+          "camera_median": 0.7797978241387732,
+          "ci95_low": 0.5001242110860398,
+          "ci95_high": 1.117680261072062
+        },
+        "absolute_error_cm": {
+          "n_cameras": 3,
+          "camera_mean": 3.625833020726121,
+          "camera_median": 3.9635571578405164,
+          "ci95_low": 2.2516250591161397,
+          "ci95_high": 4.662316845221706
+        },
+        "n_predictions": 110,
+        "n_images": 110
+      }
+    }
+  },
+  "camera_key": {
+    "T1": {
+      "camera_setup_id": "25-BR546.UFMu-00589",
+      "year": 2025,
+      "interpolation_images": 17,
+      "downward_images": 33,
+      "small_sample_flag": false
+    },
+    "T2": {
+      "camera_setup_id": "25-W571.UFMu-03509",
+      "year": 2025,
+      "interpolation_images": 41,
+      "downward_images": 55,
+      "small_sample_flag": false
+    },
+    "T3": {
+      "camera_setup_id": "25-W577.W22_R1-r_x_UFMu-10960",
+      "year": 2025,
+      "interpolation_images": 23,
+      "downward_images": 51,
+      "small_sample_flag": false
+    },
+    "D1": {
+      "camera_setup_id": "C-M-0006-L.21-M1744-4",
+      "year": 2024,
+      "interpolation_images": 33,
+      "downward_images": 43,
+      "small_sample_flag": false
+    },
+    "D2": {
+      "camera_setup_id": "C-M-0006-R.21-M1744-4",
+      "year": 2024,
+      "interpolation_images": 27,
+      "downward_images": 39,
+      "small_sample_flag": false
+    },
+    "D3": {
+      "camera_setup_id": "C-M-0013-L.23-M1619-4_M1619-8",
+      "year": 2024,
+      "interpolation_images": 38,
+      "downward_images": 43,
+      "small_sample_flag": false
+    },
+    "D4": {
+      "camera_setup_id": "C-M-0013-R.23-M1619-4_M1619-8",
+      "year": 2024,
+      "interpolation_images": 41,
+      "downward_images": 43,
+      "small_sample_flag": false
+    },
+    "D5": {
+      "camera_setup_id": "C-W-0010-L.21-M1745-1",
+      "year": 2024,
+      "interpolation_images": 30,
+      "downward_images": 43,
+      "small_sample_flag": false
+    },
+    "D6": {
+      "camera_setup_id": "C-W-0015-L.23-M1619-5_M1619-8",
+      "year": 2024,
+      "interpolation_images": 0,
+      "downward_images": 5,
+      "small_sample_flag": true
+    },
+    "D7": {
+      "camera_setup_id": "C-W-0015-R.23-M1619-5_M1619-8",
+      "year": 2024,
+      "interpolation_images": 24,
+      "downward_images": 39,
+      "small_sample_flag": false
+    }
+  },
+  "quality_caveat": "The source bands are automatically detected candidates, so this is a held-out self-consistency test rather than comparison with manually annotated red-band truth. The completed 2021 human audit concerns a different physical object: the stationary-camera support poles."
+}

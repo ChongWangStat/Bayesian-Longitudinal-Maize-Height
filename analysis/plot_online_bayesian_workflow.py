@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Draw the publication workflow for the as-of Bayesian height update.
+"""Draw the prior-guided image-analysis and Bayesian longitudinal workflow.
 
 The figure separates the solid field-data path from the stronger, dashed
-height-candidate-selection branch that is evaluated in simulation.  It uses
+height-candidate-selection branch evaluated in simulation and a real-image audit. It uses
 only matplotlib so the vector PDF remains directly editable in illustration
 software and the PNG can be regenerated without source images.
 """
@@ -200,7 +200,7 @@ def draw_workflow() -> plt.Figure:
     ax.text(
         0.45,
         8.02,
-        "Longitudinal Bayesian image analysis with physical calibration",
+        "Bayesian longitudinal estimation with prior-guided image analysis",
         fontsize=18,
         fontweight="bold",
         color=DARK,
@@ -234,7 +234,7 @@ def draw_workflow() -> plt.Figure:
     ax.text(
         4.18,
         7.12,
-        "Stronger height-candidate selection evaluated in simulation",
+        "Height-prior image scoring: simulation + real-image audit",
         ha="left",
         va="center",
         fontsize=9.5,
@@ -257,10 +257,10 @@ def draw_workflow() -> plt.Figure:
     y_main, h_main = 4.95, 1.75
     boxes = [
         (0.45, 2.25, "1  Accumulated\nimages", "$I_{\\leq t}$\nnew image appended"),
-        (3.05, 2.45, "2  Current-image\nanalysis", "detector candidates\ntop/base keypoints + scores"),
-        (5.90, 2.85, "3  Prior-guided\nassociation", "match plant + update\nbase keypoint from the\nprevious position posterior"),
+        (3.05, 2.45, "2  Current-image\ncandidates", "detector instances\ntop/base keypoints + scores"),
+        (5.90, 2.85, "3  Prior-guided\nimage analysis", "predictive state guides\nplant association and\nbase-keypoint refinement"),
         (9.20, 2.55, "4  Physical\nconversion", "in-scene pole +\nrecorded geometry\npixels to centimeters"),
-        (12.20, 3.05, "5  Robust Bayesian\nupdate", "particle filter with\ninlier/outlier-mixture likelihood"),
+        (12.20, 3.05, "5  Bayesian longitudinal\nupdate", "robust particle filter for\nplant height + growth"),
     ]
     for x, w, title, body in boxes:
         add_box(
@@ -288,7 +288,7 @@ def draw_workflow() -> plt.Figure:
         3.35,
         2.65,
         1.05,
-        "Previous plant-specific\nposterior",
+        "Longitudinal predictive\nstate",
         r"$p(\mathbf{s}_{t-1}\mid I_{\leq t-1})$",
         face=LIGHT_GRAY,
         edge=NAVY,
@@ -329,8 +329,8 @@ def draw_workflow() -> plt.Figure:
         1.40,
         6.30,
         1.55,
-        "Simulation-tested extension\nPrior-guided top-candidate selection",
-        "height prior re-ranks competing top-keypoint candidates under ambiguity\n(stronger than the field position-association/base update above)",
+        "Height-prior branch\nPrior-guided top-candidate selection",
+        "predictive height density re-ranks competing image candidates before measurement\n(simulation establishes the mechanism; the real-image audit tests candidate conflict)",
         face=AMBER_FILL,
         edge=AMBER,
         linestyle=(0, (5, 3)),

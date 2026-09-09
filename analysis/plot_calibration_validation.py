@@ -20,6 +20,15 @@ BOOTSTRAP_REPLICATES = 20_000
 BOOTSTRAP_SEED = 20260908
 
 
+def release_path(path: Path) -> str:
+    """Return a repository-relative path when the source is inside the release."""
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(PROJECT_ROOT).as_posix()
+    except ValueError:
+        return str(resolved)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -332,9 +341,9 @@ def main() -> None:
     notes = {
         "figure": "calibration_validation",
         "source_files": {
-            "interpolation": str(args.band_holdout),
-            "downward_root_direction": str(args.downward),
-            "camera_registry": str(args.registry),
+            "interpolation": release_path(args.band_holdout),
+            "downward_root_direction": release_path(args.downward),
+            "camera_registry": release_path(args.registry),
         },
         "experimental_unit": (
             "Camera. Metrics are first computed within camera and then averaged "
@@ -362,9 +371,10 @@ def main() -> None:
         "downward_summary": downward_summary,
         "camera_key": camera_details,
         "quality_caveat": (
-            "The source bands are automatically detected candidates. A documented "
-            "human spot check of the source images is required before these values "
-            "are presented as final confirmatory validation."
+            "The source bands are automatically detected candidates, so this is a "
+            "held-out self-consistency test rather than comparison with manually "
+            "annotated red-band truth. The completed 2021 human audit concerns a "
+            "different physical object: the stationary-camera support poles."
         ),
     }
     (args.output_dir / "calibration_validation.figure_notes.json").write_text(

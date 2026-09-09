@@ -1,6 +1,8 @@
 # Bayesian longitudinal maize height from fixed cameras
 
-This repository accompanies the Plant Phenomics manuscript **“Prior-Guided Bayesian Image Analysis for Physically Calibrated Longitudinal Maize Height.”** It releases the final manuscript, analysis code, canonical derived data, 61 curated 2021 field images, 12 support-pole XML files, a pose checkpoint, cached predictions, and a prospective two-reader plant-landmark packet.
+This repository accompanies the Plant Phenomics manuscript **“Bayesian Longitudinal Maize Height Estimation with Prior-Guided Image Analysis.”** It releases the final manuscript, analysis code, canonical derived data, 61 curated 2021 field images, 12 human-annotated support-pole XML files, a pose checkpoint, and cached predictions.
+
+The methodological distinction is where the longitudinal information acts. A conventional two-stage workflow chooses a measurement from each image and only then links those measurements in a longitudinal model. Here the predictive state is returned to current-image analysis: running position guides plant association and base refinement, while the stronger candidate branch lets the predicted height distribution score competing plant-top candidates before the measurement is finalized.
 
 The workflow treats “online” as an as-of analysis. When an image arrives, it is added to the available pool and the algorithm returns a measurement and height-growth distribution using that image and earlier images. Later images trigger later updates and do not revise earlier outputs.
 
@@ -12,18 +14,17 @@ The workflow treats “online” as an as-of analysis. When an image arrives, it
 - In the controlled ambiguity simulation, root mean squared error was 10.48 cm for single-frame selection, 8.61 cm for filtering after selection, and 6.01 cm when the predicted height distribution participated in candidate scoring.
 - In the matched 2021 real-image audit, the two temporal candidate rules selected the same candidate on all 63 evaluated plant-dates. This is a negative control: those natural candidate sets contained no conflict under the fixed gates.
 
-These estimates describe a pilot study. The field advantage over the strongest comparators is uncertain, the 2025 predictive evaluation has two sequential cameras, and two independent readers have not yet completed the released plant-landmark sheets.
+These estimates describe a pilot study. The field advantage over the strongest comparators is uncertain, and the 2025 predictive evaluation has two sequential cameras. Human evidence includes 150 plant masks, 132 manual field-height records, and Haoming Wang's 199 physical-reference traces across 61 images.
 
 ## Repository map
 
 - `manuscript/`: final LaTeX source, editable figures, main PDF, and supplementary PDF.
-- `analysis/`: canonical scripts used for the reported calculations and annotation workflow.
+- `analysis/`: canonical scripts used for the reported calculations and physical-reference import.
 - `data/raw/pole_calibration_images/`: 61 curated 2021 images. `C-039_2021-07-30.JPG` is retained; the confirmed duplicate spelling is omitted.
-- `data/manual_annotations/poles_2021/`: one support-pole XML file per camera row.
+- `data/manual_annotations/poles_2021/`: Haoming Wang's support-pole annotations, one XML file per camera row.
 - `data/processed/`: public derived measurements and candidate tables with workstation paths and server links removed.
 - `outputs/`: canonical summaries, bootstrap results, prediction tables, and audit figures.
 - `models/`: released pose checkpoint and its model card.
-- `annotation/`: blinded A/B sheets, image manifest, landmark protocol, and agreement scorer.
 
 ## Reproduce the core tables
 
@@ -55,10 +56,10 @@ The larger 2024–2025 raw-image archive is not included. The released derived t
 
 ## Physical and annotation definitions
 
-The 2021 labels `pole1` through `pole4` identify different visible camera-support poles. Each annotated segment runs from ground contact to the nominal camera mounting or optical-center height: 5 ft (152.4 cm). Four 35 in intervals describe horizontal field layout, totaling 140 in between adjacent rows; they are not vertical pole marks. The 2024–2025 reference is a separate 8–10 ft pole whose adjacent red-band edges are 1 ft (30.48 cm) apart.
+Haoming Wang manually traced 199 physical references across the 61 curated 2021 images; 172 traces are marked usable and 27 unusable in the XML audit. The labels `pole1` through `pole4` identify different visible camera-support poles. Each annotated segment runs from ground contact to the nominal camera mounting or optical-center height: 5 ft (152.4 cm). Four 35 in intervals describe horizontal field layout, totaling 140 in between adjacent rows; they are not vertical pole marks. The 2024–2025 reference is a separate 8–10 ft pole whose adjacent red-band edges are 1 ft (30.48 cm) apart.
 
-The primary 2021 manual field-height column comes from `_ft(cm)` measurement 1: ground to the topmost plant point that touches a meter stick before tasseling, and ground to the flag leaves after tasseling, excluding the tassel. The annotation packet separately records highest visible point, fully visible collar, flag-leaf tip, and ground contact so landmark-definition uncertainty can be quantified.
+The primary 2021 manual field-height column comes from `_ft(cm)` measurement 1: ground to the topmost plant point that touches a meter stick before tasseling, and ground to the flag leaves after tasseling, excluding the tassel.
 
-## Licenses and citation
+## Rights and citation
 
-Code is released under the MIT License. Released data, images, annotations, figures, and manuscript materials are licensed under CC BY 4.0; see `DATA_LICENSE.md`. Please cite the accompanying manuscript and repository metadata in `CITATION.cff`.
+Code is released under the MIT License. No separate reuse license has been confirmed for the data, images, annotations, model weights, figures, or manuscript materials; see `DATA_RIGHTS.md`. Please cite the accompanying manuscript and repository metadata in `CITATION.cff`.
