@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import re
@@ -65,6 +66,38 @@ def main() -> None:
     )
     near(test95["empirical_coverage"], 0.9489247, 1e-6)
     near(test95["mean_width_cm"], 97.83876)
+    development = next(
+        row for row in unc["summary"]
+        if row["model"] == "unit_consistent"
+        and row["split"] == "2024_development"
+    )
+    temporal_test = next(
+        row for row in unc["summary"]
+        if row["model"] == "unit_consistent"
+        and row["split"] == "2025_locked_test"
+    )
+    assert development["plants"] == 36
+    assert temporal_test["plants"] == 11
+
+    development_subjects: set[str] = set()
+    test_subjects: set[str] = set()
+    stream_path = (
+        ROOT
+        / "outputs/online_study/pole_camera_bayesian_daily_revised/"
+        "online_bayesian_height_posteriors.csv"
+    )
+    with stream_path.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if not row["predictive_mean_cm"].strip():
+                continue
+            year = int(row["capture_datetime"][:4])
+            if year == 2024:
+                development_subjects.add(row["plant_uid"])
+            elif year == 2025:
+                test_subjects.add(row["plant_uid"])
+    assert len(development_subjects) == development["plants"]
+    assert len(test_subjects) == temporal_test["plants"]
+    assert development_subjects.isdisjoint(test_subjects)
 
     real = json.loads((ROOT / "outputs/real_image_candidate_ablation_2021/summary.json").read_text())
     near(real["selection_agreement"], 1.0, 1e-12)
@@ -86,6 +119,10 @@ def main() -> None:
         "field_particle_filter_mae_cm": fm["Robust Bayesian particle filter"]["mae_cm"],
         "heldout_2025_coverage_95": test95["empirical_coverage"],
         "heldout_2025_mean_width_cm": test95["mean_width_cm"],
+        "temporal_validation_status": (
+            "2024 development and subject-disjoint 2025 test: "
+            "36 versus 11 evaluated plant tracks; zero plant-subject overlap"
+        ),
         "physical_annotation_status": (
             "completed human audit by Haoming Wang: 199 traces on 61 images; "
             "172 usable and 27 unusable"

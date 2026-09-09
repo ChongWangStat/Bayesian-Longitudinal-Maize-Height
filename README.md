@@ -10,11 +10,11 @@ The workflow treats “online” as an as-of analysis. When an image arrives, it
 
 - All 132 manual plant-height records from 33 plants in 12 field rows were retained. Mean absolute error was 12.03 cm for the single-frame image extent and 10.97 cm for the robust Bayesian particle filter. The paired reduction was 1.06 cm (95% row-cluster bootstrap interval, -0.16 to 2.39 cm).
 - The particle filter had the lowest point-estimate error among the fixed causal comparisons. The Gaussian local-linear Kalman filter reached 11.62 cm MAE; its paired difference from the particle filter was 0.66 cm (-0.43 to 1.79 cm).
-- With every noise scale expressed after the same 0.85 depth conversion, settings estimated from 2024 achieved 94.9% coverage with a 97.8 cm mean 95% predictive width on 372 held-out 2025 forecasts from two cameras. Lower nominal levels remained conservative.
+- With every noise scale expressed after the same 0.85 depth conversion, settings estimated from 36 plant tracks in 2024 achieved 94.9% coverage with a 97.8 cm mean 95% predictive width on 372 forecasts from 11 evaluated plant tracks at two cameras in 2025. Annual replanting makes this a temporally later, subject-disjoint cohort with no plant subject shared across years. Lower nominal levels remained conservative.
 - In the controlled ambiguity simulation, root mean squared error was 10.48 cm for single-frame selection, 8.61 cm for filtering after selection, and 6.01 cm when the predicted height distribution participated in candidate scoring.
 - In the matched 2021 real-image audit, the two temporal candidate rules selected the same candidate on all 63 evaluated plant-dates. This is a negative control: those natural candidate sets contained no conflict under the fixed gates.
 
-These estimates describe a pilot study. The field advantage over the strongest comparators is uncertain, and the 2025 predictive evaluation has two sequential cameras. Human evidence includes 150 plant masks, 132 manual field-height records, and Haoming Wang's 199 physical-reference traces across 61 images.
+These estimates describe a pilot study. The field advantage over the strongest comparators is uncertain, and the subject-disjoint 2025 predictive evaluation has only two sequential cameras. Forecasts repeat within plant tracks and cameras and are not treated as independent biological subjects. Human evidence includes 150 plant masks, 132 manual field-height records, and Haoming Wang's 199 physical-reference traces across 61 images.
 
 ## Repository map
 

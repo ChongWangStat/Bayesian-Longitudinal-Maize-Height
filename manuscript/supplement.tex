@@ -120,7 +120,7 @@ Equation~\ref{eq:s-fixed-gain} stores means only. The code does not store a posi
 
 The physical reference attached to a plant image is also selected as of $t$: only accepted reference fits whose calibration time is no later than the plant-image capture time are eligible. The selected top and base pixels are converted to centimeters, the depth factor is applied, and the resulting measurement updates the height-growth particle distribution. The cached detection-to-measurement audit recomputed \CausalPrefixes{} camera-time prefixes and compared \CausalRows{} previously emitted rows, with \CausalMismatches{} mismatches.
 
-This prefix audit does not imply that every model-development action occurred prospectively. The 2021 analysis normalizes wind over its five observed dates and transfers a growth field learned from 2024--2025. It is therefore a retrospective cross-year evaluation of a sequential recursion. A prospective deployment must freeze the wind-normalization range, growth field, detector, gates, and all hyperparameters before the first test image.
+This prefix audit does not imply that every model-development action occurred prospectively. The 2021 analysis normalizes wind over its five observed dates and transfers a growth field learned from 2024--2025. It is therefore a retrospective physical-height benchmark of a sequential recursion, separate from the early-to-late 2024 development to subject-disjoint 2025 test. A prospective deployment must freeze the wind-normalization range, growth field, detector, gates, and all hyperparameters before the first test image.
 
 In the simulation-only candidate extension, candidate $j$ with detector evidence $c_{tj}$ and implied height $y_{tj}$ is scored before the measurement update as
 \begin{equation}
@@ -257,9 +257,9 @@ The posterior mean and interval for latent height are computed from these update
 \section{Predictive-uncertainty calibration across levels and years}
 \label{sec:s-uncertainty}
 
-The 0.85 depth conversion changes every quantity expressed in centimeters. The corrected analysis therefore applies it to the image-derived height and its measurement standard deviation, and estimates the process and outlier scales from already corrected 2024 increments. The 2025 records are not used to estimate these values. Over the complete quality-controlled stream, the unit-consistent predictive mean had mean absolute error \ForecastBayesMAE{} cm, mean log score \CalibratedLogScore{}, and weighted interval score \CalibratedWIS{} cm.
+The 0.85 depth conversion changes every quantity expressed in centimeters. The corrected analysis therefore applies it to the image-derived height and its measurement standard deviation, and estimates the process and outlier scales from already corrected 2024 increments. The 2025 records are not used to estimate these values. Because plants were newly grown each season, the 2025 cohort is temporally later and subject-disjoint from 2024; no biological plant subject appears in both years. Over the complete quality-controlled stream, the unit-consistent predictive mean had mean absolute error \ForecastBayesMAE{} cm, mean log score \CalibratedLogScore{}, and weighted interval score \CalibratedWIS{} cm.
 
-Table~\ref{tab:s-uncertainty} and Figure~\ref{fig:s-uncertainty} show calibration at multiple levels. On \UncertaintyTestN{} held-out 2025 forecasts from \UncertaintyTestCameras{} cameras, the 95\% interval achieved \UncertaintyTestCoverageNinetyFive{}\% coverage with a \UncertaintyTestWidthNinetyFive{}-cm mean width. The 50\%, 80\%, and 90\% intervals covered \UncertaintyTestCoverageFifty{}\%, \UncertaintyTestCoverageEighty{}\%, and \UncertaintyTestCoverageNinety{}\%, respectively. This pattern is conservative at the lower levels even though the 95\% result is near nominal. The small number of test cameras limits claims about general cross-camera calibration.
+Table~\ref{tab:s-uncertainty} and Figure~\ref{fig:s-uncertainty} show calibration at multiple levels. On \UncertaintyTestN{} year-forward 2025 forecasts from \UncertaintyTestPlants{} evaluated plant tracks and \UncertaintyTestCameras{} cameras, the 95\% interval achieved \UncertaintyTestCoverageNinetyFive{}\% coverage with a \UncertaintyTestWidthNinetyFive{}-cm mean width. The 50\%, 80\%, and 90\% intervals covered \UncertaintyTestCoverageFifty{}\%, \UncertaintyTestCoverageEighty{}\%, and \UncertaintyTestCoverageNinety{}\%, respectively. This pattern is conservative at the lower levels even though the 95\% result is near nominal. Subject disjointness prevents repeated plants across years; it does not make repeated forecasts within a plant or camera independent. The small number of test cameras limits claims about general cross-camera calibration.
 
 \begin{table}[htbp]
 \caption{Central predictive-interval calibration. Parameters for the unit-consistent model were estimated from 2024 only. Each target is the next image-derived measurement before it was observed.}
@@ -274,7 +274,7 @@ Split & Forecasts & Cameras & Nominal (\%) & Coverage (\%) & Mean width (cm) \\
  & & & 90 & \UncertaintyDevCoverageNinety & \UncertaintyDevWidthNinety \\
  & & & 95 & \UncertaintyDevCoverageNinetyFive & \UncertaintyDevWidthNinetyFive \\
 \addlinespace
-2025 held-out test & \UncertaintyTestN & \UncertaintyTestCameras & 50 & \UncertaintyTestCoverageFifty & \UncertaintyTestWidthFifty \\
+2025 test & \UncertaintyTestN & \UncertaintyTestCameras & 50 & \UncertaintyTestCoverageFifty & \UncertaintyTestWidthFifty \\
  & & & 80 & \UncertaintyTestCoverageEighty & \UncertaintyTestWidthEighty \\
  & & & 90 & \UncertaintyTestCoverageNinety & \UncertaintyTestWidthNinety \\
  & & & 95 & \UncertaintyTestCoverageNinetyFive & \UncertaintyTestWidthNinetyFive \\
@@ -285,7 +285,7 @@ Split & Forecasts & Cameras & Nominal (\%) & Coverage (\%) & Mean width (cm) \\
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{uncertainty_calibration.pdf}
-\caption{Empirical coverage and interval width for the unit-consistent predictive distribution. Parameters were estimated from 2024 development records; 2025 was held out. The diagonal in the coverage panel marks exact nominal coverage. Points above the diagonal indicate conservative intervals.}
+\caption{Empirical coverage and interval width for the unit-consistent predictive distribution. Parameters were estimated from the 2024 development cohort; the newly planted, subject-disjoint 2025 cohort was held out. The diagonal in the coverage panel marks exact nominal coverage. Points above the diagonal indicate conservative intervals.}
 \label{fig:s-uncertainty}
 \end{figure}
 

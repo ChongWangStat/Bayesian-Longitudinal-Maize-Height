@@ -8,5 +8,6 @@
   "field_particle_filter_mae_cm": 10.9671805928788,
   "heldout_2025_coverage_95": 0.9489247311827957,
   "heldout_2025_mean_width_cm": 97.83876470284092,
+  "temporal_validation_status": "2024 development and subject-disjoint 2025 test: 36 versus 11 evaluated plant tracks; zero plant-subject overlap",
   "physical_annotation_status": "completed human audit by Haoming Wang: 199 traces on 61 images; 172 usable and 27 unusable"
 }
