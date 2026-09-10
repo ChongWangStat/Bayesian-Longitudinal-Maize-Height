@@ -163,6 +163,105 @@ def cluster_bootstrap(
     return result
 
 
+def distributional_sensitivity(
+    data: pd.DataFrame,
+    methods: dict[str, str],
+    replicates: int,
+    seed: int,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, object]]:
+    """Report complete error quantiles and influence checks for the primary sample."""
+    quantile_levels = (0.25, 0.50, 0.75, 0.90, 0.95)
+    quantile_rows = []
+    for name, column in methods.items():
+        absolute_error = (data[column] - data["height_true"]).abs()
+        values = absolute_error.quantile(quantile_levels)
+        quantile_rows.append(
+            {
+                "estimator": name,
+                **{
+                    f"absolute_error_q{int(100 * level):02d}_cm": float(values[level])
+                    for level in quantile_levels
+                },
+            }
+        )
+    quantiles = pd.DataFrame(quantile_rows)
+
+    single_error = (data["height_sam"] - data["height_true"]).abs().to_numpy()
+    proposed_error = (
+        data["posterior_mean_cm"] - data["height_true"]
+    ).abs().to_numpy()
+    row_ids = sorted(data["rowid"].unique())
+    indices_by_row = {
+        row_id: np.flatnonzero(data["rowid"].eq(row_id).to_numpy())
+        for row_id in row_ids
+    }
+    leave_one_out_rows = []
+    for omitted_row in row_ids:
+        keep = ~data["rowid"].eq(omitted_row).to_numpy()
+        single_mae = float(single_error[keep].mean())
+        proposed_mae = float(proposed_error[keep].mean())
+        leave_one_out_rows.append(
+            {
+                "omitted_row": omitted_row,
+                "records_retained": int(keep.sum()),
+                "single_frame_mae_cm": single_mae,
+                "particle_filter_mae_cm": proposed_mae,
+                "mae_improvement_cm": single_mae - proposed_mae,
+            }
+        )
+    leave_one_out = pd.DataFrame(leave_one_out_rows)
+
+    rng = np.random.default_rng(seed)
+    median_draws = np.empty(replicates)
+    for index in range(replicates):
+        selected = rng.choice(row_ids, size=len(row_ids), replace=True)
+        sampled_indices = np.concatenate(
+            [indices_by_row[row_id] for row_id in selected]
+        )
+        median_draws[index] = np.median(single_error[sampled_indices]) - np.median(
+            proposed_error[sampled_indices]
+        )
+
+    median_single = float(np.median(single_error))
+    median_proposed = float(np.median(proposed_error))
+    min_index = leave_one_out["mae_improvement_cm"].idxmin()
+    max_index = leave_one_out["mae_improvement_cm"].idxmax()
+    summary = {
+        "absolute_error_quantiles": list(quantile_levels),
+        "median_absolute_error": {
+            "single_frame_cm": median_single,
+            "particle_filter_cm": median_proposed,
+            "reduction_cm": median_single - median_proposed,
+            "row_cluster_bootstrap_ci95_cm": [
+                float(value)
+                for value in np.quantile(median_draws, [0.025, 0.975])
+            ],
+            "bootstrap_replicates": replicates,
+            "bootstrap_cluster": "rowid",
+            "seed": seed,
+        },
+        "leave_one_row_out_mae": {
+            "omissions": int(len(leave_one_out)),
+            "all_improvements_positive": bool(
+                (leave_one_out["mae_improvement_cm"] > 0).all()
+            ),
+            "minimum_improvement_cm": float(
+                leave_one_out.loc[min_index, "mae_improvement_cm"]
+            ),
+            "minimum_omitted_row": str(
+                leave_one_out.loc[min_index, "omitted_row"]
+            ),
+            "maximum_improvement_cm": float(
+                leave_one_out.loc[max_index, "mae_improvement_cm"]
+            ),
+            "maximum_omitted_row": str(
+                leave_one_out.loc[max_index, "omitted_row"]
+            ),
+        },
+    }
+    return quantiles, leave_one_out, summary
+
+
 def main() -> None:
     args = parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -196,6 +295,14 @@ def main() -> None:
     comparison = pd.DataFrame(rows)
     comparison.to_csv(args.output / "field_baseline_comparison.csv", index=False)
     data.to_csv(args.output / "field_baseline_per_record.csv", index=False)
+    quantiles, leave_one_out, sensitivity = distributional_sensitivity(
+        data,
+        methods,
+        args.replicates,
+        args.seed + 1,
+    )
+    quantiles.to_csv(args.output / "absolute_error_quantiles.csv", index=False)
+    leave_one_out.to_csv(args.output / "leave_one_row_out.csv", index=False)
     payload = {
         "design": {
             "records": int(len(data)),
@@ -209,11 +316,13 @@ def main() -> None:
             "seed": args.seed,
         },
         "metrics": rows,
+        "distributional_sensitivity": sensitivity,
     }
     (args.output / "summary.json").write_text(
         json.dumps(payload, indent=2), encoding="utf-8"
     )
     print(comparison.round(3).to_string(index=False))
+    print(json.dumps(sensitivity, indent=2))
 
 
 if __name__ == "__main__":

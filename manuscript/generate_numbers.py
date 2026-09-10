@@ -350,6 +350,43 @@ def main() -> None:
         put(prefix + "GainLo", fmt(row["ci95_cm"][0]))
         put(prefix + "GainHi", fmt(row["ci95_cm"][1]))
 
+    sensitivity = field_baselines["distributional_sensitivity"]
+    median_sensitivity = sensitivity["median_absolute_error"]
+    leave_one_out = sensitivity["leave_one_row_out_mae"]
+    put("FieldMedianErrorSingle", fmt(median_sensitivity["single_frame_cm"]))
+    put("FieldMedianErrorBayes", fmt(median_sensitivity["particle_filter_cm"]))
+    put("FieldMedianErrorGain", fmt(median_sensitivity["reduction_cm"]))
+    put("FieldMedianErrorGainLo", fmt(median_sensitivity["row_cluster_bootstrap_ci95_cm"][0]))
+    put("FieldMedianErrorGainHi", fmt(median_sensitivity["row_cluster_bootstrap_ci95_cm"][1]))
+    put("FieldLeaveOneRowOutN", leave_one_out["omissions"])
+    put("FieldLeaveOneRowOutMinGain", fmt(leave_one_out["minimum_improvement_cm"]))
+    put("FieldLeaveOneRowOutMaxGain", fmt(leave_one_out["maximum_improvement_cm"]))
+
+    error_quantiles = pd.read_csv(
+        ROOT / "outputs/field_baselines_2021/absolute_error_quantiles.csv"
+    ).set_index("estimator")
+    quantile_names = {
+        "FieldSingle": "Single-frame image extent",
+        "FieldEWMA": "EWMA (alpha=0.5)",
+        "FieldMedian": "Running median (three images)",
+        "FieldHolt": "Holt level-trend (alpha=0.5, beta=0.2)",
+        "FieldGaussian": "Gaussian local-linear Kalman filter",
+        "FieldBayes": "Robust Bayesian particle filter",
+    }
+    quantile_words = {
+        25: "TwentyFive",
+        50: "Fifty",
+        75: "SeventyFive",
+        90: "Ninety",
+        95: "NinetyFive",
+    }
+    for prefix, label in quantile_names.items():
+        for level, word in quantile_words.items():
+            put(
+                f"{prefix}Abs{word}",
+                fmt(error_quantiles.loc[label, f"absolute_error_q{level:02d}_cm"]),
+            )
+
     pos = pd.read_csv(ROOT / "outputs/future_position_reestimation/position_reestimation_comparison.csv")
     frozen = pos.iloc[0]
     sequential = pos.iloc[1]

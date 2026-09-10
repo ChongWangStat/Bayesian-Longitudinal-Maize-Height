@@ -1,4 +1,4 @@
-# Plant Phenomics submission package v1.1.5
+# Plant Phenomics submission package v1.1.6
 
 This release freezes the materials underlying the manuscript **“Bayesian Longitudinal Maize Height Estimation with Prior-Guided Image Analysis.”**
 
@@ -19,6 +19,9 @@ This release freezes the materials underlying the manuscript **“Bayesian Longi
 - A mechanism-aligned after-first-image analysis retains all 99 records for which a preceding image exists. Its 1.44-cm MAE improvement has a -0.21 to 3.26 cm whole-row bootstrap interval and is reported as supportive but imprecise.
 - The 172 usable support-pole annotations form 39 repeated row–pole series across 12 camera rows. Median temporal pixel-length CV is 1.24% (0.78–1.99% whole-row bootstrap interval), and 38 of 39 series are below 5%.
 - Main-text reporting now includes every prespecified causal comparator: improvement intervals exclude zero relative to EWMA, running median, and Holt, while the comparisons with a single frame and Gaussian Kalman filter remain explicitly uncertain.
+- The abstract now leads with the complete six-method comparison: the particle filter has the lowest mean absolute error, with positive whole-row intervals against EWMA, running median, and Holt and explicitly uncertain gains against the strongest two comparators.
+- A secondary distributional audit reports the 25th, median, 75th, 90th, and 95th percentiles of absolute error for all six methods. The particle filter is lowest at every reported quantile; its 1.43-cm median-error reduction relative to the single frame has a 0.29–3.70 cm whole-row bootstrap interval.
+- Leave-one-camera-row-out influence analysis retains a positive mean-error gain under every one of the 12 omissions, ranging from 0.61 to 1.42 cm. This supports robustness to a single influential row without changing the inconclusive primary mean-effect interval.
 
 ## Validation
 

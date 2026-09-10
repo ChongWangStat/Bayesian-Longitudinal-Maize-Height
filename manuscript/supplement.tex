@@ -322,6 +322,34 @@ Height prior in candidate scoring plus same filter & -9.27 & \RealAuditPriorMAE 
 \end{tabular}
 \end{table}
 
+\section{Field-error distribution and row influence}
+\label{sec:s-field-robustness}
+
+The primary comparison uses record-weighted mean absolute error and its whole-row bootstrap interval. As a secondary robustness audit, Table~\ref{tab:s-field-robustness} reports a complete set of absolute-error quantiles for every fixed causal estimator. The robust Bayesian particle filter had the lowest error at each reported quantile. Its median absolute error was \FieldMedianErrorBayes{} cm, compared with \FieldMedianErrorSingle{} cm for the single-frame extent. The paired \FieldMedianErrorGain{}-cm median reduction had a \FieldMedianErrorGainLo{} to \FieldMedianErrorGainHi{} cm whole-row bootstrap interval.
+
+Influence was evaluated by removing each stationary-camera row in turn and recomputing the record-weighted mean absolute-error difference. All \FieldLeaveOneRowOutN{} leave-one-row-out estimates favored the particle filter, ranging from \FieldLeaveOneRowOutMinGain{} to \FieldLeaveOneRowOutMaxGain{} cm. These checks show that the direction of the observed advantage is not created by one camera row or only by extreme errors. They remain secondary to the prespecified mean absolute-error comparison, whose cluster interval includes zero.
+
+\begin{table}[htbp]
+\caption{Secondary absolute-error distribution for the independent 2021 manual-reference validation. Values are centimeters across all \FieldN{} plant-date records; lower values are better.}
+\label{tab:s-field-robustness}
+\centering
+\small
+\singlespacing
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{L{4.1cm}rrrrr}
+\toprule
+Estimator & 25th & Median & 75th & 90th & 95th \\
+\midrule
+Single-frame image extent & \FieldSingleAbsTwentyFive & \FieldSingleAbsFifty & \FieldSingleAbsSeventyFive & \FieldSingleAbsNinety & \FieldSingleAbsNinetyFive \\
+EWMA & \FieldEWMAAbsTwentyFive & \FieldEWMAAbsFifty & \FieldEWMAAbsSeventyFive & \FieldEWMAAbsNinety & \FieldEWMAAbsNinetyFive \\
+Running median & \FieldMedianAbsTwentyFive & \FieldMedianAbsFifty & \FieldMedianAbsSeventyFive & \FieldMedianAbsNinety & \FieldMedianAbsNinetyFive \\
+Holt level--trend & \FieldHoltAbsTwentyFive & \FieldHoltAbsFifty & \FieldHoltAbsSeventyFive & \FieldHoltAbsNinety & \FieldHoltAbsNinetyFive \\
+Gaussian local-linear Kalman & \FieldGaussianAbsTwentyFive & \FieldGaussianAbsFifty & \FieldGaussianAbsSeventyFive & \FieldGaussianAbsNinety & \FieldGaussianAbsNinetyFive \\
+Robust Bayesian particle filter & \FieldBayesAbsTwentyFive & \FieldBayesAbsFifty & \FieldBayesAbsSeventyFive & \FieldBayesAbsNinety & \FieldBayesAbsNinetyFive \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \clearpage
 
 \section{All-plant mature-date results}
@@ -395,7 +423,7 @@ Partial source-frame recovery & \path{outputs/crop_positions_2021/crop_positions
 Primary field summary & \path{outputs/filter_height_sam_2021/all_plants_primary.json} & All-record and endpoint metrics with stationary-camera-row-cluster intervals; regenerate with \texttt{python reproduce\_core.py} \\
 Manual-height interval audit & \path{outputs/manual_height_uncertainty_2021/} & Central 80\% and 95\% posterior coverage, width, per-date summaries, and whole-row bootstrap intervals \\
 Detector-unit correction & \path{outputs/pixel_validation_2021/summary.json} & Recomputed centimeter metrics using 0.41588595 cm/pixel rather than the withdrawn field-regression conversion \\
-Field baselines & \path{outputs/field_baselines_2021/} & Fixed causal comparators and row-cluster intervals \\
+Field baselines & \path{outputs/field_baselines_2021/} & Fixed causal comparators, absolute-error quantiles, row-influence audit, and row-cluster intervals \\
 Real-image candidate audit & \path{outputs/real_image_candidate_ablation_2021/} & Matched candidate comparison with human truth used only for scoring \\
 \end{longtable}
 \endgroup

@@ -9,6 +9,8 @@ import json
 import re
 from pathlib import Path
 
+import pandas as pd
+
 ROOT = Path(__file__).resolve().parent
 EXPECTED_MODEL_SHA256 = "d813f7176890fd04f478868f8834ceae0b6f05c9c88ddfc8910c8c695745a572"
 
@@ -117,6 +119,23 @@ def main() -> None:
     assert all(fm[name]["ci95_cm"][0] > 0 for name in positive_comparators)
     assert fm["Single-frame image extent"]["ci95_cm"][0] < 0
     assert fm["Gaussian local-linear Kalman filter"]["ci95_cm"][0] < 0
+    distributional = field["distributional_sensitivity"]
+    median_error = distributional["median_absolute_error"]
+    near(median_error["single_frame_cm"], 8.735846, 1e-6)
+    near(median_error["particle_filter_cm"], 7.301512, 1e-6)
+    near(median_error["reduction_cm"], 1.434334, 1e-6)
+    assert median_error["row_cluster_bootstrap_ci95_cm"][0] > 0
+    leave_one_out = distributional["leave_one_row_out_mae"]
+    assert leave_one_out["omissions"] == 12
+    assert leave_one_out["all_improvements_positive"] is True
+    near(leave_one_out["minimum_improvement_cm"], 0.613584, 1e-6)
+    near(leave_one_out["maximum_improvement_cm"], 1.417692, 1e-6)
+    error_quantiles = pd.read_csv(
+        ROOT / "outputs/field_baselines_2021/absolute_error_quantiles.csv"
+    ).set_index("estimator")
+    proposed_quantiles = error_quantiles.loc["Robust Bayesian particle filter"]
+    for column in error_quantiles.columns:
+        assert proposed_quantiles[column] == error_quantiles[column].min()
     all_plants = json.loads(
         (ROOT / "outputs/filter_height_sam_2021/all_plants_primary.json").read_text()
     )
@@ -212,6 +231,8 @@ def main() -> None:
         "plant_phenomics_template_section_order": "Introduction; Materials and Methods; Results; Discussion",
         "field_particle_filter_mae_cm": fm["Robust Bayesian particle filter"]["mae_cm"],
         "field_comparators_with_positive_cluster_interval": positive_comparators,
+        "field_median_absolute_error_reduction_cm": median_error["reduction_cm"],
+        "field_leave_one_row_out_all_positive": leave_one_out["all_improvements_positive"],
         "field_after_first_image_mae_gain_cm": after_first["paired_row_cluster_bootstrap"]["mae_improvement_cm"],
         "manual_height_posterior_coverage_80": manual_intervals[0.80]["empirical_coverage"],
         "manual_height_posterior_coverage_95": manual_intervals[0.95]["empirical_coverage"],

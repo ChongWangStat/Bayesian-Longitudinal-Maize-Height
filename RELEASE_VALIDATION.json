@@ -18,6 +18,8 @@
     "Running median (three images)",
     "Holt level-trend (alpha=0.5, beta=0.2)"
   ],
+  "field_median_absolute_error_reduction_cm": 1.4343335663516115,
+  "field_leave_one_row_out_all_positive": true,
   "field_after_first_image_mae_gain_cm": 1.4377804583703782,
   "manual_height_posterior_coverage_80": 0.8712121212121212,
   "manual_height_posterior_coverage_95": 0.946969696969697,

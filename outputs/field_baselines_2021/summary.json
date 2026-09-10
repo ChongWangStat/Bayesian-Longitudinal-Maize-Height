@@ -83,5 +83,34 @@
       "mae_cm": 10.9671805928788,
       "rmse_cm": 15.80699428196003
     }
-  ]
+  ],
+  "distributional_sensitivity": {
+    "absolute_error_quantiles": [
+      0.25,
+      0.5,
+      0.75,
+      0.9,
+      0.95
+    ],
+    "median_absolute_error": {
+      "single_frame_cm": 8.735845760517599,
+      "particle_filter_cm": 7.301512194165987,
+      "reduction_cm": 1.4343335663516115,
+      "row_cluster_bootstrap_ci95_cm": [
+        0.2888083169064732,
+        3.702468149062143
+      ],
+      "bootstrap_replicates": 20000,
+      "bootstrap_cluster": "rowid",
+      "seed": 20260910
+    },
+    "leave_one_row_out_mae": {
+      "omissions": 12,
+      "all_improvements_positive": true,
+      "minimum_improvement_cm": 0.6135841724507234,
+      "minimum_omitted_row": "C_011",
+      "maximum_improvement_cm": 1.417692060094506,
+      "maximum_omitted_row": "C_037"
+    }
+  }
 }

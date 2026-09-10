@@ -12,7 +12,7 @@
 | `outputs/online_study/depth_corrected_heights_daily.csv` | measurement stream | Public 2024–2025 measurement-level input after 0.85 depth conversion. |
 | `outputs/online_study/pole_camera_bayesian_daily*_revised/` | 1,638 forecasts | Guessed and 2024-estimated predictive/posterior outputs. |
 | `outputs/uncertainty_revision/` | summaries | Coverage, width, log score, weighted interval score, and 2025 held-out results. |
-| `outputs/field_baselines_2021/` | summaries and 132 records | Fixed causal smoother comparisons and row-cluster bootstrap intervals. |
+| `outputs/field_baselines_2021/` | summaries and 132 records | Fixed causal smoother comparisons, complete absolute-error quantiles, leave-one-row-out influence results, and row-cluster bootstrap intervals. |
 | `outputs/manual_height_uncertainty_2021/` | 132 plant-dates | Central 80% and 95% latent-height posterior coverage and width against held-out manual height, with per-date and row-cluster summaries. |
 | `outputs/pole_repeatability_2021/` | 39 repeated row–pole series | Temporal coefficient of variation for all 172 traces marked usable, with whole-row bootstrap summaries. |
 | `outputs/real_image_candidate_ablation_2021/` | 63 matched plant-dates | Same-candidate audit of post-detection and prior-guided scoring. |
