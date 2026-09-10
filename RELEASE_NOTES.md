@@ -1,4 +1,4 @@
-# Plant Phenomics submission package v1.1.2
+# Plant Phenomics submission package v1.1.3
 
 This release freezes the materials underlying the manuscript **“Bayesian Longitudinal Maize Height Estimation with Prior-Guided Image Analysis.”**
 
@@ -11,10 +11,11 @@ This release freezes the materials underlying the manuscript **“Bayesian Longi
 - A fast reproduction entry point and an automated integrity check.
 - Explicit documentation that annual replanting makes the 2024 development and 2025 test cohorts temporally ordered and subject-disjoint, with repeated forecasts still nested within plant tracks and cameras.
 - Evidence hierarchy clarified: the 2021 manual measurements across 12 stationary-camera rows are the primary physical-height validation; the two-camera 2025 analysis is a secondary temporal predictive-interval transfer check, and the separate locked calibration test uses three cameras.
+- Validation terminology clarified: the subject-disjoint 2021 study is an independent validation because its plant subjects and manual reference outcomes were separate from longitudinal-model development, and the true manual heights were excluded from fitting and tuning. The manual reference series ends with an end-of-season 2021 measurement, and the newly completed pole annotations describe 2021 images. Ambiguous pairing language has been replaced by the precise concept of manual reference outcomes used only to score evaluated predictions.
 
 ## Validation
 
-Running `python reproduce_core.py` recalculates the core field comparison, causal baselines, real-image candidate audit, multi-level uncertainty summaries, and LaTeX numbers before executing `verify_release.py`. The frozen release passed this workflow on 9 September 2026.
+Running `python reproduce_core.py` recalculates the core field comparison, causal baselines, real-image candidate audit, multi-level uncertainty summaries, and LaTeX numbers before executing `verify_release.py`. The frozen release passed this workflow on 10 September 2026.
 
 ## Scope disclosures
 

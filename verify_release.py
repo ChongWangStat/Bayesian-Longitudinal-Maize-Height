@@ -123,7 +123,7 @@ def main() -> None:
         "title_characters": len(title), "abstract_words": len(words),
         "field_particle_filter_mae_cm": fm["Robust Bayesian particle filter"]["mae_cm"],
         "primary_validation_status": (
-            "2021 manual-reference physical-height validation: 132 records, "
+            "2021 independent manual-reference physical-height validation: 132 records, "
             "33 plants, 12 stationary-camera rows, five dates; labels excluded "
             "from fitting and tuning"
         ),
