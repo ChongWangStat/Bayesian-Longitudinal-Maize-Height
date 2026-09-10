@@ -16,9 +16,12 @@ The workflow treats “online” as an as-of analysis. When an image arrives, it
 
 These estimates describe a pilot study. The field advantage over the strongest comparators is uncertain. The primary independent manual-reference validation spans 12 stationary-camera rows, while the secondary subject-disjoint 2025 predictive evaluation has only two cameras. The manual reference series and newly annotated pole images are from 2021; the final manual reference was recorded at the end of that season. The external 2024–2025 growth field used no 2021 manual labels. Forecasts repeat within plant tracks and cameras and are not treated as independent biological subjects. Human evidence includes 150 plant masks, 132 manual field-height records, and Haoming Wang's 199 physical-reference traces across 61 images.
 
+Source-frame matching recovered coordinates for 87 archived plant crops across seven camera rows. Sixty-three of these map to the primary validation across six rows; the other 69 primary records preserve the derived segmentation extent without a reconstructable raw-image-to-extent chain. The released crop-position table records the recoverable coordinates and match scores.
+
 ## Repository map
 
 - `manuscript/`: final LaTeX source, editable figures, main PDF, and supplementary PDF.
+- The main source uses the official Plant Phenomics Overleaf template preamble and numbered-section order.
 - `analysis/`: canonical scripts used for the reported calculations and physical-reference import.
 - `data/raw/pole_calibration_images/`: 61 curated 2021 images. `C-039_2021-07-30.JPG` is retained; the confirmed duplicate spelling is omitted.
 - `data/manual_annotations/poles_2021/`: Haoming Wang's support-pole annotations, one XML file per camera row.
@@ -52,7 +55,7 @@ To rerun pose inference on all 61 curated images, install `requirements.txt` and
 python analysis/cache_pose_candidates_annotation_set.py
 ```
 
-The larger 2024–2025 raw-image archive is not included. The released derived table is sufficient to rerun the uncertainty analysis from its measurement-level input. The exact original training manifest, random seed, and full cross-fitting image set for the checkpoint were not recoverable from the project archive; see `models/MODEL_CARD.md`.
+The larger 2024–2025 raw-image archive is not included. The released derived table is sufficient to rerun the uncertainty analysis from its measurement-level input. The checkpoint's embedded training seed, deterministic setting, software version, training arguments, and summary metrics are preserved in `models/checkpoint_metadata.json`. The referenced dataset file, exact original training-image manifest, original training masks, source commit, and full cross-fitting image set were not recoverable from the project archive; see `models/MODEL_CARD.md`.
 
 ## Physical and annotation definitions
 

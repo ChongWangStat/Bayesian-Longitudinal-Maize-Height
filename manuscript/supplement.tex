@@ -371,32 +371,20 @@ Asset & Canonical path or source & Role and limitation \\
 Imported 2021 pole table & \path{data/processed/manual_poles_2021/manual_pole_annotations_2021.csv} & Trace endpoints, status, pixel length, and physical definition after duplicate removal \\
 Pole definitions & \path{data/processed/manual_poles_2021/pole_definitions_2021.csv} & Documents 5-ft support length and distinguishes horizontal 35-in marks from red-band spacing \\
 Daily image manifest & \path{data/processed/pole_camera_daily_manifest.csv} & As-of capture records, local/remote identifiers, and checksums \\
-Released pose checkpoint & \path{models/maize_pose_2021_best.pt} & 2021 YOLO pose weights with SHA-256 checksum and model card \\
+Released pose checkpoint & \path{models/maize_pose_2021_best.pt} & 2021 YOLO pose weights with SHA-256 checksum; embedded software version, seed, deterministic setting, training arguments, and metrics are recorded in \path{models/checkpoint_metadata.json}, while the referenced dataset file, exact image split, original masks, and source commit remain unavailable \\
 Curated-image pose candidates & \path{outputs/pose_candidates_annotation_set_2021/pose_candidates.csv} & Complete cache for all 61 released images \\
 Automatic calibrations & \path{data/processed/automatic_pole_calibrations_daily.csv} & Candidate red-band fits and quality-control fields \\
 Causal audit & \path{outputs/online_study/causality_audit_daily.json} & Prefix recomputation for cached detections through measurement assembly \\
 Daily Bayesian output & \path{outputs/online_study/pole_camera_bayesian_daily_revised/online_bayesian_height_posteriors.csv} & Unit-consistent exact-mixture predictive and posterior summaries \\
 Daily model settings & \path{outputs/online_study/pole_camera_bayesian_daily_revised/model_hyperparameters.json} & Complete saved particle-filter settings \\
-2021 primary independent validation & \path{data/raw/heights_compare_2021.csv} & Archived image extents and 132 manual field measurements across 12 stationary-camera rows; raw-image-to-extent provenance remains incomplete \\
+2021 primary independent validation & \path{data/raw/heights_compare_2021.csv} & Archived image extents and 132 manual field measurements across 12 stationary-camera rows; 63 records across six rows have recovered source-frame coordinates, while 69 retain only the derived extent \\
+Partial source-frame recovery & \path{outputs/crop_positions_2021/crop_positions.csv} & Coordinates and masked-template match scores for 87 archived crop records across seven camera rows; 63 records join the primary validation, and source pixels are not redistributed in this release \\
 2021 canonical posterior & \path{outputs/filter_height_sam_2021/filtered_height_sam__phi1.0_plus_pole_growth_field.csv} & Input to all-plants and per-plant summaries \\
-Primary field summary & \path{outputs/filter_height_sam_2021/all_plants_primary.json} & All-record and endpoint metrics with stationary-camera-row-cluster intervals \\
+Primary field summary & \path{outputs/filter_height_sam_2021/all_plants_primary.json} & All-record and endpoint metrics with stationary-camera-row-cluster intervals; regenerate with \texttt{python reproduce\_core.py} \\
 Detector-unit correction & \path{outputs/pixel_validation_2021/summary.json} & Recomputed centimeter metrics using 0.41588595 cm/pixel rather than the withdrawn field-regression conversion \\
 Field baselines & \path{outputs/field_baselines_2021/} & Fixed causal comparators and row-cluster intervals \\
 Real-image candidate audit & \path{outputs/real_image_candidate_ablation_2021/} & Matched candidate comparison with human truth used only for scoring \\
-Generated manuscript values & \path{manuscript/numbers.tex} and \path{manuscript/per_plant_table.tex} & Programmatically generated values and per-plant table included by the submission source \\
 \end{longtable}
 \endgroup
-
-\footnotesize
-
-The packaged core reproduction is run as follows.
-
-\begin{verbatim}
-python reproduce_core.py
-\end{verbatim}
-
-The repository documents the full daily image-chain and figure-generation commands. The daily chain requires Bash and the locally documented weather workbook. Released outputs record deterministic seeds and checksums; excluded raw archives are represented by the derived measurements required for reported summaries.
-
-\normalsize
 
 \end{document}

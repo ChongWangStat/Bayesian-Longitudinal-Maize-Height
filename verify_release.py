@@ -40,6 +40,38 @@ def main() -> None:
     assert pole_audit["usable_annotations"] == 172
     assert pole_audit["unusable_annotations"] == 27
     assert sha256(ROOT / "models/maize_pose_2021_best.pt") == EXPECTED_MODEL_SHA256
+    checkpoint_metadata = json.loads(
+        (ROOT / "models/checkpoint_metadata.json").read_text(encoding="utf-8")
+    )
+    assert checkpoint_metadata["sha256"] == EXPECTED_MODEL_SHA256
+    assert checkpoint_metadata["ultralytics_version"] == "8.3.233"
+    assert checkpoint_metadata["train_args"]["seed"] == 0
+    assert checkpoint_metadata["train_args"]["deterministic"] is True
+    assert checkpoint_metadata["train_args"]["epochs"] == 150
+    assert checkpoint_metadata["train_args"]["imgsz"] == 1024
+
+    with (ROOT / "outputs/crop_positions_2021/crop_positions.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        crop_positions = list(csv.DictReader(handle))
+    assert len(crop_positions) == 87
+    crop_keys = {
+        (row["rowid"], row["date_md"], row["plant"]) for row in crop_positions
+    }
+    assert len(crop_keys) == 87
+    assert len({row["rowid"] for row in crop_positions}) == 7
+    assert min(float(row["match_score"]) for row in crop_positions) >= 0.98
+
+    with (ROOT / "data/raw/heights_compare_2021.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        primary_rows = list(csv.DictReader(handle))
+    recovered_primary = [
+        row for row in primary_rows
+        if (row["rowid"], row["date_md"], row["plantid"]) in crop_keys
+    ]
+    assert len(recovered_primary) == 63
+    assert len({row["rowid"] for row in recovered_primary}) == 6
 
     tex = (ROOT / "manuscript/main.tex").read_text(encoding="utf-8")
     title = re.search(r"\\title\{(.*?)\}", tex, flags=re.S).group(1)
@@ -49,6 +81,13 @@ def main() -> None:
     assert len(words) == 250, len(words)
     assert "Longitudinal" in title and "longitudinal" in abstract.lower()
     assert "Prior-Guided Image Analysis" in title
+    section_order = [
+        tex.index(r"\section{Introduction}"),
+        tex.index(r"\section{Materials and Methods}"),
+        tex.index(r"\section{Results}"),
+        tex.index(r"\section{Discussion}"),
+    ]
+    assert section_order == sorted(section_order)
     assert (ROOT / "manuscript/main.pdf").stat().st_size > 100_000
     assert (ROOT / "manuscript/supplement.pdf").stat().st_size > 100_000
 
@@ -120,7 +159,14 @@ def main() -> None:
     report = {
         "status": "pass", "images": 61, "xml_files": 12,
         "model_sha256": EXPECTED_MODEL_SHA256,
+        "checkpoint_training_ultralytics": checkpoint_metadata["ultralytics_version"],
+        "checkpoint_training_seed": checkpoint_metadata["train_args"]["seed"],
+        "checkpoint_training_epochs": checkpoint_metadata["train_args"]["epochs"],
+        "recovered_crop_positions": len(crop_positions),
+        "primary_records_with_recovered_source_coordinates": len(recovered_primary),
+        "primary_records_without_recovered_source_coordinates": len(primary_rows) - len(recovered_primary),
         "title_characters": len(title), "abstract_words": len(words),
+        "plant_phenomics_template_section_order": "Introduction; Materials and Methods; Results; Discussion",
         "field_particle_filter_mae_cm": fm["Robust Bayesian particle filter"]["mae_cm"],
         "primary_validation_status": (
             "2021 independent manual-reference physical-height validation: 132 records, "
