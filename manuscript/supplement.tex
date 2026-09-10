@@ -48,12 +48,12 @@ The term \emph{prior-guided image analysis} refers to feedback across the image/
 \begin{longtable}{L{2.45cm}L{4.05cm}L{3.25cm}L{3.25cm}}
 \caption{Full parameter and implementation specification for the two empirical analysis streams. A dash indicates that the operation was not applied in that stream.}\label{tab:s-parameters}\\
 \toprule
-Component & Quantity or operation & 2024--2025 daily pole stream & 2021 field-height comparison \\
+Component & Quantity or operation & 2024--2025 daily pole stream & 2021 primary manual-reference validation \\
 \midrule
 \endfirsthead
 \multicolumn{4}{l}{\textit{Table \thetable{} continued}}\\
 \toprule
-Component & Quantity or operation & 2024--2025 daily pole stream & 2021 field-height comparison \\
+Component & Quantity or operation & 2024--2025 daily pole stream & 2021 primary manual-reference validation \\
 \midrule
 \endhead
 \midrule
@@ -120,7 +120,7 @@ Equation~\ref{eq:s-fixed-gain} stores means only. The code does not store a posi
 
 The physical reference attached to a plant image is also selected as of $t$: only accepted reference fits whose calibration time is no later than the plant-image capture time are eligible. The selected top and base pixels are converted to centimeters, the depth factor is applied, and the resulting measurement updates the height-growth particle distribution. The cached detection-to-measurement audit recomputed \CausalPrefixes{} camera-time prefixes and compared \CausalRows{} previously emitted rows, with \CausalMismatches{} mismatches.
 
-This prefix audit does not imply that every model-development action occurred prospectively. The 2021 analysis normalizes wind over its five observed dates and transfers a growth field learned from 2024--2025. It is therefore a retrospective physical-height benchmark of a sequential recursion, separate from the early-to-late 2024 development to subject-disjoint 2025 test. A prospective deployment must freeze the wind-normalization range, growth field, detector, gates, and all hyperparameters before the first test image.
+This prefix audit does not imply that every model-development action occurred prospectively. The primary manual-reference validation uses 2021 plants from 12 stationary-camera rows, with manual height excluded from the image measurement, growth field, filter, noise parameters, and comparator settings. The growth field is transferred from 2024--2025, so this label-held-out, subject-disjoint physical-height validation is retrospective in calendar direction. The separate 2024 development to subject-disjoint 2025 test supplies the secondary early-to-late uncertainty check. A prospective deployment must freeze the wind-normalization range, growth field, detector, gates, and all hyperparameters before the first test image.
 
 In the simulation-only candidate extension, candidate $j$ with detector evidence $c_{tj}$ and implied height $y_{tj}$ is scored before the measurement update as
 \begin{equation}
@@ -254,15 +254,15 @@ The posterior mean and interval for latent height are computed from these update
 \end{figure}
 \clearpage
 
-\section{Predictive-uncertainty calibration across levels and years}
+\section{Secondary predictive-uncertainty transfer across years}
 \label{sec:s-uncertainty}
 
-The 0.85 depth conversion changes every quantity expressed in centimeters. The corrected analysis therefore applies it to the image-derived height and its measurement standard deviation, and estimates the process and outlier scales from already corrected 2024 increments. The 2025 records are not used to estimate these values. Because plants were newly grown each season, the 2025 cohort is temporally later and subject-disjoint from 2024; no biological plant subject appears in both years. Over the complete quality-controlled stream, the unit-consistent predictive mean had mean absolute error \ForecastBayesMAE{} cm, mean log score \CalibratedLogScore{}, and weighted interval score \CalibratedWIS{} cm.
+This secondary analysis evaluates temporal transfer of predictive uncertainty for the next image-derived measurement. The 0.85 depth conversion changes every quantity expressed in centimeters. The corrected analysis therefore applies it to the image-derived height and its measurement standard deviation, and estimates the process and outlier scales from already corrected 2024 increments. The 2025 records are not used to estimate these values. Because plants were newly grown each season, the 2025 cohort is temporally later and subject-disjoint from 2024; no biological plant subject appears in both years. Over the complete quality-controlled stream, the unit-consistent predictive mean had mean absolute error \ForecastBayesMAE{} cm, mean log score \CalibratedLogScore{}, and weighted interval score \CalibratedWIS{} cm.
 
-Table~\ref{tab:s-uncertainty} and Figure~\ref{fig:s-uncertainty} show calibration at multiple levels. On \UncertaintyTestN{} year-forward 2025 forecasts from \UncertaintyTestPlants{} evaluated plant tracks and \UncertaintyTestCameras{} cameras, the 95\% interval achieved \UncertaintyTestCoverageNinetyFive{}\% coverage with a \UncertaintyTestWidthNinetyFive{}-cm mean width. The 50\%, 80\%, and 90\% intervals covered \UncertaintyTestCoverageFifty{}\%, \UncertaintyTestCoverageEighty{}\%, and \UncertaintyTestCoverageNinety{}\%, respectively. This pattern is conservative at the lower levels even though the 95\% result is near nominal. Subject disjointness prevents repeated plants across years; it does not make repeated forecasts within a plant or camera independent. The small number of test cameras limits claims about general cross-camera calibration.
+Table~\ref{tab:s-uncertainty} and Figure~\ref{fig:s-uncertainty} show calibration at multiple levels. On \UncertaintyTestN{} year-forward 2025 forecasts from \UncertaintyTestPlants{} evaluated plant tracks and \UncertaintyTestCameras{} cameras, the 95\% interval achieved \UncertaintyTestCoverageNinetyFive{}\% coverage with a \UncertaintyTestWidthNinetyFive{}-cm mean width. The 50\%, 80\%, and 90\% intervals covered \UncertaintyTestCoverageFifty{}\%, \UncertaintyTestCoverageEighty{}\%, and \UncertaintyTestCoverageNinety{}\%, respectively. This pattern is conservative at the lower levels even though the 95\% result is near nominal. Subject disjointness prevents repeated plants across years; it does not make repeated forecasts within a plant or camera independent. With only two test cameras, this analysis supports temporal transfer for those installations and does not establish broad camera generalization. The primary physical-height validation instead uses manual measurements across 12 stationary-camera rows.
 
 \begin{table}[htbp]
-\caption{Central predictive-interval calibration. Parameters for the unit-consistent model were estimated from 2024 only. Each target is the next image-derived measurement before it was observed.}
+\caption{Secondary temporal predictive-interval evaluation. Parameters for the unit-consistent model were estimated from 2024 only. Each target is the next image-derived measurement before it was observed.}
 \label{tab:s-uncertainty}
 \centering
 \begin{tabular}{lrrrrr}
@@ -285,7 +285,7 @@ Split & Forecasts & Cameras & Nominal (\%) & Coverage (\%) & Mean width (cm) \\
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{uncertainty_calibration.pdf}
-\caption{Empirical coverage and interval width for the unit-consistent predictive distribution. Parameters were estimated from the 2024 development cohort; the newly planted, subject-disjoint 2025 cohort was held out. The diagonal in the coverage panel marks exact nominal coverage. Points above the diagonal indicate conservative intervals.}
+\caption{Secondary temporal evaluation of coverage and interval width for the unit-consistent predictive distribution. Parameters were estimated from the 2024 development cohort; the newly planted, subject-disjoint 2025 cohort was held out. The diagonal in the coverage panel marks exact nominal coverage. Points above the diagonal indicate conservative intervals.}
 \label{fig:s-uncertainty}
 \end{figure}
 
@@ -318,7 +318,7 @@ Height prior in candidate scoring plus same filter & -9.27 & \RealAuditPriorMAE 
 \section{All-plant mature-date results}
 \label{sec:s-per-plant}
 
-Table~\ref{tab:s-per-plant} lists the last available 2021 observation for every plant retained in the primary analysis. No plant is removed using image-minus-field residuals. The single-frame column is the archived geometrically scaled mask extent; the Bayesian column is the height-growth particle-filter posterior mean. The interval is the 2.5th to 97.5th percentile of the latent-height posterior after the endpoint image. Manual endpoint height is used for scoring and is not supplied to the filter.
+Table~\ref{tab:s-per-plant} lists the last available 2021 observation for every plant retained in the primary manual-reference validation. No plant is removed using image-minus-field residuals. The single-frame column is the archived geometrically scaled mask extent; the Bayesian column is the height-growth particle-filter posterior mean. The interval is the 2.5th to 97.5th percentile of the latent-height posterior after the endpoint image. Manual endpoint height is used for scoring and is not supplied to the filter.
 
 \begin{longtable}{L{2.4cm}rrrr}
 \caption{All \FieldPlants{} plants at their last available 2021 field date. Heights and interval endpoints are in centimeters.}\label{tab:s-per-plant}\\
@@ -339,7 +339,7 @@ Plant & Manual field & Single frame & Bayesian mean & Bayesian 95\% interval \\
 \input{per_plant_table.tex}
 \end{longtable}
 
-Across these \FieldEndpointN{} endpoints, single-frame mean absolute error was \FieldEndpointSingleMAE{} cm and the Bayesian mean absolute error was \FieldEndpointBayesMAE{} cm. The Bayesian signed error was +\FieldEndpointBayesBias{} cm. The row-cluster bootstrap interval for the \FieldEndpointGain{}-cm paired mean-absolute-error reduction was \FieldEndpointGainLo{} to \FieldEndpointGainHi{} cm. These endpoint results are secondary because the interval is wide and includes zero; the main article uses all \FieldN{} plant-date records as its primary comparison.
+Across these \FieldEndpointN{} endpoints, single-frame mean absolute error was \FieldEndpointSingleMAE{} cm and the Bayesian mean absolute error was \FieldEndpointBayesMAE{} cm. The Bayesian signed error was +\FieldEndpointBayesBias{} cm. The stationary-camera-row bootstrap interval for the \FieldEndpointGain{}-cm paired mean-absolute-error reduction was \FieldEndpointGainLo{} to \FieldEndpointGainHi{} cm. These endpoint results are secondary because the interval is wide and includes zero; the main article uses all \FieldN{} plant-date records as its primary comparison.
 
 \section{Data provenance and reproducibility}
 \label{sec:s-reproducibility}
@@ -376,9 +376,9 @@ Automatic calibrations & \path{data/processed/automatic_pole_calibrations_daily.
 Causal audit & \path{outputs/online_study/causality_audit_daily.json} & Prefix recomputation for cached detections through measurement assembly \\
 Daily Bayesian output & \path{outputs/online_study/pole_camera_bayesian_daily_revised/online_bayesian_height_posteriors.csv} & Unit-consistent exact-mixture predictive and posterior summaries \\
 Daily model settings & \path{outputs/online_study/pole_camera_bayesian_daily_revised/model_hyperparameters.json} & Complete saved particle-filter settings \\
-2021 raw comparison & \path{data/raw/heights_compare_2021.csv} & Archived image extents and manual field measurements; raw-image-to-extent provenance remains incomplete \\
+2021 primary validation & \path{data/raw/heights_compare_2021.csv} & Archived image extents and 132 manual field measurements across 12 stationary-camera rows; raw-image-to-extent provenance remains incomplete \\
 2021 canonical posterior & \path{outputs/filter_height_sam_2021/filtered_height_sam__phi1.0_plus_pole_growth_field.csv} & Input to all-plants and per-plant summaries \\
-Primary field summary & \path{outputs/filter_height_sam_2021/all_plants_primary.json} & All-record and endpoint metrics with row-cluster intervals \\
+Primary field summary & \path{outputs/filter_height_sam_2021/all_plants_primary.json} & All-record and endpoint metrics with stationary-camera-row-cluster intervals \\
 Detector-unit correction & \path{outputs/pixel_validation_2021/summary.json} & Recomputed centimeter metrics using 0.41588595 cm/pixel rather than the withdrawn field-regression conversion \\
 Field baselines & \path{outputs/field_baselines_2021/} & Fixed causal comparators and row-cluster intervals \\
 Real-image candidate audit & \path{outputs/real_image_candidate_ablation_2021/} & Matched candidate comparison with human truth used only for scoring \\
@@ -387,7 +387,7 @@ Generated manuscript values & \path{manuscript/numbers.tex} and \path{manuscript
 \endgroup
 
 \small
-\enlargethispage{5\baselineskip}
+\enlargethispage{7\baselineskip}
 
 The main regeneration sequence is shown below. The daily-chain shell script requires a Bash environment. The 2021 filter also requires the locally documented weather workbook used to create its five date-specific gust values.
 
@@ -413,7 +413,7 @@ python analysis/plot_field_validation_2021.py
 python analysis/plot_geometry_diagram.py
 \end{verbatim}
 
-The particle-filter output stores the base seed and all model settings. Plant-specific seeds are derived deterministically from the base seed and plant identifier. The all-plants bootstrap uses 20,000 replicates with its seed recorded in \path{all_plants_primary.json}. The repository includes an MIT code license, a SHA-256 manifest, the final available pose checkpoint, all 61 curated 2021 images, and the completed 199-trace human physical-reference audit. No separate reuse license has been assigned to non-code materials. The larger 2024--2025 raw-image archive and the original cross-fitting image set are not distributed; the public release includes the derived measurements needed to regenerate reported summaries.
+Particle-filter outputs store all settings and deterministic plant-specific seeds. The 20,000-replicate bootstrap seed is recorded in \path{all_plants_primary.json}. The release includes an MIT code license, a SHA-256 manifest, the final pose checkpoint, all 61 curated 2021 images, and the completed 199-trace human physical-reference audit. Non-code materials have no separate reuse license. The larger 2024--2025 raw-image archive and original cross-fitting image set are excluded, while the derived measurements needed to regenerate reported summaries are included.
 
 \normalsize
 

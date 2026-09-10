@@ -1,4 +1,4 @@
-# Plant Phenomics submission package v1.1.1
+# Plant Phenomics submission package v1.1.2
 
 This release freezes the materials underlying the manuscript **“Bayesian Longitudinal Maize Height Estimation with Prior-Guided Image Analysis.”**
 
@@ -10,6 +10,7 @@ This release freezes the materials underlying the manuscript **“Bayesian Longi
 - Sixty-one unique 2021 pole-calibration images and 12 row-level CVAT XML files containing Haoming Wang's completed human physical-reference audit: 199 traces, including 172 marked usable and 27 marked unusable. `C-039_2021-07-30.JPG` is retained and the confirmed duplicate spelling is omitted.
 - A fast reproduction entry point and an automated integrity check.
 - Explicit documentation that annual replanting makes the 2024 development and 2025 test cohorts temporally ordered and subject-disjoint, with repeated forecasts still nested within plant tracks and cameras.
+- Evidence hierarchy clarified: the 2021 manual measurements across 12 stationary-camera rows are the primary physical-height validation; the two-camera 2025 analysis is a secondary temporal predictive-interval transfer check, and the separate locked calibration test uses three cameras.
 
 ## Validation
 

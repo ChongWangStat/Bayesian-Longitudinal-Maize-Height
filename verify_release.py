@@ -46,13 +46,18 @@ def main() -> None:
     abstract = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", tex, flags=re.S).group(1)
     words = re.findall(r"[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*", abstract)
     assert len(title) <= 100, len(title)
-    assert len(words) <= 250, len(words)
+    assert len(words) == 250, len(words)
     assert "Longitudinal" in title and "longitudinal" in abstract.lower()
     assert "Prior-Guided Image Analysis" in title
     assert (ROOT / "manuscript/main.pdf").stat().st_size > 100_000
     assert (ROOT / "manuscript/supplement.pdf").stat().st_size > 100_000
 
     field = json.loads((ROOT / "outputs/field_baselines_2021/summary.json").read_text())
+    assert field["design"]["records"] == 132
+    assert field["design"]["plants"] == 33
+    assert field["design"]["rows"] == 12
+    assert field["design"]["dates"] == 5
+    assert field["design"]["manual_height_used_for_tuning"] is False
     fm = {row["estimator"]: row for row in field["metrics"]}
     near(fm["Robust Bayesian particle filter"]["mae_cm"], 10.96718)
     near(fm["Gaussian local-linear Kalman filter"]["mae_cm"], 11.62270)
@@ -117,6 +122,11 @@ def main() -> None:
         "model_sha256": EXPECTED_MODEL_SHA256,
         "title_characters": len(title), "abstract_words": len(words),
         "field_particle_filter_mae_cm": fm["Robust Bayesian particle filter"]["mae_cm"],
+        "primary_validation_status": (
+            "2021 manual-reference physical-height validation: 132 records, "
+            "33 plants, 12 stationary-camera rows, five dates; labels excluded "
+            "from fitting and tuning"
+        ),
         "heldout_2025_coverage_95": test95["empirical_coverage"],
         "heldout_2025_mean_width_cm": test95["mean_width_cm"],
         "temporal_validation_status": (
