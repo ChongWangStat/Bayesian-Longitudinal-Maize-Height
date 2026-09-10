@@ -1,4 +1,4 @@
-# Plant Phenomics submission package v1.1.4
+# Plant Phenomics submission package v1.1.5
 
 This release freezes the materials underlying the manuscript **“Bayesian Longitudinal Maize Height Estimation with Prior-Guided Image Analysis.”**
 
@@ -15,10 +15,14 @@ This release freezes the materials underlying the manuscript **“Bayesian Longi
 - Validation terminology clarified: the subject-disjoint 2021 study is an independent validation because its plant subjects and manual reference outcomes were separate from longitudinal-model development, and the true manual heights were excluded from fitting and tuning. The manual reference series ends with an end-of-season 2021 measurement, and the newly completed pole annotations describe 2021 images. Ambiguous pairing language has been replaced by the precise concept of manual reference outcomes used only to score evaluated predictions.
 - Partial raw-image provenance quantified: source-frame matching recovered 87 archived crop positions across seven camera rows; 63 join the primary validation across six rows, while 69 primary records retain only the derived extent.
 - The main source uses the official Plant Phenomics LaTeX template preamble and now follows its numbered-section order: Introduction, Materials and Methods, Results, and Discussion.
+- Manual-reference uncertainty is now reported at both 80% and 95% posterior levels with whole-camera-row bootstrap intervals. Coverage is 87.1% and 94.7%, respectively, across all 132 held-out 2021 manual heights.
+- A mechanism-aligned after-first-image analysis retains all 99 records for which a preceding image exists. Its 1.44-cm MAE improvement has a -0.21 to 3.26 cm whole-row bootstrap interval and is reported as supportive but imprecise.
+- The 172 usable support-pole annotations form 39 repeated row–pole series across 12 camera rows. Median temporal pixel-length CV is 1.24% (0.78–1.99% whole-row bootstrap interval), and 38 of 39 series are below 5%.
+- Main-text reporting now includes every prespecified causal comparator: improvement intervals exclude zero relative to EWMA, running median, and Holt, while the comparisons with a single frame and Gaussian Kalman filter remain explicitly uncertain.
 
 ## Validation
 
-Running `python reproduce_core.py` recalculates the core field comparison, causal baselines, real-image candidate audit, multi-level uncertainty summaries, and LaTeX numbers before executing `verify_release.py`. The frozen release passed this workflow on 10 September 2026.
+Running `python reproduce_core.py` recalculates the core field comparison, causal baselines, after-first-image analysis, manual-height interval calibration, support-pole repeatability, real-image candidate audit, multi-level uncertainty summaries, and LaTeX numbers before executing `verify_release.py`. The frozen release passed this workflow on 10 September 2026.
 
 ## Scope disclosures
 

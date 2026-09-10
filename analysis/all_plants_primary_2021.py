@@ -89,6 +89,11 @@ def main() -> None:
             "2024-2025 pole stream; no 2021 field height used for fitting"
         ),
         "whole_season_all_plants": summarize(data, args.replicates, args.seed),
+        "after_first_image_all_plants": summarize(
+            data[data["online_sequence_number"] > 1],
+            args.replicates,
+            args.seed + 2,
+        ),
         "endpoint_all_plants": summarize(
             data.sort_values("date").groupby("plant_uid", as_index=False).tail(1),
             args.replicates,

@@ -1,0 +1,57 @@
+{
+  "design": {
+    "records": 132,
+    "plants": 33,
+    "stationary_camera_rows": 12,
+    "dates": 5,
+    "target": "latent plant height after incorporating the current image",
+    "reference": "manual field height",
+    "manual_height_used_for_fitting_or_tuning": false,
+    "bootstrap_cluster": "rowid",
+    "bootstrap_replicates": 20000,
+    "seed": 20260910
+  },
+  "intervals": [
+    {
+      "nominal_coverage": 0.8,
+      "n": 132,
+      "covered": 115,
+      "empirical_coverage": 0.8712121212121212,
+      "coverage_row_cluster_ci95": [
+        0.7933884297520661,
+        0.936
+      ],
+      "mean_width_cm": 47.939804096522465,
+      "mean_width_row_cluster_ci95_cm": [
+        46.87816968341969,
+        49.37736252603678
+      ],
+      "median_width_cm": 42.399072828074814,
+      "below_interval": 10,
+      "above_interval": 7,
+      "lower_column": "posterior_q10_cm",
+      "upper_column": "posterior_q90_cm"
+    },
+    {
+      "nominal_coverage": 0.95,
+      "n": 132,
+      "covered": 125,
+      "empirical_coverage": 0.946969696969697,
+      "coverage_row_cluster_ci95": [
+        0.8941176470588236,
+        0.986013986013986
+      ],
+      "mean_width_cm": 75.43270114021172,
+      "mean_width_row_cluster_ci95_cm": [
+        73.49020618761385,
+        78.30029747388402
+      ],
+      "median_width_cm": 67.35589421437352,
+      "below_interval": 4,
+      "above_interval": 3,
+      "lower_column": "posterior_q025_cm",
+      "upper_column": "posterior_q975_cm"
+    }
+  ],
+  "interpretation": "Coverage uses manual field height as a held-out physical reference proxy. It evaluates posterior agreement after the current image update, not one-step prediction before the image and not manual-measurement error."
+}

@@ -1,0 +1,3 @@
+nominal_coverage,n,covered,empirical_coverage,coverage_row_cluster_ci95,mean_width_cm,mean_width_row_cluster_ci95_cm,median_width_cm,below_interval,above_interval,lower_column,upper_column
+0.8,132,115,0.8712121212121212,"[0.7933884297520661, 0.936]",47.939804096522465,"[46.87816968341969, 49.37736252603678]",42.399072828074814,10,7,posterior_q10_cm,posterior_q90_cm
+0.95,132,125,0.946969696969697,"[0.8941176470588236, 0.986013986013986]",75.43270114021172,"[73.49020618761385, 78.30029747388402]",67.35589421437352,4,3,posterior_q025_cm,posterior_q975_cm

@@ -50,8 +50,21 @@ def main() -> None:
     put("FieldMarkIntervalsPerRow", manual["field_mark_intervals_per_row"])
     put("AdjacentRowSpacingIn", fmt(manual["adjacent_row_spacing_in"], 0))
 
+    pole_repeatability = read_json("outputs/pole_repeatability_2021/summary.json")
+    pole_repeatability_design = pole_repeatability["design"]
+    put("PoleRepeatabilitySeries", pole_repeatability_design["repeated_row_pole_series"])
+    put("PoleRepeatabilityRows", pole_repeatability_design["stationary_camera_rows"])
+    put("PoleRepeatabilityAnnotations", pole_repeatability_design["usable_annotations"])
+    put("PoleRepeatabilityMedianCV", fmt(pole_repeatability["median_cv_percent"]))
+    put("PoleRepeatabilityMedianCVLo", fmt(pole_repeatability["median_cv_row_cluster_ci95_percent"][0]))
+    put("PoleRepeatabilityMedianCVHi", fmt(pole_repeatability["median_cv_row_cluster_ci95_percent"][1]))
+    put("PoleRepeatabilityNinetiethCV", fmt(pole_repeatability["p90_cv_percent"]))
+    put("PoleRepeatabilityBelowFive", pole_repeatability["series_below_5_percent_cv"])
+    put("PoleRepeatabilityMaximumCV", fmt(pole_repeatability["maximum_cv_percent"]))
+
     all_plants = read_json("outputs/filter_height_sam_2021/all_plants_primary.json")
     whole = all_plants["whole_season_all_plants"]
+    after_first = all_plants["after_first_image_all_plants"]
     endpoint = all_plants["endpoint_all_plants"]
     sf, bf = whole["single_frame"], whole["online_filter"]
     boot = whole["paired_row_cluster_bootstrap"]
@@ -79,16 +92,39 @@ def main() -> None:
     put("FieldEndpointGainLo", fmt(endpoint["paired_row_cluster_bootstrap"]["ci95_cm"][0]))
     put("FieldEndpointGainHi", fmt(endpoint["paired_row_cluster_bootstrap"]["ci95_cm"][1]))
 
+    put("FieldAfterFirstN", after_first["single_frame"]["n"])
+    put("FieldAfterFirstPlants", after_first["single_frame"]["plants"])
+    put("FieldAfterFirstRows", after_first["single_frame"]["rows"])
+    put("FieldAfterFirstSingleMAE", fmt(after_first["single_frame"]["mae_cm"]))
+    put("FieldAfterFirstBayesMAE", fmt(after_first["online_filter"]["mae_cm"]))
+    put("FieldAfterFirstGain", fmt(after_first["paired_row_cluster_bootstrap"]["mae_improvement_cm"]))
+    put("FieldAfterFirstGainLo", fmt(after_first["paired_row_cluster_bootstrap"]["ci95_cm"][0]))
+    put("FieldAfterFirstGainHi", fmt(after_first["paired_row_cluster_bootstrap"]["ci95_cm"][1]))
+
     field = pd.read_csv(
         ROOT / "outputs/filter_height_sam_2021/filtered_height_sam__phi1.0_plus_pole_growth_field.csv"
     )
-    covered = field["height_true"].between(field["posterior_q025_cm"], field["posterior_q975_cm"])
-    widths = field["posterior_q975_cm"] - field["posterior_q025_cm"]
+    field_uncertainty = read_json("outputs/manual_height_uncertainty_2021/summary.json")
+    field_intervals = {
+        int(round(100 * row["nominal_coverage"])): row
+        for row in field_uncertainty["intervals"]
+    }
+    field_80 = field_intervals[80]
+    field_95 = field_intervals[95]
     put("FieldDates", field["date"].nunique())
-    put("FieldCovered", int(covered.sum()))
-    put("FieldCoverage", fmt(100 * covered.mean(), 1))
-    put("FieldIntervalWidth", fmt(widths.mean(), 1))
-    put("FieldIntervalMedianWidth", fmt(widths.median(), 1))
+    put("FieldCovered", field_95["covered"])
+    put("FieldCoverage", fmt(100 * field_95["empirical_coverage"], 1))
+    put("FieldIntervalWidth", fmt(field_95["mean_width_cm"], 1))
+    put("FieldIntervalMedianWidth", fmt(field_95["median_width_cm"], 1))
+    for level, row in ((80, field_80), (95, field_95)):
+        suffix = "Eighty" if level == 80 else "NinetyFive"
+        put(f"FieldCovered{suffix}", row["covered"])
+        put(f"FieldCoverage{suffix}", fmt(100 * row["empirical_coverage"], 1))
+        put(f"FieldCoverage{suffix}Lo", fmt(100 * row["coverage_row_cluster_ci95"][0], 1))
+        put(f"FieldCoverage{suffix}Hi", fmt(100 * row["coverage_row_cluster_ci95"][1], 1))
+        put(f"FieldIntervalWidth{suffix}", fmt(row["mean_width_cm"], 1))
+        put(f"FieldIntervalWidth{suffix}Lo", fmt(row["mean_width_row_cluster_ci95_cm"][0], 1))
+        put(f"FieldIntervalWidth{suffix}Hi", fmt(row["mean_width_row_cluster_ci95_cm"][1], 1))
     end = field[field["is_endpoint"].astype(bool)].copy()
     end_covered = end["height_true"].between(end["posterior_q025_cm"], end["posterior_q975_cm"])
     end_width = end["posterior_q975_cm"] - end["posterior_q025_cm"]

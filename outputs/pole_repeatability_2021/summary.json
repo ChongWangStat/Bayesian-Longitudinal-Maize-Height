@@ -1,0 +1,29 @@
+{
+  "design": {
+    "usable_annotations": 172,
+    "repeated_row_pole_series": 39,
+    "stationary_camera_rows": 12,
+    "minimum_images_per_series": 2,
+    "bootstrap_cluster": "row_id",
+    "bootstrap_replicates": 20000,
+    "seed": 20260910
+  },
+  "median_cv_percent": 1.2365959210823811,
+  "median_cv_row_cluster_ci95_percent": [
+    0.7811088322720309,
+    1.985175364107633
+  ],
+  "p90_cv_percent": 3.652115244383031,
+  "p90_cv_row_cluster_ci95_percent": [
+    3.0511022294205317,
+    4.394816501746678
+  ],
+  "series_below_5_percent_cv": 38,
+  "proportion_below_5_percent_cv": 0.9743589743589743,
+  "proportion_below_5_percent_cv_row_cluster_ci95": [
+    0.918918918918919,
+    1.0
+  ],
+  "maximum_cv_percent": 11.51084102232735,
+  "interpretation": "Within-series CV measures temporal repeatability of annotated projected pole length for a fixed camera and pole identity. It does not validate absolute physical length or transfer scale between depths."
+}

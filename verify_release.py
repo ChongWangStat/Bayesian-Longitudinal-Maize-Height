@@ -39,6 +39,14 @@ def main() -> None:
     assert pole_audit["annotations"] == 199
     assert pole_audit["usable_annotations"] == 172
     assert pole_audit["unusable_annotations"] == 27
+    pole_repeatability = json.loads(
+        (ROOT / "outputs/pole_repeatability_2021/summary.json").read_text()
+    )
+    assert pole_repeatability["design"]["usable_annotations"] == 172
+    assert pole_repeatability["design"]["repeated_row_pole_series"] == 39
+    assert pole_repeatability["design"]["stationary_camera_rows"] == 12
+    assert pole_repeatability["series_below_5_percent_cv"] == 38
+    near(pole_repeatability["median_cv_percent"], 1.236596, 1e-6)
     assert sha256(ROOT / "models/maize_pose_2021_best.pt") == EXPECTED_MODEL_SHA256
     checkpoint_metadata = json.loads(
         (ROOT / "models/checkpoint_metadata.json").read_text(encoding="utf-8")
@@ -81,6 +89,7 @@ def main() -> None:
     assert len(words) == 250, len(words)
     assert "Longitudinal" in title and "longitudinal" in abstract.lower()
     assert "Prior-Guided Image Analysis" in title
+    assert "94.7" in abstract and "held-out manual heights" in abstract
     section_order = [
         tex.index(r"\section{Introduction}"),
         tex.index(r"\section{Materials and Methods}"),
@@ -100,6 +109,40 @@ def main() -> None:
     fm = {row["estimator"]: row for row in field["metrics"]}
     near(fm["Robust Bayesian particle filter"]["mae_cm"], 10.96718)
     near(fm["Gaussian local-linear Kalman filter"]["mae_cm"], 11.62270)
+    positive_comparators = [
+        "EWMA (alpha=0.5)",
+        "Running median (three images)",
+        "Holt level-trend (alpha=0.5, beta=0.2)",
+    ]
+    assert all(fm[name]["ci95_cm"][0] > 0 for name in positive_comparators)
+    assert fm["Single-frame image extent"]["ci95_cm"][0] < 0
+    assert fm["Gaussian local-linear Kalman filter"]["ci95_cm"][0] < 0
+    all_plants = json.loads(
+        (ROOT / "outputs/filter_height_sam_2021/all_plants_primary.json").read_text()
+    )
+    after_first = all_plants["after_first_image_all_plants"]
+    assert after_first["single_frame"]["n"] == 99
+    assert after_first["single_frame"]["rows"] == 12
+    near(
+        after_first["paired_row_cluster_bootstrap"]["mae_improvement_cm"],
+        1.437780,
+    )
+    assert after_first["paired_row_cluster_bootstrap"]["ci95_cm"][0] < 0
+
+    manual_uncertainty = json.loads(
+        (ROOT / "outputs/manual_height_uncertainty_2021/summary.json").read_text()
+    )
+    assert manual_uncertainty["design"]["records"] == 132
+    assert manual_uncertainty["design"]["stationary_camera_rows"] == 12
+    assert manual_uncertainty["design"]["manual_height_used_for_fitting_or_tuning"] is False
+    manual_intervals = {
+        row["nominal_coverage"]: row for row in manual_uncertainty["intervals"]
+    }
+    assert manual_intervals[0.80]["covered"] == 115
+    assert manual_intervals[0.95]["covered"] == 125
+    near(manual_intervals[0.80]["empirical_coverage"], 0.871212, 1e-6)
+    near(manual_intervals[0.95]["empirical_coverage"], 0.946970, 1e-6)
+    near(manual_intervals[0.95]["mean_width_cm"], 75.43270)
 
     unc = json.loads((ROOT / "outputs/uncertainty_revision/summary.json").read_text())
     test95 = next(
@@ -168,6 +211,12 @@ def main() -> None:
         "title_characters": len(title), "abstract_words": len(words),
         "plant_phenomics_template_section_order": "Introduction; Materials and Methods; Results; Discussion",
         "field_particle_filter_mae_cm": fm["Robust Bayesian particle filter"]["mae_cm"],
+        "field_comparators_with_positive_cluster_interval": positive_comparators,
+        "field_after_first_image_mae_gain_cm": after_first["paired_row_cluster_bootstrap"]["mae_improvement_cm"],
+        "manual_height_posterior_coverage_80": manual_intervals[0.80]["empirical_coverage"],
+        "manual_height_posterior_coverage_95": manual_intervals[0.95]["empirical_coverage"],
+        "manual_height_posterior_mean_width_95_cm": manual_intervals[0.95]["mean_width_cm"],
+        "support_pole_median_temporal_cv_percent": pole_repeatability["median_cv_percent"],
         "primary_validation_status": (
             "2021 independent manual-reference physical-height validation: 132 records, "
             "33 plants, 12 stationary-camera rows, five dates; labels excluded "

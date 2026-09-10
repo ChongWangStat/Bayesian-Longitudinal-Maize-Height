@@ -140,11 +140,14 @@ An earlier export contained two filenames for the same C-039 scene. Following th
 
 The installation records separately specify four horizontal field-layout intervals of \FieldMarkIntervalIn{} in, totaling \AdjacentRowSpacingIn{} in between adjacent rows. These are not graduations on the vertical support poles. They also differ from the 1-ft red-band spacing on the 2024--2025 calibration poles. The 2021 import is consequently an installation and annotation resource; it is not pooled with red-band calibration observations.
 
+For the temporal repeatability audit, usable annotations were grouped by camera row and pole label. The \ManualPoleUsable{} traces formed \PoleRepeatabilitySeries{} series with at least two dated images across \PoleRepeatabilityRows{} rows. Within each series, the sample standard deviation of polyline length was divided by its mean. The median coefficient of variation was \PoleRepeatabilityMedianCV{}\% (95\% whole-row bootstrap interval, \PoleRepeatabilityMedianCVLo{}--\PoleRepeatabilityMedianCVHi{}\%), and the 90th percentile was \PoleRepeatabilityNinetiethCV{}\%. \PoleRepeatabilityBelowFive{} of \PoleRepeatabilitySeries{} series were below 5\%; the maximum was \PoleRepeatabilityMaximumCV{}\%. The calculation uses all traces marked usable and is descriptive of projected-length stability. It neither removes the largest series nor treats temporal repeatability as proof of the nominal 5-ft length.
+
 The importer writes three canonical products:
 \begin{itemize}
 \item \path{data/processed/manual_poles_2021/manual_pole_annotations_2021.csv}, one row per retained trace;
 \item \path{data/processed/manual_poles_2021/pole_definitions_2021.csv}, the physical definitions and source records; and
 \item \path{data/processed/manual_poles_2021/summary.json}, counts, duplicate decision, and image-presence audit.
+\item \path{outputs/pole_repeatability_2021/}, per-series coefficients of variation and the whole-row bootstrap summary.
 \end{itemize}
 
 \section{Physical calibration and depth correction}
@@ -254,20 +257,22 @@ The posterior mean and interval for latent height are computed from these update
 \end{figure}
 \clearpage
 
-\section{Secondary predictive-uncertainty transfer across years}
+\section{Uncertainty against manual height and across years}
 \label{sec:s-uncertainty}
 
 This secondary analysis evaluates temporal transfer of predictive uncertainty for the next image-derived measurement. The 0.85 depth conversion changes every quantity expressed in centimeters. The corrected analysis therefore applies it to the image-derived height and its measurement standard deviation, and estimates the process and outlier scales from already corrected 2024 increments. The 2025 records are not used to estimate these values. Because plants were newly grown each season, the 2025 cohort is temporally later and subject-disjoint from 2024; no biological plant subject appears in both years. Over the complete quality-controlled stream, the unit-consistent predictive mean had mean absolute error \ForecastBayesMAE{} cm, mean log score \CalibratedLogScore{}, and weighted interval score \CalibratedWIS{} cm.
 
-Table~\ref{tab:s-uncertainty} and Figure~\ref{fig:s-uncertainty} show calibration at multiple levels. On \UncertaintyTestN{} year-forward 2025 forecasts from \UncertaintyTestPlants{} evaluated plant tracks and \UncertaintyTestCameras{} cameras, the 95\% interval achieved \UncertaintyTestCoverageNinetyFive{}\% coverage with a \UncertaintyTestWidthNinetyFive{}-cm mean width. The 50\%, 80\%, and 90\% intervals covered \UncertaintyTestCoverageFifty{}\%, \UncertaintyTestCoverageEighty{}\%, and \UncertaintyTestCoverageNinety{}\%, respectively. This pattern is conservative at the lower levels even though the 95\% result is near nominal. Subject disjointness prevents repeated plants across years; it does not make repeated forecasts within a plant or camera independent. With only two test cameras, this analysis supports temporal transfer for those installations and does not establish broad camera generalization. The primary independent physical-height validation instead uses manual measurements across 12 stationary-camera rows.
+Table~\ref{tab:s-uncertainty} and Figure~\ref{fig:s-uncertainty} show calibration at multiple levels. On \UncertaintyTestN{} year-forward 2025 forecasts from \UncertaintyTestPlants{} evaluated plant tracks and \UncertaintyTestCameras{} cameras, the 95\% interval achieved \UncertaintyTestCoverageNinetyFive{}\% coverage with a \UncertaintyTestWidthNinetyFive{}-cm mean width. The 50\%, 80\%, and 90\% intervals covered \UncertaintyTestCoverageFifty{}\%, \UncertaintyTestCoverageEighty{}\%, and \UncertaintyTestCoverageNinety{}\%, respectively. This pattern is conservative at the lower levels even though the 95\% result is near nominal. Subject disjointness prevents repeated plants across years; it does not make repeated forecasts within a plant or camera independent. With only two test cameras, this analysis supports temporal transfer for those installations and does not establish broad camera generalization.
+
+The same table adds the primary 2021 physical-reference target. These intervals summarize latent height after the current image has been incorporated, and manual height is used only for evaluation. Central 80\% intervals covered \FieldCoverageEighty{}\% of the \FieldN{} records with a \FieldIntervalWidthEighty{}-cm mean width; the 95\% intervals covered \FieldCoverageNinetyFive{}\% with a \FieldIntervalWidthNinetyFive{}-cm mean width. Whole-camera-row bootstrap intervals were \FieldCoverageEightyLo{}--\FieldCoverageEightyHi{}\% and \FieldCoverageNinetyFiveLo{}--\FieldCoverageNinetyFiveHi{}\% for coverage, respectively. Per-date results and interval-width bootstrap summaries are released in \path{outputs/manual_height_uncertainty_2021/}.
 
 \begin{table}[htbp]
-\caption{Secondary temporal predictive-interval evaluation. Parameters for the unit-consistent model were estimated from 2024 only. Each target is the next image-derived measurement before it was observed.}
+\caption{Multi-level uncertainty evaluation. The 2024--2025 rows evaluate one-step predictive intervals for the next image-derived measurement. The 2021 rows evaluate posterior intervals for latent height after the current image against held-out manual height.}
 \label{tab:s-uncertainty}
 \centering
 \begin{tabular}{lrrrrr}
 \toprule
-Split & Forecasts & Cameras & Nominal (\%) & Coverage (\%) & Mean width (cm) \\
+Evaluation & Records & Clusters & Nominal (\%) & Coverage (\%) & Mean width (cm) \\
 \midrule
 2024 development & \UncertaintyDevN & \UncertaintyDevCameras & 50 & \UncertaintyDevCoverageFifty & \UncertaintyDevWidthFifty \\
  & & & 80 & \UncertaintyDevCoverageEighty & \UncertaintyDevWidthEighty \\
@@ -278,6 +283,9 @@ Split & Forecasts & Cameras & Nominal (\%) & Coverage (\%) & Mean width (cm) \\
  & & & 80 & \UncertaintyTestCoverageEighty & \UncertaintyTestWidthEighty \\
  & & & 90 & \UncertaintyTestCoverageNinety & \UncertaintyTestWidthNinety \\
  & & & 95 & \UncertaintyTestCoverageNinetyFive & \UncertaintyTestWidthNinetyFive \\
+\addlinespace
+2021 manual reference & \FieldN & \FieldRows{} rows & 80 & \FieldCoverageEighty & \FieldIntervalWidthEighty \\
+ & & & 95 & \FieldCoverageNinetyFive & \FieldIntervalWidthNinetyFive \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -340,6 +348,8 @@ Plant & Manual field & Single frame & Bayesian mean & Bayesian 95\% interval \\
 \input{per_plant_table.tex}
 \end{longtable}
 
+The all-record analysis includes first images so that every available manual reference remains in the primary estimand. A secondary analysis isolates the \FieldAfterFirstN{} records after a plant's first image, when longitudinal information from a preceding image exists. Across these records, single-frame and Bayesian mean absolute errors were \FieldAfterFirstSingleMAE{} and \FieldAfterFirstBayesMAE{} cm. The \FieldAfterFirstGain{}-cm reduction had a whole-row bootstrap interval of \FieldAfterFirstGainLo{} to \FieldAfterFirstGainHi{} cm. This outcome-independent restriction preserves the direction of the primary estimate but remains statistically imprecise.
+
 Across these \FieldEndpointN{} endpoints, single-frame mean absolute error was \FieldEndpointSingleMAE{} cm and the Bayesian mean absolute error was \FieldEndpointBayesMAE{} cm. The Bayesian signed error was +\FieldEndpointBayesBias{} cm. The stationary-camera-row bootstrap interval for the \FieldEndpointGain{}-cm within-plant mean-absolute-error reduction was \FieldEndpointGainLo{} to \FieldEndpointGainHi{} cm. These endpoint results are secondary because the interval is wide and includes zero; the main article uses all \FieldN{} plant-date records as its primary comparison.
 
 \section{Data provenance and reproducibility}
@@ -348,8 +358,9 @@ Across these \FieldEndpointN{} endpoints, single-frame mean absolute error was \
 All paths below are relative to the \href{https://github.com/ChongWangStat/Bayesian-Longitudinal-Maize-Height}{public GitHub repository}.
 
 \begingroup
-\small
-\setstretch{1.08}
+\footnotesize
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
 \begin{longtable}{L{3.25cm}L{4.75cm}L{5.0cm}}
 \caption{Data and result provenance for the revised submission.}\label{tab:s-provenance}\\
 \toprule
@@ -369,6 +380,7 @@ Asset & Canonical path or source & Role and limitation \\
 2021 pole XML & \path{data/manual_annotations/poles_2021/C-*.xml} & Haoming Wang's human physical-reference annotations; one XML per camera row \\
 2021 pole images & \path{data/raw/pole_calibration_images/} & All 61 curated images; confirmed duplicate omitted \\
 Imported 2021 pole table & \path{data/processed/manual_poles_2021/manual_pole_annotations_2021.csv} & Trace endpoints, status, pixel length, and physical definition after duplicate removal \\
+Pole temporal repeatability & \path{outputs/pole_repeatability_2021/} & All 39 repeated usable row--pole series; within-series pixel-length CV and whole-row bootstrap summary \\
 Pole definitions & \path{data/processed/manual_poles_2021/pole_definitions_2021.csv} & Documents 5-ft support length and distinguishes horizontal 35-in marks from red-band spacing \\
 Daily image manifest & \path{data/processed/pole_camera_daily_manifest.csv} & As-of capture records, local/remote identifiers, and checksums \\
 Released pose checkpoint & \path{models/maize_pose_2021_best.pt} & 2021 YOLO pose weights with SHA-256 checksum; embedded software version, seed, deterministic setting, training arguments, and metrics are recorded in \path{models/checkpoint_metadata.json}, while the referenced dataset file, exact image split, original masks, and source commit remain unavailable \\
@@ -381,6 +393,7 @@ Daily model settings & \path{outputs/online_study/pole_camera_bayesian_daily_rev
 Partial source-frame recovery & \path{outputs/crop_positions_2021/crop_positions.csv} & Coordinates and masked-template match scores for 87 archived crop records across seven camera rows; 63 records join the primary validation, and source pixels are not redistributed in this release \\
 2021 canonical posterior & \path{outputs/filter_height_sam_2021/filtered_height_sam__phi1.0_plus_pole_growth_field.csv} & Input to all-plants and per-plant summaries \\
 Primary field summary & \path{outputs/filter_height_sam_2021/all_plants_primary.json} & All-record and endpoint metrics with stationary-camera-row-cluster intervals; regenerate with \texttt{python reproduce\_core.py} \\
+Manual-height interval audit & \path{outputs/manual_height_uncertainty_2021/} & Central 80\% and 95\% posterior coverage, width, per-date summaries, and whole-row bootstrap intervals \\
 Detector-unit correction & \path{outputs/pixel_validation_2021/summary.json} & Recomputed centimeter metrics using 0.41588595 cm/pixel rather than the withdrawn field-regression conversion \\
 Field baselines & \path{outputs/field_baselines_2021/} & Fixed causal comparators and row-cluster intervals \\
 Real-image candidate audit & \path{outputs/real_image_candidate_ablation_2021/} & Matched candidate comparison with human truth used only for scoring \\

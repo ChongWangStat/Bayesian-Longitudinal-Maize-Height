@@ -29,6 +29,35 @@
       ]
     }
   },
+  "after_first_image_all_plants": {
+    "single_frame": {
+      "n": 99,
+      "plants": 32,
+      "rows": 12,
+      "bias_cm": 3.3164950645614906,
+      "mae_cm": 12.578284516361,
+      "rmse_cm": 17.41503008676424
+    },
+    "online_filter": {
+      "n": 99,
+      "plants": 32,
+      "rows": 12,
+      "bias_cm": 3.420897307040402,
+      "mae_cm": 11.140504057990622,
+      "rmse_cm": 16.135931960993034
+    },
+    "paired_row_cluster_bootstrap": {
+      "cluster": "rowid",
+      "clusters": 12,
+      "replicates": 20000,
+      "seed": 20260910,
+      "mae_improvement_cm": 1.4377804583703782,
+      "ci95_cm": [
+        -0.2135889698262296,
+        3.258659515601483
+      ]
+    }
+  },
   "endpoint_all_plants": {
     "single_frame": {
       "n": 33,

@@ -56,6 +56,8 @@ def main() -> None:
 
     run(py, "analysis/all_plants_primary_2021.py")
     run(py, "analysis/field_baseline_comparison_2021.py")
+    run(py, "analysis/manual_height_uncertainty_2021.py")
+    run(py, "analysis/pole_repeatability_2021.py")
     run(py, "analysis/real_image_candidate_ablation_2021.py")
     run(py, "analysis/summarize_uncertainty_revision.py")
     run(py, "manuscript/generate_numbers.py")
