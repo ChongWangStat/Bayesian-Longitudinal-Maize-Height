@@ -86,17 +86,44 @@ def main() -> None:
     tex = (ROOT / "manuscript/main.tex").read_text(encoding="utf-8")
     title = re.search(r"\\title\{(.*?)\}", tex, flags=re.S).group(1)
     abstract = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", tex, flags=re.S).group(1)
+    abstract_plain = re.sub(r"\\textit\{([^{}]*)\}", r"\1", abstract)
+    abstract_plain = abstract_plain.replace(r"\%", "%")
+    abstract_plain = re.sub(r"\s+", " ", abstract_plain).strip()
     words = re.findall(r"[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*", abstract)
+    title_words = re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", title)
     assert len(title) <= 100, len(title)
-    assert len(words) == 250, len(words)
+    assert 10 <= len(title_words) <= 12, len(title_words)
+    assert len(abstract_plain) <= 1500, len(abstract_plain)
+    assert len(words) <= 250, len(words)
     assert "Longitudinal" in title and "longitudinal" in abstract.lower()
     assert "Prior-Guided Image Analysis" in title
-    assert "94.7" in abstract and "held-out manual heights" in abstract
+    assert "94.7" in abstract and "manual heights" in abstract
+    plain_summary = re.search(
+        r"\\textbf\{Plain Language Summary\.\}\s*(.*?)\n\n",
+        tex,
+        flags=re.S,
+    ).group(1)
+    plain_summary = re.sub(r"\s+", " ", plain_summary).strip()
+    assert len(plain_summary) <= 1000, len(plain_summary)
+    core_block = re.search(
+        r"\\textbf\{Core Ideas\}.*?\\begin\{itemize\}(.*?)\\end\{itemize\}",
+        tex,
+        flags=re.S,
+    ).group(1)
+    core_ideas = [
+        re.sub(r"\s+", " ", item).strip()
+        for item in re.findall(r"\\item\s+(.*?)(?=\\item|$)", core_block, flags=re.S)
+    ]
+    assert 3 <= len(core_ideas) <= 5
+    assert all(len(item) <= 115 for item in core_ideas)
+    assert r"\doublespacing" in tex and r"\linenumbers" in tex
+    assert "style=apa" in tex
     section_order = [
         tex.index(r"\section{Introduction}"),
         tex.index(r"\section{Materials and Methods}"),
         tex.index(r"\section{Results}"),
         tex.index(r"\section{Discussion}"),
+        tex.index(r"\section{Conclusions}"),
     ]
     assert section_order == sorted(section_order)
     assert (ROOT / "manuscript/main.pdf").stat().st_size > 100_000
@@ -227,8 +254,13 @@ def main() -> None:
         "recovered_crop_positions": len(crop_positions),
         "primary_records_with_recovered_source_coordinates": len(recovered_primary),
         "primary_records_without_recovered_source_coordinates": len(primary_rows) - len(recovered_primary),
-        "title_characters": len(title), "abstract_words": len(words),
-        "plant_phenomics_template_section_order": "Introduction; Materials and Methods; Results; Discussion",
+        "title_characters": len(title),
+        "title_words": len(title_words),
+        "abstract_characters": len(abstract_plain),
+        "abstract_words": len(words),
+        "plain_language_summary_characters": len(plain_summary),
+        "core_idea_characters": [len(item) for item in core_ideas],
+        "tppj_section_order": "Introduction; Materials and Methods; Results; Discussion; Conclusions",
         "field_particle_filter_mae_cm": fm["Robust Bayesian particle filter"]["mae_cm"],
         "field_comparators_with_positive_cluster_interval": positive_comparators,
         "field_median_absolute_error_reduction_cm": median_error["reduction_cm"],
@@ -254,7 +286,9 @@ def main() -> None:
             "172 usable and 27 unusable"
         ),
     }
-    (ROOT / "RELEASE_VALIDATION.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    (ROOT / "RELEASE_VALIDATION.json").write_text(
+        json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n"
+    )
     print(json.dumps(report, indent=2))
 
 
