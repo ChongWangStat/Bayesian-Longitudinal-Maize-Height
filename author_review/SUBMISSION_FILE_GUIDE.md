@@ -4,12 +4,14 @@ The journal accepts LaTeX source, but ScholarOne does not accept a LaTeX file as
 
 | Package file | ScholarOne designation | Purpose |
 |---|---|---|
-| `01_MAIN_DOCUMENT_BLANK.docx` | Main Document | Required placeholder for a LaTeX submission. |
+| `01_REQUIRED_BLANK_MAIN_DOCUMENT.docx` | Main Document | Intentionally blank Word carrier required by the journal's official LaTeX submission instructions. |
 | `02_MANUSCRIPT_REVIEW.pdf` | Supplemental File for Review | Complete double-spaced, line-numbered manuscript for peer review. |
 | `03_LATEX_SOURCE.zip` | Supplemental File for Review | LaTeX source, bibliography, generated inputs, and figure files. |
 | `04_SUPPLEMENTARY_MATERIALS.pdf` | Supplemental Material | Detailed methods, additional figures and tables, and provenance. |
 | Files in `05_FIGURES/` | Figure | Separate high-resolution figure files, uploaded in numerical order. |
 | `COVER_LETTER.md` | Cover Letter text | Paste into the cover-letter field or upload after conversion if ScholarOne requests a file. |
-| `PORTAL_METADATA.md` | Portal fields | Copy-ready title, abstract, Plain Language Summary, Core Ideas, keywords, declarations, and reviewers. |
+| `PORTAL_METADATA.md` | Portal fields | Copy-ready title, abstract, Plain Language Summary, keywords, declarations, affiliations, ORCID, and reviewers. |
 
 Keep `03_LATEX_SOURCE.zip` intact. Its internal `figures/` folder matches the paths in `main.tex` and `supplement.tex`.
+
+The journal publishes a Word template rather than a LaTeX class. The submitted LaTeX source follows the content order and page specifications in the official TPPJ template dated 30 June 2026. The blank Word file above is a ScholarOne transport requirement; it does not represent missing manuscript content.

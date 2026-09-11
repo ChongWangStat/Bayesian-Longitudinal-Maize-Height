@@ -1,12 +1,17 @@
-\documentclass{article}
+% LaTeX submission aligned to the official TPPJ Word template updated 30 June 2026.
+% TPPJ does not publish a journal-specific LaTeX class; its official guidance accepts
+% standard LaTeX source supplied as a ZIP together with a review PDF.
+\documentclass[12pt,letterpaper]{article}
 \usepackage[utf8]{inputenc}
-\usepackage{authblk}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext}
 \usepackage{setspace}
-\usepackage[margin=1.25in]{geometry}
+\usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \graphicspath{{./figures/}}
 \usepackage{subcaption}
 \usepackage{amsmath,amssymb}
+\usepackage{newtxmath}
 \usepackage{booktabs,longtable,array}
 \usepackage{lineno}
 \usepackage[hidelinks]{hyperref}
@@ -16,48 +21,39 @@
 \DeclareLanguageMapping{english}{english-apa}
 \addbibresource{references.bib}
 \let\cite\parencite
-\linenumbers
 \doublespacing
 \input{numbers.tex}
 
-\title{Prior-Guided Image Analysis for Bayesian Longitudinal Maize Height Phenotyping with Fixed Cameras}
-
-\author[1]{Haoming Wang}
-\author[1,2]{Chong Wang}
-\author[3,4,5]{Yawei Li}
-\author[3,5]{Cheng-Ting Yeh}
-\author[3,4,5]{Patrick S. Schnable}
-\author[1,*]{Peng Liu}
-\affil[1]{Department of Statistics, Iowa State University, Ames, Iowa, USA.}
-\affil[2]{Department of Veterinary Diagnostic and Production Animal Medicine, Iowa State University, Ames, Iowa, USA.}
-\affil[3]{Plant Sciences Institute, Iowa State University, Ames, Iowa, USA.}
-\affil[4]{Interdepartmental Genetics and Genomics Graduate Program, Iowa State University, Ames, Iowa, USA.}
-\affil[5]{Department of Agronomy, Iowa State University, Ames, Iowa, USA.}
-\affil[*]{Address correspondence to: pliu@iastate.edu}
-\date{}
+\newcommand{\manuscripttitle}{Prior-guided image analysis for Bayesian longitudinal maize height phenotyping with fixed cameras}
 
 \begin{document}
-\maketitle
+\linenumbers
 
-\noindent\textbf{Article type:} Methods and Techniques
+{
+\singlespacing
+\begin{center}
+{\large\bfseries \manuscripttitle\par}
+\vspace{1em}
+Haoming Wang$^{1}$, Chong Wang$^{1,2}$, Yawei Li$^{3,4,5}$, Cheng-Ting Yeh$^{3,5}$, Patrick S. Schnable$^{3,4,5}$, and Peng Liu$^{1,*}$
+\end{center}
+
+\noindent\textbf{Affiliations.} $^{1}$Department of Statistics, Iowa State University, 2438 Osborn Drive, Ames, IA 50011-1090, USA; $^{2}$Department of Veterinary Diagnostic and Production Animal Medicine, Iowa State University, 1809 South Riverside Drive, Ames, IA 50011-1134, USA; $^{3}$Plant Sciences Institute, Iowa State University, 1111 WOI Road, Ames, IA 50011-1085, USA; $^{4}$Interdepartmental Genetics and Genomics Graduate Program, Iowa State University, 2014 Molecular Biology Building, 2437 Pammel Drive, Ames, IA 50011-1079, USA; $^{5}$Department of Agronomy, Iowa State University, Agronomy Hall, 716 Farm House Lane, Ames, IA 50011-1051, USA.
+
+\noindent\textbf{Corresponding author.} Peng Liu, Department of Statistics, Iowa State University, 2117 Snedecor Hall, 2438 Osborn Drive, Ames, IA 50011-1090, USA. Email: \href{mailto:pliu@iastate.edu}{pliu@iastate.edu}.
+
+\noindent\textbf{Article type.} Methods and Techniques.
+
+\noindent\textbf{Abbreviations.} CPU, central processing unit; CV, coefficient of variation; CVAT, Computer Vision Annotation Tool; EWMA, exponentially weighted moving average; MAE, mean absolute error; RGB, red--green--blue; RMSE, root mean squared error; SHA-256, 256-bit Secure Hash Algorithm; XML, Extensible Markup Language; YOLO, You Only Look Once.
+}
+
+\clearpage
+
+\section*{Plain Language Summary}
+Measuring the same plants by hand throughout a field season is slow. Fixed cameras can reduce repeated field visits and plant disturbance, but leaves can overlap and an image must be converted from pixels to centimeters. We developed a method that uses what earlier images suggest about a plant's position and height while analyzing each new image. It then updates the plant's estimated height, growth, and uncertainty. Tests against 132 manual measurements from 33 maize plants found the lowest average error among six methods. Clear advantages were seen over three simple time-series methods, while differences from the two strongest comparison methods were small and uncertain. All code, curated images, annotations, and derived validation data are public. The approach offers a transparent route to repeated field measurements from fixed cameras and reports when the data do not distinguish competing methods.
 
 \begin{abstract}
-Fixed cameras could make repeated field phenotyping more accessible, but occlusion and uncertain pixel-to-length calibration can corrupt individual-image measurements. We developed a Bayesian longitudinal maize (\textit{Zea mays} L.) height method in which predictions from earlier images guide current-image association and candidate selection before a measurement is finalized. Physical references convert image extents to centimeters, and a robust particle filter updates height, growth, and uncertainty using only images available through each time point. Independent 2021 validation comprised 132 manual heights from 33 plants in 12 camera rows; manual heights were excluded from fitting and tuning. Among six causal estimators, the particle filter gave the lowest mean absolute error (10.97 cm) and improved on EWMA, running median, and Holt by 4.01, 7.80, and 3.08 cm, with row-cluster intervals above zero. Improvements over single-frame and Gaussian filtering were 1.06 and 0.66 cm and were uncertain. Posterior 95\% intervals covered 94.7\% of manual heights. In simulated candidate ambiguity, using the prior during image analysis reduced latent-height RMSE from 10.5 to 6.0 cm; a matched real-image audit contained no candidate conflict. The method provides an open, physically calibrated workflow for longitudinal maize phenotyping and shows how temporal predictions can inform image analysis before measurement extraction.
+Fixed cameras could make repeated field phenotyping more accessible, but occlusion and uncertain pixel-to-length calibration can corrupt individual-image measurements. We developed a Bayesian longitudinal maize (\textit{Zea mays} L.) height method in which predictions from earlier images guide current-image association and candidate selection before a measurement is finalized. Physical references convert image extents to centimeters, and a robust particle filter updates height, growth, and uncertainty using only images available through each time point. Independent 2021 validation comprised 132 manual heights from 33 plants in 12 camera rows; manual heights were excluded from fitting and tuning. Among six causal estimators, the particle filter gave the lowest mean absolute error (10.97 cm) and improved on exponentially weighted moving average, running median, and Holt by 4.01, 7.80, and 3.08 cm, with row-cluster intervals above zero. Improvements over single-frame and Gaussian filtering were 1.06 and 0.66 cm and were uncertain. Posterior 95\% intervals covered 94.7\% of manual heights. In simulated candidate ambiguity, using the prior during image analysis reduced latent-height root mean squared error from 10.5 to 6.0 cm; a matched real-image audit contained no candidate conflict. The method provides an open, physically calibrated workflow for longitudinal maize phenotyping and shows how temporal predictions can inform image analysis before measurement extraction.
 \end{abstract}
-
-\noindent\textbf{Plain Language Summary.} Measuring the same plants by hand throughout a field season is slow. Fixed cameras can reduce repeated field visits and plant disturbance, but leaves can overlap and an image must be converted from pixels to centimeters. We developed a method that uses what earlier images suggest about a plant's position and height while analyzing each new image. It then updates the plant's estimated height, growth, and uncertainty. Tests against 132 manual measurements from 33 maize plants found the lowest average error among six methods. Clear advantages were seen over three simple time-series methods, while differences from single-image and Gaussian-filter methods were small and uncertain. All code, curated images, annotations, and derived validation data are public. The approach offers a transparent route to repeated field measurements from fixed cameras and reports when the data do not distinguish competing methods.
-
-\noindent\textbf{Core Ideas}
-\begin{itemize}
-\item Predictive Bayesian states guide current-image analysis before height measurement.
-\item Fixed cameras and physical references support longitudinal maize height phenotyping.
-\item Held-out 2021 manual heights independently validate the causal pipeline.
-\item Particle filtering improves simple longitudinal baselines; gains over stronger comparators remain uncertain.
-\end{itemize}
-
-\noindent\textbf{Keywords:} Bayesian longitudinal model; prior-guided image analysis; maize height; particle filter; stationary camera; uncertainty calibration
-
-\noindent\textbf{Abbreviations:} CPU, central processing unit; CV, coefficient of variation; CVAT, Computer Vision Annotation Tool; EWMA, exponentially weighted moving average; MAE, mean absolute error; RGB, red--green--blue; RMSE, root mean squared error; SHA-256, 256-bit Secure Hash Algorithm; XML, Extensible Markup Language; YOLO, You Only Look Once.
 
 \section{Introduction}
 
@@ -309,32 +305,33 @@ Several limitations bound the conclusions. First, the primary independent valida
 
 For field use, the posterior width is as consequential as the point estimate. The broad intervals here can flag images or installations requiring review, while the documented failure of downward extrapolation cautions against measurements outside the calibrated reference range. The method is most useful where the same fixed view is accumulated through time and where association or candidate ambiguity can be resolved by biologically plausible temporal information. The open candidate tables and per-record outputs allow future users to audit each decision rather than accepting only a final growth curve.
 
-\section{Conclusions}
+\subsection{Conclusions}
 
 Prior-guided image analysis connects accumulating images to measurement extraction by allowing a Bayesian longitudinal state to inform current plant association and, when alternatives exist, candidate choice. With physical-reference calibration and robust sequential updating, the method provided the lowest MAE among six causal estimators on 132 held-out 2021 manual-height records. Row-cluster intervals supported improvements over EWMA, running median, and Holt; differences from the single-frame and Gaussian filters remained uncertain. The 95\% posterior coverage was near nominal but wide, and year-forward 2025 intervals transferred in a two-camera test. The controlled ambiguity experiment confirmed the prior-in-image mechanism, whereas the matched field subset contained no natural candidate conflict. Released code, images, annotations, checkpoint, candidate cache, and derived data make these claims auditable. The evidence supports a transparent, accessible workflow for longitudinal maize height phenotyping and a testable architecture for using temporal state within image analysis.
 
 \section*{Acknowledgments}
-
-\subsection*{General}
 We thank the Schnable Laboratory and the Plant Sciences Institute at Iowa State University for the stationary-camera imaging system, installation records, and field data.
 
-\subsection*{Author Contributions}
+\section*{Author Contributions}
 Haoming Wang: Conceptualization, Data curation, Formal analysis, Methodology, Software, Validation, Visualization, Writing -- original draft, Writing -- review and editing. Chong Wang: Conceptualization, Formal analysis, Methodology, Software, Validation, Visualization, Writing -- original draft, Writing -- review and editing. Yawei Li: Data curation, Investigation, Validation, Writing -- review and editing. Cheng-Ting Yeh: Validation, Writing -- review and editing. Patrick S. Schnable: Conceptualization, Funding acquisition, Resources, Supervision, Writing -- review and editing. Peng Liu: Conceptualization, Formal analysis, Methodology, Project administration, Software, Supervision, Validation, Visualization, Writing -- original draft, Writing -- review and editing. All authors approved the final manuscript.
 
-\subsection*{Funding}
+\section*{Funding}
 This work was supported by the Plant Sciences Institute at Iowa State University and funds from the Laurence H. Baker Center for Bioinformatics and Biological Statistics.
 
-\subsection*{Conflict of Interest}
+\section*{Conflict of Interest}
 The authors declare no conflict of interest.
 
-\subsection*{Data Availability Statement}
-Analysis code, the 61 curated 2021 images, 12 human-annotated support-pole XML files, the imported 199-trace audit table, the released pose checkpoint, candidate predictions, derived data, figure sources, and manuscript source are available in the \href{https://github.com/ChongWangStat/Bayesian-Longitudinal-Maize-Height/releases/tag/v1.2.0}{versioned public release}. The repository also provides the 87-record partial source-frame coordinate recovery described above, an MIT license for code, and a SHA-256 manifest. No separate reuse license has been confirmed for non-code materials. The larger 2024--2025 raw-image archive remains in institutional storage; checksum-identified derived measurements needed for the reported analyses are public.
+\section*{ORCID}
+Peng Liu: \href{https://orcid.org/0000-0002-2093-8018}{0000-0002-2093-8018}.
 
-\subsection*{Declaration of Generative AI Use}
-Generative AI tools (Claude, Anthropic, and Codex, OpenAI) assisted data exploration, code review, figure and manuscript preparation, and language editing under direct author supervision. All numerical results were produced by the included analysis code, and the authors take responsibility for the design, verification, interpretation, and final text.
-
-\section*{Supplementary Materials}
+\section*{Supplemental Material}
 Materials and Methods S1. Detailed model, causal-update, calibration, and reproducibility specification. Figure S1. Pinhole geometry and reference-to-target depth correction. Figure S2. Example posterior trajectories. Figure S3. Multi-level predictive-interval calibration. Table S1. Full parameter and implementation specification. Table S2. Predictive-interval calibration. Table S3. Real-image candidate audit. Table S4. Field-error distribution and row-influence sensitivity. Table S5. Per-plant mature-date field comparison. Table S6. Data and result provenance. Data S1. Curated 2021 images and human support-pole annotations. Data S2. Canonical derived outputs and audit files. A separate Supplementary Materials PDF accompanies this manuscript.
+
+\section*{Data Availability Statement}
+Analysis code, the 61 curated 2021 images, 12 human-annotated support-pole XML files, the imported 199-trace audit table, the released pose checkpoint, candidate predictions, derived data, figure sources, and manuscript source are available in the \href{https://github.com/ChongWangStat/Bayesian-Longitudinal-Maize-Height/releases/tag/v1.2.1}{versioned public release}. The repository also provides the 87-record partial source-frame coordinate recovery described above, an MIT license for code, and a SHA-256 manifest. No separate reuse license has been confirmed for non-code materials. The larger 2024--2025 raw-image archive remains in institutional storage; checksum-identified derived measurements needed for the reported analyses are public.
+
+\section*{Declaration of Generative AI and AI-Assisted Technologies}
+During preparation of this work, the authors used Claude (Anthropic) and Codex (OpenAI) to assist with data exploration, code review, figure and manuscript preparation, and language editing. The authors reviewed and edited all assisted content, verified the reported results against the included analysis code, and take full responsibility for the content of the manuscript.
 
 \begingroup
 \small

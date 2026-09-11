@@ -1,6 +1,6 @@
 # Bayesian longitudinal maize height from fixed cameras
 
-This repository accompanies the Methods and Techniques manuscript submitted to *The Plant Phenome Journal*, **“Prior-Guided Image Analysis for Bayesian Longitudinal Maize Height Phenotyping with Fixed Cameras.”** It releases the manuscript, analysis code, canonical derived data, 61 curated 2021 field images, 12 human-annotated support-pole XML files, a pose checkpoint, and cached predictions.
+This repository accompanies the Methods and Techniques manuscript prepared for submission to *The Plant Phenome Journal*, **“Prior-guided image analysis for Bayesian longitudinal maize height phenotyping with fixed cameras.”** It releases the manuscript, analysis code, canonical derived data, 61 curated 2021 field images, 12 human-annotated support-pole XML files, a pose checkpoint, and cached predictions.
 
 The methodological distinction is where the longitudinal information acts. A conventional two-stage workflow chooses a measurement from each image and only then links those measurements in a longitudinal model. Here the predictive state is returned to current-image analysis: running position guides plant association and base refinement, while the stronger candidate branch lets the predicted height distribution score competing plant-top candidates before the measurement is finalized.
 
@@ -23,7 +23,7 @@ Source-frame matching recovered coordinates for 87 archived plant crops across s
 ## Repository map
 
 - `manuscript/`: final LaTeX source, editable figures, main PDF, and supplementary PDF.
-- The main source is prepared for *The Plant Phenome Journal* with double spacing, continuous line numbers, journal-required front matter, and author–year references.
+- The main source follows the official June 2026 *The Plant Phenome Journal* submission template in standard LaTeX: 12-point Times-family type, US-letter paper, 1-inch margins, double spacing, continuous line numbers, the journal's front-matter order, full postal affiliations, and APA author–year references. The journal supplies a Word template rather than a LaTeX class, so the source uses the journal's official LaTeX submission route.
 - `analysis/`: canonical scripts used for the reported calculations and physical-reference import.
 - `data/raw/pole_calibration_images/`: 61 curated 2021 images. `C-039_2021-07-30.JPG` is retained; the confirmed duplicate spelling is omitted.
 - `data/manual_annotations/poles_2021/`: Haoming Wang's support-pole annotations, one XML file per camera row.

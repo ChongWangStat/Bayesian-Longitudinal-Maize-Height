@@ -84,46 +84,49 @@ def main() -> None:
     assert len({row["rowid"] for row in recovered_primary}) == 6
 
     tex = (ROOT / "manuscript/main.tex").read_text(encoding="utf-8")
-    title = re.search(r"\\title\{(.*?)\}", tex, flags=re.S).group(1)
+    title = re.search(
+        r"\\newcommand\{\\manuscripttitle\}\{(.*?)\}", tex, flags=re.S
+    ).group(1)
     abstract = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", tex, flags=re.S).group(1)
     abstract_plain = re.sub(r"\\textit\{([^{}]*)\}", r"\1", abstract)
     abstract_plain = abstract_plain.replace(r"\%", "%")
     abstract_plain = re.sub(r"\s+", " ", abstract_plain).strip()
-    words = re.findall(r"[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*", abstract)
+    words = abstract_plain.split()
     title_words = re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", title)
     assert len(title) <= 100, len(title)
     assert 10 <= len(title_words) <= 12, len(title_words)
     assert len(abstract_plain) <= 1500, len(abstract_plain)
     assert len(words) <= 250, len(words)
-    assert "Longitudinal" in title and "longitudinal" in abstract.lower()
-    assert "Prior-Guided Image Analysis" in title
+    assert "Bayesian longitudinal" in title and "longitudinal" in abstract.lower()
+    assert title.startswith("Prior-guided image analysis")
     assert "94.7" in abstract and "manual heights" in abstract
     plain_summary = re.search(
-        r"\\textbf\{Plain Language Summary\.\}\s*(.*?)\n\n",
+        r"\\section\*\{Plain Language Summary\}\s*(.*?)\n\n\\begin\{abstract\}",
         tex,
         flags=re.S,
     ).group(1)
     plain_summary = re.sub(r"\s+", " ", plain_summary).strip()
     assert len(plain_summary) <= 1000, len(plain_summary)
-    core_block = re.search(
-        r"\\textbf\{Core Ideas\}.*?\\begin\{itemize\}(.*?)\\end\{itemize\}",
-        tex,
-        flags=re.S,
-    ).group(1)
-    core_ideas = [
-        re.sub(r"\s+", " ", item).strip()
-        for item in re.findall(r"\\item\s+(.*?)(?=\\item|$)", core_block, flags=re.S)
-    ]
-    assert 3 <= len(core_ideas) <= 5
-    assert all(len(item) <= 115 for item in core_ideas)
     assert r"\doublespacing" in tex and r"\linenumbers" in tex
     assert "style=apa" in tex
+    assert r"\documentclass[12pt,letterpaper]{article}" in tex
+    assert r"\usepackage[margin=1in]{geometry}" in tex
+    assert r"\usepackage{newtxtext}" in tex and r"\usepackage{newtxmath}" in tex
+    assert "2438 Osborn Drive" in tex and "50011-1090" in tex
+    assert "0000-0002-2093-8018" in tex
+    front_order = [
+        tex.index(r"\textbf{Affiliations.}"),
+        tex.index(r"\textbf{Abbreviations.}"),
+        tex.index(r"\section*{Plain Language Summary}"),
+        tex.index(r"\begin{abstract}"),
+    ]
+    assert front_order == sorted(front_order)
     section_order = [
         tex.index(r"\section{Introduction}"),
         tex.index(r"\section{Materials and Methods}"),
         tex.index(r"\section{Results}"),
         tex.index(r"\section{Discussion}"),
-        tex.index(r"\section{Conclusions}"),
+        tex.index(r"\subsection{Conclusions}"),
     ]
     assert section_order == sorted(section_order)
     assert (ROOT / "manuscript/main.pdf").stat().st_size > 100_000
@@ -259,8 +262,14 @@ def main() -> None:
         "abstract_characters": len(abstract_plain),
         "abstract_words": len(words),
         "plain_language_summary_characters": len(plain_summary),
-        "core_idea_characters": [len(item) for item in core_ideas],
-        "tppj_section_order": "Introduction; Materials and Methods; Results; Discussion; Conclusions",
+        "tppj_template_alignment": (
+            "Official TPPJ Word-template order reproduced in standard LaTeX; "
+            "12-point Times-family type, US letter, 1-inch margins, double spacing, "
+            "continuous line numbers, full affiliations, and required declarations"
+        ),
+        "tppj_section_order": (
+            "Introduction; Materials and Methods; Results; Discussion with Conclusions subsection"
+        ),
         "field_particle_filter_mae_cm": fm["Robust Bayesian particle filter"]["mae_cm"],
         "field_comparators_with_positive_cluster_interval": positive_comparators,
         "field_median_absolute_error_reduction_cm": median_error["reduction_cm"],

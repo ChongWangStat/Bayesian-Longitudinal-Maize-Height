@@ -2,7 +2,7 @@
 
 Dear Editor-in-Chief and Editors of *The Plant Phenome Journal*:
 
-Please consider our manuscript, “Prior-Guided Image Analysis for Bayesian Longitudinal Maize Height Phenotyping with Fixed Cameras,” for publication as a **Methods and Techniques** article.
+Please consider our manuscript, “Prior-guided image analysis for Bayesian longitudinal maize height phenotyping with fixed cameras,” for publication as a **Methods and Techniques** article.
 
 Fixed-camera phenotyping produces a sequence of related images, yet common pipelines finalize a measurement from each image before a longitudinal model is applied. Our method closes that separation: the Bayesian predictive state from earlier images guides association and can rank competing height candidates while the current image is being analyzed. An in-scene physical reference converts image extent to centimeters, and a robust particle filter updates plant height, growth, and uncertainty using only the images available at that time.
 

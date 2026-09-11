@@ -1,13 +1,17 @@
-# The Plant Phenome Journal submission package v1.2.0
+# The Plant Phenome Journal submission package v1.2.1
 
-This release freezes the materials underlying **“Prior-Guided Image Analysis for Bayesian Longitudinal Maize Height Phenotyping with Fixed Cameras.”** The manuscript is positioned as a Methods and Techniques article for *The Plant Phenome Journal*.
+This release freezes the materials underlying **“Prior-guided image analysis for Bayesian longitudinal maize height phenotyping with fixed cameras.”** The manuscript is positioned as a Methods and Techniques article for *The Plant Phenome Journal*.
 
-## Journal-focused revision
+## Journal-template revision
 
-- Added the required Plain Language Summary, Core Ideas, alphabetical abbreviations, continuous line numbers, double spacing, and author–year references.
+- Rebuilt the authoritative manuscript in standard LaTeX against the official TPPJ Word template updated 30 June 2026; the journal does not publish a separate LaTeX class.
+- Matched the template's US-letter paper, 1-inch margins, 12-point Times-family type, title-page order, full postal affiliations, double spacing, continuous line numbers, numbered headings, and APA author–year references.
+- Placed the Plain Language Summary before the Abstract, moved the abbreviation list to the title page, and made Conclusions the final subsection of Discussion as directed by the current author instructions.
+- Added the corresponding author's verified ORCID and used the journal's required declaration headings.
+- Renamed and documented the intentionally blank Word carrier that ScholarOne requires for the official LaTeX submission route; every manuscript field is complete.
 - Reframed the paper around a clear crop-phenomics problem: the Bayesian longitudinal state guides current-image association and candidate choice before measurement extraction.
 - Added explicit affordable-phenomics context while stating that equipment cost, installation labor, maintenance cost, and processing time were not recorded consistently.
-- Added a claim-to-evidence design table, practical deployment and transfer requirements, a concise Conclusions section, and CRediT-form author contributions.
+- Added a claim-to-evidence design table, practical deployment and transfer requirements, a concise Conclusions subsection, and CRediT-form author contributions.
 - Preserved the strongest defensible evidence: 132 manual-height records from 33 independent 2021 plants across 12 camera rows, with all manual outcomes excluded from fitting and tuning.
 - Kept comparative claims calibrated: row-cluster intervals support improvements over EWMA, running median, and Holt; gains over the single-frame and Gaussian-filter comparators remain uncertain.
 - Kept mechanism evidence separate: simulation shows the benefit of prior-guided candidate choice under ambiguity, while the matched real-image subset contains no candidate conflict.

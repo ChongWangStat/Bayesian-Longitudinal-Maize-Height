@@ -11,16 +11,11 @@
   "primary_records_without_recovered_source_coordinates": 69,
   "title_characters": 97,
   "title_words": 12,
-  "abstract_characters": 1425,
-  "abstract_words": 210,
-  "plain_language_summary_characters": 917,
-  "core_idea_characters": [
-    82,
-    84,
-    72,
-    108
-  ],
-  "tppj_section_order": "Introduction; Materials and Methods; Results; Discussion; Conclusions",
+  "abstract_characters": 1477,
+  "abstract_words": 206,
+  "plain_language_summary_characters": 913,
+  "tppj_template_alignment": "Official TPPJ Word-template order reproduced in standard LaTeX; 12-point Times-family type, US letter, 1-inch margins, double spacing, continuous line numbers, full affiliations, and required declarations",
+  "tppj_section_order": "Introduction; Materials and Methods; Results; Discussion with Conclusions subsection",
   "field_particle_filter_mae_cm": 10.9671805928788,
   "field_comparators_with_positive_cluster_interval": [
     "EWMA (alpha=0.5)",

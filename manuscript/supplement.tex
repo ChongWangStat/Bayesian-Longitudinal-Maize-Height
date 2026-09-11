@@ -1,14 +1,18 @@
-\documentclass{article}
+\documentclass[12pt,letterpaper]{article}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext}
 \usepackage{setspace}
-\usepackage[margin=1.25in]{geometry}
+\usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \graphicspath{{./figures/}}
 \usepackage{amsmath,amssymb}
+\usepackage{newtxmath}
 \usepackage{booktabs,longtable,array}
 \usepackage{lineno}
 \usepackage[hidelinks]{hyperref}
 \usepackage{microtype}
+\usepackage{lastpage}
 \linenumbers
 \doublespacing
 \input{numbers.tex}
@@ -21,7 +25,7 @@
 \renewcommand{\theequation}{S\arabic{equation}}
 
 \title{Supplementary Materials for\\
-Prior-Guided Image Analysis for Bayesian Longitudinal Maize Height Phenotyping with Fixed Cameras}
+Prior-guided image analysis for Bayesian longitudinal maize height phenotyping with fixed cameras}
 
 \author{Haoming Wang, Chong Wang, Yawei Li, Cheng-Ting Yeh,\\
 Patrick S. Schnable, and Peng Liu\\[0.6em]
@@ -31,6 +35,10 @@ Patrick S. Schnable, and Peng Liu\\[0.6em]
 
 \begin{document}
 \maketitle
+
+\begin{center}
+\small This file contains \pageref{LastPage} pages, three figures, and six tables.
+\end{center}
 
 \noindent This document provides the detailed implementation specification, causal information-set definition, calibration derivation, uncertainty calibration, candidate-selection audit, annotation provenance, and plant-level endpoint results supporting the longitudinal analysis in the main article. It contains no separate reference list; citations and bibliographic details are given in the main article.
 
@@ -62,7 +70,7 @@ Component & Quantity or operation & 2024--2025 daily pole stream & 2021 independ
 \bottomrule
 \endlastfoot
 
-Observation unit & Plant identity and chronological key & \texttt{camera\_genotype}, left-to-right plant track, capture time & \texttt{rowid} plus \texttt{plantid}, field date \\
+Observation unit & Plant identity and chronological key & \path{camera_genotype}, left-to-right plant track, capture time & \texttt{rowid} plus \texttt{plantid}, field date \\
 Observation unit & Measurement entering height filter & Depth-corrected red-band pole calibration, cm & Archived single-image mask extent \texttt{height\_sam}, multiplied by the recorded geometric scale \\
 Reference & In-scene physical definition & Red-band pole; adjacent band edges 1 ft (30.48 cm) apart & Camera-support pole annotation is an installation asset, not the source of \texttt{height\_sam} \\
 Reference & Depth factor & $D_{\mathrm{tgt}}/D_{\mathrm{ref}}=8.5/10.0=0.85$ & Separate 2021 scale, \PixelCmPerPx{} cm/pixel, zero intercept \\
@@ -144,6 +152,7 @@ For the temporal repeatability audit, usable annotations were grouped by camera 
 
 The importer writes three canonical products:
 \begin{itemize}
+\small
 \item \path{data/processed/manual_poles_2021/manual_pole_annotations_2021.csv}, one row per retained trace;
 \item \path{data/processed/manual_poles_2021/pole_definitions_2021.csv}, the physical definitions and source records; and
 \item \path{data/processed/manual_poles_2021/summary.json}, counts, duplicate decision, and image-presence audit.
@@ -270,6 +279,7 @@ The same table adds the primary 2021 physical-reference target. These intervals 
 \caption{Multi-level uncertainty evaluation. The 2024--2025 rows evaluate one-step predictive intervals for the next image-derived measurement. The 2021 rows evaluate posterior intervals for latent height after the current image against held-out manual height.}
 \label{tab:s-uncertainty}
 \centering
+\small
 \begin{tabular}{lrrrrr}
 \toprule
 Evaluation & Records & Clusters & Nominal (\%) & Coverage (\%) & Mean width (cm) \\
