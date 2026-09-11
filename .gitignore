@@ -1,9 +1,11 @@
 __pycache__/
 *.py[cod]
 .venv/
+.venv-plant-height/
 .DS_Store
 Thumbs.db
 tmp/
+plant_height_results/
 manuscript/*.aux
 manuscript/*.bbl
 manuscript/*.bcf

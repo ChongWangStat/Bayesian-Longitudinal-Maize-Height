@@ -1,0 +1,39 @@
+{
+  "status": "pass",
+  "application_version": "1.0.0",
+  "validation_date": "2026-09-10",
+  "source_checks": {
+    "python_compilation": "pass",
+    "ruff": "pass",
+    "focused_tests": 7,
+    "focused_tests_status": "pass"
+  },
+  "released_filter_equivalence": {
+    "status": "pass",
+    "maximum_absolute_difference_cm": 2.842170943040401e-14,
+    "comparison": "stateful application filter versus analysis/bayesian_online_height_filter.py"
+  },
+  "prefix_causality": {
+    "status": "pass",
+    "definition": "adding a later image leaves every earlier result byte-for-byte unchanged"
+  },
+  "released_image_integration": {
+    "status": "pass",
+    "camera": "C-004",
+    "images": 5,
+    "dates": 5,
+    "pose_candidates": 29,
+    "tracked_plants": 6,
+    "plant_image_rows": 30,
+    "rows_using_current_image_measurements": 29,
+    "prediction_only_rows": 1,
+    "annotated_images": 5
+  },
+  "streamlit_smoke_test": {
+    "status": "pass",
+    "exceptions": 0,
+    "image_upload_controls": 1,
+    "date_table_upload_controls": 1,
+    "tabs": 2
+  }
+}

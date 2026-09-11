@@ -1,4 +1,4 @@
 -r requirements-core.txt
-opencv-python-headless==5.0.0
+opencv-python-headless==5.0.0.93
 ultralytics==8.4.145
 torch==2.9.1

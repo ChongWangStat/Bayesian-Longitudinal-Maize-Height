@@ -6,6 +6,19 @@ The methodological distinction is where the longitudinal information acts. A con
 
 The workflow treats “online” as an as-of analysis. When an image arrives, it is added to the available pool and the algorithm returns a measurement and height-growth distribution using that image and earlier images. Later images trigger later updates and do not revise earlier outputs.
 
+## Plant-scientist application
+
+The repository now includes a local browser application that accepts fixed-camera
+images and their dates, detects plant tops and roots, maintains plant identity through
+time, applies physical calibration, and returns a height for each tracked plant at each
+uploaded image date. Results include 80% and 95% uncertainty intervals, growth-rate
+estimates, quality flags, and annotated images.
+
+On Windows, double-click `START_PLANT_HEIGHT_APP.bat`. The first start creates an
+isolated Python environment and installs the required components; later starts reuse
+that environment. Instructions, calibration choices, batch-command usage, and output
+definitions are in `plant_height_app/README.md`.
+
 ## Principal results
 
 - The primary independent physical-height validation retained all 132 manual measurements from 33 plants across 12 stationary-camera rows and five dates in 2021. Its plant subjects and reference outcomes were separate from the 2024–2025 longitudinal-model development data. Manual height was reserved for evaluation and excluded from model and comparator tuning. Mean absolute error was 12.03 cm for the single-frame image extent and 10.97 cm for the robust Bayesian particle filter. The within-record reduction was 1.06 cm (95% camera-row-cluster bootstrap interval, -0.16 to 2.39 cm). Across the 99 observations after a plant's first image, the reduction was 1.44 cm (-0.21 to 3.26 cm). Median absolute error decreased from 8.74 to 7.30 cm (whole-row bootstrap reduction, 1.43 cm; 0.29–3.70 cm), and the mean-error gain stayed positive under all 12 leave-one-camera-row-out omissions (0.61–1.42 cm).

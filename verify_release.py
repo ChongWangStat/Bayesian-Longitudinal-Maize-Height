@@ -238,8 +238,35 @@ def main() -> None:
     real = json.loads((ROOT / "outputs/real_image_candidate_ablation_2021/summary.json").read_text())
     near(real["selection_agreement"], 1.0, 1e-12)
 
+    required_app_files = [
+        "START_PLANT_HEIGHT_APP.bat",
+        "plant_height_app/app.py",
+        "plant_height_app/engine.py",
+        "plant_height_app/cli.py",
+        "plant_height_app/README.md",
+        "plant_height_app/requirements.txt",
+        "plant_height_app/START_APP.bat",
+        "plant_height_app/start_app.ps1",
+        "plant_height_app/start_app.sh",
+        "plant_height_app/examples/image_dates_template.csv",
+    ]
+    assert all((ROOT / path).is_file() for path in required_app_files)
+    app_validation = json.loads(
+        (ROOT / "plant_height_app/APP_VALIDATION.json").read_text(encoding="utf-8")
+    )
+    assert app_validation["status"] == "pass"
+    assert app_validation["source_checks"]["focused_tests"] == 7
+    assert app_validation["released_filter_equivalence"]["status"] == "pass"
+    assert app_validation["prefix_causality"]["status"] == "pass"
+    assert app_validation["released_image_integration"]["plant_image_rows"] == 30
+    citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+    assert "version: 1.3.0" in citation
+
     forbidden = ("C:" + "\\Users\\", "gh" + "o_", "file:" + "//")
-    text_suffixes = {".py", ".md", ".tex", ".bib", ".csv", ".json", ".yml", ".yaml", ".cff", ".txt"}
+    text_suffixes = {
+        ".py", ".md", ".tex", ".bib", ".csv", ".json", ".yml", ".yaml",
+        ".cff", ".txt", ".ps1", ".bat", ".sh",
+    }
     bad: list[str] = []
     for path in ROOT.rglob("*"):
         if path.is_file() and path.suffix.lower() in text_suffixes:
@@ -294,6 +321,17 @@ def main() -> None:
             "completed human audit by Haoming Wang: 199 traces on 61 images; "
             "172 usable and 27 unusable"
         ),
+        "plant_scientist_application": (
+            "pass: local Streamlit image-to-height interface, one-click Windows launcher, "
+            "batch CLI, three physical-calibration routes, annotated QA, and downloadable "
+            "height estimates with posterior intervals"
+        ),
+        "plant_scientist_application_tests": app_validation["source_checks"][
+            "focused_tests"
+        ],
+        "plant_scientist_application_integration_rows": app_validation[
+            "released_image_integration"
+        ]["plant_image_rows"],
     }
     (ROOT / "RELEASE_VALIDATION.json").write_text(
         json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n"

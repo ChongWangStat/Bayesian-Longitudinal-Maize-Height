@@ -33,5 +33,8 @@
   "heldout_2025_coverage_95": 0.9489247311827957,
   "heldout_2025_mean_width_cm": 97.83876470284092,
   "temporal_validation_status": "2024 development and subject-disjoint 2025 test: 36 versus 11 evaluated plant tracks; zero plant-subject overlap",
-  "physical_annotation_status": "completed human audit by Haoming Wang: 199 traces on 61 images; 172 usable and 27 unusable"
+  "physical_annotation_status": "completed human audit by Haoming Wang: 199 traces on 61 images; 172 usable and 27 unusable",
+  "plant_scientist_application": "pass: local Streamlit image-to-height interface, one-click Windows launcher, batch CLI, three physical-calibration routes, annotated QA, and downloadable height estimates with posterior intervals",
+  "plant_scientist_application_tests": 7,
+  "plant_scientist_application_integration_rows": 30
 }
