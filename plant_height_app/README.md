@@ -15,6 +15,12 @@ Bayesian height-growth particle filter from the accompanying manuscript.
    calibration, enter the number of plants, and click **Run plant-height analysis**.
 5. Inspect the annotated images and download the complete result ZIP.
 
+To test the installation first, select **Try the included longitudinal example**.
+Choose the clean four-date C-024 series or the harder five-date C-004 series, which
+demonstrates a prediction-only update after one missed detection. The app loads the
+released images, their original dates, and the published 2021 calibration. No file
+preparation is required.
+
 The application runs locally. Uploaded images are processed on the computer running
 the app and are not sent to an external image-analysis service.
 
@@ -29,7 +35,13 @@ chmod +x plant_height_app/start_app.sh
 
 Upload one or more JPG, PNG, BMP, or TIFF images. Images from one `camera_id` must
 come from an unchanged fixed-camera view. Images from different cameras or plots
-can be analyzed together when their camera IDs differ.
+can be analyzed together when their camera IDs differ. The app accepts a different
+visible-plant count for every camera.
+
+For a new experiment, the preferred acquisition schedule is **one image per camera
+per day**, taken at a similar time. Daily input produces one updated estimate per
+plant per day. The model also accepts wider or irregular intervals and scales its
+process uncertainty by the elapsed time.
 
 The app recognizes dates such as `2026-07-18` in filenames. Dates can be corrected
 in the on-screen table or supplied as a CSV with these columns:
@@ -75,6 +87,7 @@ date after tracking starts. The main fields are:
 | Field | Meaning |
 |---|---|
 | `bayesian_height_cm` | Main plant-height estimate |
+| `days_after_first_image` | Elapsed study day, starting at day 0 for each camera |
 | `height_80_low_cm`, `height_80_high_cm` | Central 80% posterior interval |
 | `height_95_low_cm`, `height_95_high_cm` | Central 95% posterior interval |
 | `image_measurement_cm` | Calibrated measurement extracted from the current image |
@@ -84,8 +97,9 @@ date after tracking starts. The main fields are:
 
 Prediction-only rows use images available before or at that date. Later images do
 not revise earlier outputs. The complete ZIP also contains all pose candidates,
-calibration diagnostics, annotated images, input hashes, model hash, settings, and
-software versions.
+calibration diagnostics, annotated images, height-versus-day PNG plots, input hashes,
+model hash, settings, and software versions. Each PNG shows the Bayesian trajectory,
+95% uncertainty band, and current-image measurements.
 
 Because the click-based workflow does not require weather measurements, its image
 uncertainty starts from the released 12-cm pose term and increases it when detector
@@ -106,6 +120,9 @@ python plant_height_app/cli.py \
   --cm-per-pixel 0.415886 \
   --expected-plants 6
 ```
+
+For multiple cameras with different plant counts, repeat `--camera-plants`, for
+example `--camera-plants C-004=6 --camera-plants C-021=4`.
 
 Use `--calibration-mode red_band`, `--red-band-interval-cm`, and
 `--pole-to-plant-depth-factor` for the red-band workflow. Run

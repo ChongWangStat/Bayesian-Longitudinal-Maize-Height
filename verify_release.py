@@ -12,7 +12,9 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent
-EXPECTED_MODEL_SHA256 = "d813f7176890fd04f478868f8834ceae0b6f05c9c88ddfc8910c8c695745a572"
+EXPECTED_MODEL_SHA256 = (
+    "d813f7176890fd04f478868f8834ceae0b6f05c9c88ddfc8910c8c695745a572"
+)
 
 
 def sha256(path: Path) -> str:
@@ -31,9 +33,13 @@ def near(value: float, expected: float, tolerance: float = 0.015) -> None:
 def main() -> None:
     images = sorted((ROOT / "data/raw/pole_calibration_images").glob("*.JPG"))
     assert len(images) == 61, len(images)
-    assert not (ROOT / "data/raw/pole_calibration_images/C-039_2021-07-30JPG.JPG").exists()
+    assert not (
+        ROOT / "data/raw/pole_calibration_images/C-039_2021-07-30JPG.JPG"
+    ).exists()
     assert (ROOT / "data/raw/pole_calibration_images/C-039_2021-07-30.JPG").exists()
-    assert len(list((ROOT / "data/manual_annotations/poles_2021").glob("C-*.xml"))) == 12
+    assert (
+        len(list((ROOT / "data/manual_annotations/poles_2021").glob("C-*.xml"))) == 12
+    )
     pole_audit = json.loads(
         (ROOT / "data/processed/manual_poles_2021/summary.json").read_text()
     )
@@ -65,9 +71,7 @@ def main() -> None:
     ) as handle:
         crop_positions = list(csv.DictReader(handle))
     assert len(crop_positions) == 87
-    crop_keys = {
-        (row["rowid"], row["date_md"], row["plant"]) for row in crop_positions
-    }
+    crop_keys = {(row["rowid"], row["date_md"], row["plant"]) for row in crop_positions}
     assert len(crop_keys) == 87
     assert len({row["rowid"] for row in crop_positions}) == 7
     assert min(float(row["match_score"]) for row in crop_positions) >= 0.98
@@ -77,7 +81,8 @@ def main() -> None:
     ) as handle:
         primary_rows = list(csv.DictReader(handle))
     recovered_primary = [
-        row for row in primary_rows
+        row
+        for row in primary_rows
         if (row["rowid"], row["date_md"], row["plantid"]) in crop_keys
     ]
     assert len(recovered_primary) == 63
@@ -85,9 +90,11 @@ def main() -> None:
 
     tex = (ROOT / "manuscript/main.tex").read_text(encoding="utf-8")
     title = re.search(
-        r"\\newcommand\{\\manuscripttitle\}\{(.*?)\}", tex, flags=re.S
+        r"\\newcommand\{\\manuscripttitle\}\{(.*?)\}", tex, flags=re.DOTALL
     ).group(1)
-    abstract = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", tex, flags=re.S).group(1)
+    abstract = re.search(
+        r"\\begin\{abstract\}(.*?)\\end\{abstract\}", tex, flags=re.DOTALL
+    ).group(1)
     abstract_plain = re.sub(r"\\textit\{([^{}]*)\}", r"\1", abstract)
     abstract_plain = abstract_plain.replace(r"\%", "%")
     abstract_plain = re.sub(r"\s+", " ", abstract_plain).strip()
@@ -103,7 +110,7 @@ def main() -> None:
     plain_summary = re.search(
         r"\\section\*\{Plain Language Summary\}\s*(.*?)\n\n\\begin\{abstract\}",
         tex,
-        flags=re.S,
+        flags=re.DOTALL,
     ).group(1)
     plain_summary = re.sub(r"\s+", " ", plain_summary).strip()
     assert len(plain_summary) <= 1000, len(plain_summary)
@@ -183,7 +190,10 @@ def main() -> None:
     )
     assert manual_uncertainty["design"]["records"] == 132
     assert manual_uncertainty["design"]["stationary_camera_rows"] == 12
-    assert manual_uncertainty["design"]["manual_height_used_for_fitting_or_tuning"] is False
+    assert (
+        manual_uncertainty["design"]["manual_height_used_for_fitting_or_tuning"]
+        is False
+    )
     manual_intervals = {
         row["nominal_coverage"]: row for row in manual_uncertainty["intervals"]
     }
@@ -195,7 +205,8 @@ def main() -> None:
 
     unc = json.loads((ROOT / "outputs/uncertainty_revision/summary.json").read_text())
     test95 = next(
-        row for row in unc["intervals"]
+        row
+        for row in unc["intervals"]
         if row["model"] == "unit_consistent"
         and row["split"] == "2025_locked_test"
         and row["nominal_coverage"] == 0.95
@@ -203,14 +214,14 @@ def main() -> None:
     near(test95["empirical_coverage"], 0.9489247, 1e-6)
     near(test95["mean_width_cm"], 97.83876)
     development = next(
-        row for row in unc["summary"]
-        if row["model"] == "unit_consistent"
-        and row["split"] == "2024_development"
+        row
+        for row in unc["summary"]
+        if row["model"] == "unit_consistent" and row["split"] == "2024_development"
     )
     temporal_test = next(
-        row for row in unc["summary"]
-        if row["model"] == "unit_consistent"
-        and row["split"] == "2025_locked_test"
+        row
+        for row in unc["summary"]
+        if row["model"] == "unit_consistent" and row["split"] == "2025_locked_test"
     )
     assert development["plants"] == 36
     assert temporal_test["plants"] == 11
@@ -218,8 +229,7 @@ def main() -> None:
     development_subjects: set[str] = set()
     test_subjects: set[str] = set()
     stream_path = (
-        ROOT
-        / "outputs/online_study/pole_camera_bayesian_daily_revised/"
+        ROOT / "outputs/online_study/pole_camera_bayesian_daily_revised/"
         "online_bayesian_height_posteriors.csv"
     )
     with stream_path.open(newline="", encoding="utf-8") as handle:
@@ -235,7 +245,9 @@ def main() -> None:
     assert len(test_subjects) == temporal_test["plants"]
     assert development_subjects.isdisjoint(test_subjects)
 
-    real = json.loads((ROOT / "outputs/real_image_candidate_ablation_2021/summary.json").read_text())
+    real = json.loads(
+        (ROOT / "outputs/real_image_candidate_ablation_2021/summary.json").read_text()
+    )
     near(real["selection_agreement"], 1.0, 1e-12)
 
     required_app_files = [
@@ -248,24 +260,71 @@ def main() -> None:
         "plant_height_app/START_APP.bat",
         "plant_height_app/start_app.ps1",
         "plant_height_app/start_app.sh",
+        "plant_height_app/APP_VALIDATION.json",
+        "plant_height_app/COLLABORATOR_VALIDATION.json",
+        "plant_height_app/examples/README.md",
         "plant_height_app/examples/image_dates_template.csv",
+        "plant_height_app/examples/longitudinal_C-024/image_dates.csv",
+        "plant_height_app/examples/longitudinal_C-024/example_height_estimates.csv",
+        "plant_height_app/examples/longitudinal_C-024/example_height_by_day.png",
+        "plant_height_app/examples/longitudinal_C-004/image_dates.csv",
+        "plant_height_app/examples/longitudinal_C-004/example_height_estimates.csv",
+        "plant_height_app/examples/longitudinal_C-004/example_height_by_day.png",
     ]
     assert all((ROOT / path).is_file() for path in required_app_files)
     app_validation = json.loads(
         (ROOT / "plant_height_app/APP_VALIDATION.json").read_text(encoding="utf-8")
     )
     assert app_validation["status"] == "pass"
-    assert app_validation["source_checks"]["focused_tests"] == 7
+    assert app_validation["application_version"] == "1.1.0"
+    assert app_validation["source_checks"]["focused_tests"] == 12
     assert app_validation["released_filter_equivalence"]["status"] == "pass"
     assert app_validation["prefix_causality"]["status"] == "pass"
-    assert app_validation["released_image_integration"]["plant_image_rows"] == 30
+    assert app_validation["released_image_stress_test"]["images"] == 49
+    assert (
+        app_validation["released_image_stress_test"]["plant_image_rows_per_schedule"]
+        == 248
+    )
+    assert app_validation["two_camera_batch_test"]["plant_image_rows"] == 46
+    assert app_validation["two_camera_batch_test"]["height_versus_day_plots"] == 2
+    collaborator_validation = json.loads(
+        (ROOT / "plant_height_app/COLLABORATOR_VALIDATION.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert collaborator_validation["status"] == "pass"
+    assert collaborator_validation["released_field_images"] == 49
+    assert set(collaborator_validation["interval_scenarios"]) == {
+        "original_irregular",
+        "daily",
+        "every_3_days",
+        "every_7_days",
+        "long_gap_30_days",
+    }
+    assert all(
+        scenario["status"] == "pass"
+        and scenario["rows"] == 248
+        and scenario["finite_height_rows"] == 248
+        for scenario in collaborator_validation["interval_scenarios"].values()
+    )
     citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
-    assert "version: 1.3.0" in citation
+    assert "version: 1.4.0" in citation
 
     forbidden = ("C:" + "\\Users\\", "gh" + "o_", "file:" + "//")
     text_suffixes = {
-        ".py", ".md", ".tex", ".bib", ".csv", ".json", ".yml", ".yaml",
-        ".cff", ".txt", ".ps1", ".bat", ".sh",
+        ".py",
+        ".md",
+        ".tex",
+        ".bib",
+        ".csv",
+        ".json",
+        ".yml",
+        ".yaml",
+        ".cff",
+        ".txt",
+        ".ps1",
+        ".bat",
+        ".sh",
     }
     bad: list[str] = []
     for path in ROOT.rglob("*"):
@@ -276,14 +335,17 @@ def main() -> None:
     assert not bad, f"Machine-specific paths or credential-like strings in: {bad}"
 
     report = {
-        "status": "pass", "images": 61, "xml_files": 12,
+        "status": "pass",
+        "images": 61,
+        "xml_files": 12,
         "model_sha256": EXPECTED_MODEL_SHA256,
         "checkpoint_training_ultralytics": checkpoint_metadata["ultralytics_version"],
         "checkpoint_training_seed": checkpoint_metadata["train_args"]["seed"],
         "checkpoint_training_epochs": checkpoint_metadata["train_args"]["epochs"],
         "recovered_crop_positions": len(crop_positions),
         "primary_records_with_recovered_source_coordinates": len(recovered_primary),
-        "primary_records_without_recovered_source_coordinates": len(primary_rows) - len(recovered_primary),
+        "primary_records_without_recovered_source_coordinates": len(primary_rows)
+        - len(recovered_primary),
         "title_characters": len(title),
         "title_words": len(title_words),
         "abstract_characters": len(abstract_plain),
@@ -300,12 +362,24 @@ def main() -> None:
         "field_particle_filter_mae_cm": fm["Robust Bayesian particle filter"]["mae_cm"],
         "field_comparators_with_positive_cluster_interval": positive_comparators,
         "field_median_absolute_error_reduction_cm": median_error["reduction_cm"],
-        "field_leave_one_row_out_all_positive": leave_one_out["all_improvements_positive"],
-        "field_after_first_image_mae_gain_cm": after_first["paired_row_cluster_bootstrap"]["mae_improvement_cm"],
-        "manual_height_posterior_coverage_80": manual_intervals[0.80]["empirical_coverage"],
-        "manual_height_posterior_coverage_95": manual_intervals[0.95]["empirical_coverage"],
-        "manual_height_posterior_mean_width_95_cm": manual_intervals[0.95]["mean_width_cm"],
-        "support_pole_median_temporal_cv_percent": pole_repeatability["median_cv_percent"],
+        "field_leave_one_row_out_all_positive": leave_one_out[
+            "all_improvements_positive"
+        ],
+        "field_after_first_image_mae_gain_cm": after_first[
+            "paired_row_cluster_bootstrap"
+        ]["mae_improvement_cm"],
+        "manual_height_posterior_coverage_80": manual_intervals[0.80][
+            "empirical_coverage"
+        ],
+        "manual_height_posterior_coverage_95": manual_intervals[0.95][
+            "empirical_coverage"
+        ],
+        "manual_height_posterior_mean_width_95_cm": manual_intervals[0.95][
+            "mean_width_cm"
+        ],
+        "support_pole_median_temporal_cv_percent": pole_repeatability[
+            "median_cv_percent"
+        ],
         "primary_validation_status": (
             "2021 independent manual-reference physical-height validation: 132 records, "
             "33 plants, 12 stationary-camera rows, five dates; labels excluded "
@@ -323,15 +397,22 @@ def main() -> None:
         ),
         "plant_scientist_application": (
             "pass: local Streamlit image-to-height interface, one-click Windows launcher, "
-            "batch CLI, three physical-calibration routes, annotated QA, and downloadable "
-            "height estimates with posterior intervals"
+            "batch CLI, two built-in longitudinal examples, per-camera plant counts, "
+            "annotated QA, and downloadable height-versus-day plots with posterior intervals"
         ),
+        "plant_scientist_application_version": app_validation["application_version"],
         "plant_scientist_application_tests": app_validation["source_checks"][
             "focused_tests"
         ],
-        "plant_scientist_application_integration_rows": app_validation[
-            "released_image_integration"
-        ]["plant_image_rows"],
+        "plant_scientist_application_field_images_tested": app_validation[
+            "released_image_stress_test"
+        ]["images"],
+        "plant_scientist_application_timing_schedules": app_validation[
+            "released_image_stress_test"
+        ]["timing_schedules"],
+        "plant_scientist_application_rows_per_schedule": app_validation[
+            "released_image_stress_test"
+        ]["plant_image_rows_per_schedule"],
     }
     (ROOT / "RELEASE_VALIDATION.json").write_text(
         json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n"

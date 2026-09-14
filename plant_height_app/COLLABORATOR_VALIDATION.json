@@ -1,0 +1,118 @@
+{
+  "status": "pass",
+  "released_field_images": 49,
+  "camera_series": 12,
+  "pose_candidates": 253,
+  "plant_counts_by_camera": {
+    "C-004": 6,
+    "C-005": 5,
+    "C-009": 5,
+    "C-010": 6,
+    "C-011": 6,
+    "C-021": 4,
+    "C-024": 4,
+    "C-029": 6,
+    "C-032": 3,
+    "C-037": 5,
+    "C-038": 4,
+    "C-039": 6
+  },
+  "interval_scenarios": {
+    "original_irregular": {
+      "status": "pass",
+      "rows": 248,
+      "measured_rows": 241,
+      "prediction_only_rows": 7,
+      "finite_height_rows": 248,
+      "maximum_day": 35.0
+    },
+    "daily": {
+      "status": "pass",
+      "rows": 248,
+      "measured_rows": 241,
+      "prediction_only_rows": 7,
+      "finite_height_rows": 248,
+      "maximum_day": 4.0
+    },
+    "every_3_days": {
+      "status": "pass",
+      "rows": 248,
+      "measured_rows": 241,
+      "prediction_only_rows": 7,
+      "finite_height_rows": 248,
+      "maximum_day": 12.0
+    },
+    "every_7_days": {
+      "status": "pass",
+      "rows": 248,
+      "measured_rows": 241,
+      "prediction_only_rows": 7,
+      "finite_height_rows": 248,
+      "maximum_day": 28.0
+    },
+    "long_gap_30_days": {
+      "status": "pass",
+      "rows": 248,
+      "measured_rows": 241,
+      "prediction_only_rows": 7,
+      "finite_height_rows": 248,
+      "maximum_day": 120.0
+    }
+  },
+  "known_scale_matches_published_2021_max_abs_cm": 0.0,
+  "red_band_mode": {
+    "status": "pass",
+    "calibration_images": 49,
+    "passing_calibrations": 4,
+    "height_rows": 248,
+    "finite_height_rows": 12,
+    "measured_rows": 12,
+    "prediction_or_unavailable_rows": 236,
+    "interpretation": "The mode completed without errors and conservatively withheld estimates when no pole fit passed. Use the published scale for the included 2021 examples or a known scale for new camera geometries unless clear bands pass QC."
+  },
+  "stress_test_particles": 1000,
+  "timing_replay_note": "The same released image sequences were assigned alternate dates only to test elapsed-time handling; original-image results retain the true acquisition dates.",
+  "included_examples": {
+    "C-024_clean": {
+      "images": 4,
+      "plants": 4,
+      "height_rows": 16,
+      "measured_rows": 16,
+      "prediction_only_rows": 0,
+      "study_days": [
+        0.0,
+        9.0,
+        16.0,
+        28.0
+      ],
+      "default_particles": 5000,
+      "plot": "C-024_height_by_day.png"
+    },
+    "C-004_recovery": {
+      "images": 5,
+      "plants": 6,
+      "height_rows": 30,
+      "measured_rows": 29,
+      "prediction_only_rows": 1,
+      "study_days": [
+        0.0,
+        9.0,
+        16.0,
+        28.0,
+        35.0
+      ],
+      "default_particles": 5000,
+      "plot": "C-004_height_by_day.png"
+    }
+  },
+  "two_camera_batch_test": {
+    "status": "pass",
+    "images": 9,
+    "cameras": 2,
+    "plant_image_rows": 46,
+    "finite_height_rows": 46,
+    "measurements_used": 45,
+    "prediction_only_rows": 1,
+    "height_versus_day_plots": 2
+  }
+}

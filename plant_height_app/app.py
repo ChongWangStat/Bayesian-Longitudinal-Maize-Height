@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import tempfile
+import zipfile
 from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
@@ -30,6 +31,75 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parent.parent
 MODEL_PATH = ROOT / "models" / "maize_pose_2021_best.pt"
+EXAMPLE_IMAGE_DIRECTORY = ROOT / "data" / "raw" / "pole_calibration_images"
+EXAMPLE_DIRECTORY = Path(__file__).resolve().parent / "examples"
+EXAMPLES = {
+    "C-024 · clean four-date series": {
+        "camera_id": "C-024",
+        "expected_plants": 4,
+        "filenames": [
+            "C-024_2021-07-02.JPG",
+            "C-024_2021-07-11.JPG",
+            "C-024_2021-07-18.JPG",
+            "C-024_2021-07-30.JPG",
+        ],
+        "metadata": EXAMPLE_DIRECTORY / "longitudinal_C-024" / "image_dates.csv",
+        "description": "four dates, four plants, and all 16 image measurements used",
+    },
+    "C-004 · five-date missed-detection recovery": {
+        "camera_id": "C-004",
+        "expected_plants": 6,
+        "filenames": [
+            "C-004_2021-07-02.JPG",
+            "C-004_2021-07-11.JPG",
+            "C-004_2021-07-18.JPG",
+            "C-004_2021-07-30.JPG",
+            "C-004_2021-08-06.JPG",
+        ],
+        "metadata": EXAMPLE_DIRECTORY / "longitudinal_C-004" / "image_dates.csv",
+        "description": "five dates, six plants, and one prediction-only recovery",
+    },
+}
+
+
+class _MemoryUpload:
+    """Small UploadedFile-compatible wrapper for the included example."""
+
+    def __init__(self, name: str, payload: bytes):
+        self.name = name
+        self._payload = payload
+
+    def getvalue(self) -> bytes:
+        return self._payload
+
+
+def _included_example(
+    example_name: str,
+) -> tuple[list[_MemoryUpload], _MemoryUpload, bytes]:
+    definition = EXAMPLES[example_name]
+    filenames = list(definition["filenames"])
+    metadata_path = Path(definition["metadata"])
+    missing = [
+        name for name in filenames if not (EXAMPLE_IMAGE_DIRECTORY / name).is_file()
+    ]
+    if missing or not metadata_path.is_file():
+        raise FileNotFoundError(
+            "The included example is incomplete: "
+            + ", ".join(missing or [str(metadata_path)])
+        )
+    images = [
+        _MemoryUpload(name, (EXAMPLE_IMAGE_DIRECTORY / name).read_bytes())
+        for name in filenames
+    ]
+    metadata_bytes = metadata_path.read_bytes()
+    metadata_upload = _MemoryUpload(metadata_path.name, metadata_bytes)
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("image_dates.csv", metadata_bytes)
+        for upload in images:
+            archive.writestr(f"images/{upload.name}", upload.getvalue())
+    return images, metadata_upload, buffer.getvalue()
+
 
 st.set_page_config(
     page_title="Bayesian Plant Height",
@@ -126,21 +196,55 @@ def _display_results(payload: dict[str, object]) -> None:
         "Prediction-only rows", int((~estimates["measurement_used"]).sum())
     )
 
+    selected_camera = str(estimates["camera_id"].iloc[0])
     chart_data = estimates.dropna(subset=["bayesian_height_cm"]).copy()
     if not chart_data.empty:
-        chart_data["series"] = chart_data["plant_uid"]
+        chart_left, chart_right = st.columns([2, 3])
+        camera_ids = sorted(chart_data["camera_id"].astype(str).unique())
+        selected_camera = chart_left.selectbox(
+            "Camera or plot shown",
+            camera_ids,
+            key="result_chart_camera",
+        )
+        time_axis = chart_right.radio(
+            "Horizontal axis",
+            ["Days after first image", "Calendar date"],
+            horizontal=True,
+            key="result_chart_axis",
+        )
+        chart_data = chart_data[chart_data["camera_id"].astype(str).eq(selected_camera)]
+        chart_data["series"] = chart_data["plant_id"]
+        x_column = (
+            "days_after_first_image"
+            if time_axis == "Days after first image"
+            else "capture_datetime"
+        )
         chart = chart_data.pivot_table(
-            index="capture_datetime",
+            index=x_column,
             columns="series",
             values="bayesian_height_cm",
             aggfunc="last",
         )
-        st.line_chart(chart, height=390, x_label="Image date", y_label="Height (cm)")
+        st.line_chart(
+            chart,
+            height=390,
+            x_label=(
+                "Days after first image (day 0 = first uploaded image)"
+                if time_axis == "Days after first image"
+                else "Image date"
+            ),
+            y_label="Height (cm)",
+        )
+        st.caption(
+            "The downloadable PNG adds the 95% uncertainty bands and marks the "
+            "current-image measurements with × symbols."
+        )
 
     display_columns = [
         "camera_id",
         "plant_id",
         "date",
+        "days_after_first_image",
         "bayesian_height_cm",
         "height_95_low_cm",
         "height_95_high_cm",
@@ -152,22 +256,35 @@ def _display_results(payload: dict[str, object]) -> None:
     display = estimates[display_columns].copy()
     numeric = display.select_dtypes(include="number").columns
     display[numeric] = display[numeric].round(2)
-    st.dataframe(display, use_container_width=True, hide_index=True)
+    st.dataframe(display, width="stretch", hide_index=True)
 
-    left, right = st.columns(2)
+    left, middle, right = st.columns(3)
     left.download_button(
         "Download height table (CSV)",
         estimates.to_csv(index=False).encode("utf-8"),
         file_name="height_estimates.csv",
         mime="text/csv",
-        use_container_width=True,
+        width="stretch",
     )
+    safe_camera = "".join(
+        character if character.isalnum() or character in "._-" else "_"
+        for character in selected_camera
+    ).strip("._")
+    plot_name = f"{safe_camera or 'camera'}_height_by_day.png"
+    if plot_name in artifacts.trajectory_plots:
+        middle.download_button(
+            "Download height-versus-day plot (PNG)",
+            artifacts.trajectory_plots[plot_name],
+            file_name=plot_name,
+            mime="image/png",
+            width="stretch",
+        )
     right.download_button(
         "Download complete results and annotated images (ZIP)",
         payload["result_zip"],
         file_name="plant_height_results.zip",
         mime="application/zip",
-        use_container_width=True,
+        width="stretch",
     )
 
     st.subheader("Image review")
@@ -176,15 +293,13 @@ def _display_results(payload: dict[str, object]) -> None:
     st.image(
         artifacts.annotated_images[selected_image],
         caption="Red point: detected top. Blue point: prior-updated root. Yellow points: detected pole bands.",
-        use_container_width=True,
+        width="stretch",
     )
     with st.expander("Quality-control details"):
-        st.dataframe(artifacts.image_summary, use_container_width=True, hide_index=True)
+        st.dataframe(artifacts.image_summary, width="stretch", hide_index=True)
         if not artifacts.calibrations.empty:
             st.markdown("**Automatic red-band calibration fits**")
-            st.dataframe(
-                artifacts.calibrations, use_container_width=True, hide_index=True
-            )
+            st.dataframe(artifacts.calibrations, width="stretch", hide_index=True)
 
 
 analyze_tab, guide_tab = st.tabs(["Analyze images", "How to use the app"])
@@ -194,22 +309,29 @@ with guide_tab:
     st.markdown(
         """
         1. Use images from a **stationary camera**. Give images from different cameras different camera IDs.
-        2. Include at least one early image in which all tracked plants are visible.
-        3. Put the capture date in each filename (`YYYY-MM-DD`) or enter it in the table.
-        4. Choose the correct physical calibration:
+        2. For a new study, prefer **one image per camera per day**, taken at a similar time. Wider and irregular intervals are accepted.
+        3. Include at least one early image in which all tracked plants are visible.
+        4. Put the capture date in each filename (`YYYY-MM-DD`) or enter it in the table.
+        5. Enter the number of visible plants separately for each camera or plot.
+        6. Choose the correct physical calibration:
            - **Published 2021 setup** for the camera geometry used in the paper.
            - **Known scale** when you already know centimetres per vertical pixel.
            - **Automatic red-band pole** when the images contain the 1-ft-style reference pole.
-        5. Inspect the annotated images before using the downloaded values in a biological analysis.
+        7. Inspect the annotated images before using the downloaded values in a biological analysis.
+
+        Select **Try the included longitudinal example** to run either a clean C-024
+        sequence or a harder C-004 sequence without preparing any files.
         """
     )
     st.subheader("What the output means")
     st.markdown(
         """
-        `bayesian_height_cm` is the main estimate. The 80% and 95% columns describe
-        posterior uncertainty. A `measured` row used that image's detected and calibrated
-        plant extent. A `prediction_only` row reports the as-of model estimate when a
-        usable detection was unavailable. No estimate uses an image dated later than the row.
+        `bayesian_height_cm` is the main estimate. `days_after_first_image` starts at
+        day 0 separately for each camera and supplies the horizontal axis of the exported
+        trajectory plot. The 80% and 95% columns describe posterior uncertainty. A
+        `measured` row used that image's detected and calibrated plant extent. A
+        `prediction_only` row reports the as-of model estimate when a usable detection was
+        unavailable. No estimate uses an image dated later than the row.
 
         Plant IDs describe horizontal position in each camera view. They are stable only
         while the camera remains fixed and the same plants remain in view. The model was
@@ -223,17 +345,47 @@ with analyze_tab:
     st.markdown(
         '<div class="step">1 · Upload images and dates</div>', unsafe_allow_html=True
     )
-    uploads = st.file_uploader(
-        "Images",
-        type=["jpg", "jpeg", "png", "bmp", "tif", "tiff"],
-        accept_multiple_files=True,
-        help="Upload one or more dated images from each fixed camera.",
+    input_source = st.radio(
+        "Choose input",
+        ["Upload my images", "Try the included longitudinal example"],
+        horizontal=True,
     )
-    dates_upload = st.file_uploader(
-        "Optional date table (CSV)",
-        type=["csv"],
-        help="Columns: filename, capture_datetime, camera_id. Dates in filenames are filled automatically.",
-    )
+    example_expected_plants: dict[str, int] = {}
+    if input_source == "Try the included longitudinal example":
+        example_name = st.selectbox("Included example", list(EXAMPLES))
+        example_definition = EXAMPLES[example_name]
+        try:
+            uploads, dates_upload, example_zip = _included_example(example_name)
+            example_camera = str(example_definition["camera_id"])
+            example_expected_plants[example_camera] = int(
+                example_definition["expected_plants"]
+            )
+            st.success(
+                f"Loaded {example_name}: {example_definition['description']}. "
+                "Keep the published 2021 calibration for this example."
+            )
+            st.download_button(
+                "Download the example images and date table",
+                example_zip,
+                file_name=f"{example_camera}_longitudinal_example_inputs.zip",
+                mime="application/zip",
+            )
+        except FileNotFoundError as error:
+            st.error(str(error))
+            uploads = []
+            dates_upload = None
+    else:
+        uploads = st.file_uploader(
+            "Images",
+            type=["jpg", "jpeg", "png", "bmp", "tif", "tiff"],
+            accept_multiple_files=True,
+            help="Upload one or more dated images from each fixed camera.",
+        )
+        dates_upload = st.file_uploader(
+            "Optional date table (CSV)",
+            type=["csv"],
+            help="Columns: filename, capture_datetime, camera_id. Dates in filenames are filled automatically.",
+        )
 
     if uploads:
         names = [Path(upload.name).name for upload in uploads]
@@ -261,7 +413,7 @@ with analyze_tab:
             edited_metadata = st.data_editor(
                 metadata_default,
                 hide_index=True,
-                use_container_width=True,
+                width="stretch",
                 num_rows="fixed",
                 disabled=["filename"],
                 column_config={
@@ -342,20 +494,57 @@ with analyze_tab:
                     "A passing pole calibration must be visible at or before the first height "
                     "measurement. Later pole images are never used for earlier estimates."
                 )
+                st.warning(
+                    "Automatic band detection is intentionally conservative. If the QC table "
+                    "reports no passing fit, use a clear pole image or an independently known "
+                    "centimetres-per-pixel scale."
+                )
 
             st.markdown(
                 '<div class="step">3 · Set the plant layout</div>',
                 unsafe_allow_html=True,
             )
-            layout_left, layout_right = st.columns(2)
-            expected_plants = layout_left.number_input(
-                "Plants visible in each camera view",
-                min_value=1,
-                max_value=100,
-                value=6,
-                step=1,
+            camera_ids = sorted(
+                edited_metadata["camera_id"].astype(str).str.strip().unique()
             )
-            numbering_label = layout_right.radio(
+            camera_layout = st.data_editor(
+                pd.DataFrame(
+                    {
+                        "camera_id": camera_ids,
+                        "expected_plants": [
+                            example_expected_plants.get(camera_id, 6)
+                            for camera_id in camera_ids
+                        ],
+                    }
+                ),
+                hide_index=True,
+                width="stretch",
+                num_rows="fixed",
+                disabled=["camera_id"],
+                column_config={
+                    "camera_id": st.column_config.TextColumn("Camera or plot ID"),
+                    "expected_plants": st.column_config.NumberColumn(
+                        "Plants visible",
+                        min_value=1,
+                        max_value=100,
+                        step=1,
+                        help="Set this separately for each fixed camera view.",
+                    ),
+                },
+                key=(
+                    "camera_layout_"
+                    + sha256(
+                        (upload_signature + "|".join(camera_ids)).encode("utf-8")
+                    ).hexdigest()[:12]
+                ),
+            )
+            layout_counts = pd.to_numeric(
+                camera_layout["expected_plants"], errors="coerce"
+            ).fillna(6)
+            expected_plants_by_camera = dict(
+                zip(camera_layout["camera_id"].astype(str), layout_counts.astype(int))
+            )
+            numbering_label = st.radio(
                 "Plant numbering",
                 ["Left to right", "Right to left"],
                 horizontal=True,
@@ -400,7 +589,7 @@ with analyze_tab:
                                 cm_per_pixel,
                                 band_interval,
                                 depth_factor,
-                                expected_plants,
+                                sorted(expected_plants_by_camera.items()),
                                 numbering_label,
                                 particles,
                                 maximum_track_distance,
@@ -417,7 +606,7 @@ with analyze_tab:
             run = st.button(
                 "Run plant-height analysis",
                 type="primary",
-                use_container_width=True,
+                width="stretch",
             )
             if run:
                 if not MODEL_PATH.exists():
@@ -428,7 +617,8 @@ with analyze_tab:
                         cm_per_pixel=float(cm_per_pixel),
                         red_band_interval_cm=float(band_interval),
                         pole_to_plant_depth_factor=float(depth_factor),
-                        expected_plants=int(expected_plants),
+                        expected_plants=6,
+                        expected_plants_by_camera=expected_plants_by_camera,
                         numbering_direction=(
                             "left_to_right"
                             if numbering_label == "Left to right"

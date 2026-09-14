@@ -1,19 +1,25 @@
 from __future__ import annotations
 
+from io import BytesIO
 from pathlib import Path
+from zipfile import ZipFile
 
 import numpy as np
 import pandas as pd
+import pytest
 from PIL import Image, ImageDraw
 
 from analysis.bayesian_online_height_filter import filter_one_plant
 from plant_height_app.engine import (
+    AnalysisArtifacts,
     AnalysisConfig,
     RobustHeightFilter,
     analyze_candidate_table,
     detect_red_band_calibrations,
     fit_projective_calibration,
     infer_capture_datetime,
+    make_height_trajectory_plots,
+    package_results,
 )
 
 
@@ -27,23 +33,32 @@ def _metadata(dates: list[str]) -> pd.DataFrame:
     )
 
 
-def _candidate(filename: str, index: int, height_px: float, confidence: float = 0.8):
+def _candidate(
+    filename: str,
+    index: int,
+    height_px: float,
+    confidence: float = 0.8,
+    camera_id: str = "camera_1",
+    when: str | pd.Timestamp | None = None,
+    x_fraction: float = 0.5,
+):
     root_y = 800.0
+    root_x = x_fraction * 800
     return {
         "filename": filename,
-        "camera_id": "camera_1",
-        "capture_datetime": pd.Timestamp(filename[7:17]),
+        "camera_id": camera_id,
+        "capture_datetime": pd.Timestamp(when if when is not None else filename[7:17]),
         "candidate_index": index,
         "confidence": confidence,
-        "x_top": 400.0,
+        "x_top": root_x,
         "y_top": root_y - height_px,
-        "x_root": 400.0,
+        "x_root": root_x,
         "y_root": root_y,
-        "x_root_fraction": 0.5,
+        "x_root_fraction": x_fraction,
         "height_px": height_px,
-        "box_x1": 350.0,
+        "box_x1": root_x - 50,
         "box_y1": root_y - height_px,
-        "box_x2": 450.0,
+        "box_x2": root_x + 50,
         "box_y2": 820.0,
         "image_width": 800,
         "image_height": 1000,
@@ -131,6 +146,129 @@ def test_prediction_only_row_is_emitted_for_missed_detection() -> None:
     assert second["status"] == "prediction_only_no_matched_detection"
     assert not bool(second["measurement_used"])
     assert np.isfinite(second["bayesian_height_cm"])
+
+
+@pytest.mark.parametrize("interval_days", [1, 3, 7])
+def test_regular_image_intervals_produce_elapsed_study_days(interval_days: int) -> None:
+    dates = pd.Timestamp("2021-07-01") + pd.to_timedelta(
+        np.arange(4) * interval_days, unit="D"
+    )
+    metadata = pd.DataFrame(
+        {
+            "filename": [f"image_{index}.jpg" for index in range(4)],
+            "capture_datetime": dates,
+            "camera_id": "camera_1",
+        }
+    )
+    candidates = pd.DataFrame(
+        [
+            _candidate(
+                row.filename,
+                0,
+                120 + 20 * index,
+                when=row.capture_datetime,
+            )
+            for index, row in enumerate(metadata.itertuples(index=False))
+        ]
+    )
+    estimates, _, warnings = analyze_candidate_table(
+        metadata,
+        candidates,
+        pd.DataFrame(),
+        AnalysisConfig(expected_plants=1, particles=1000),
+    )
+    assert not warnings
+    assert estimates["days_after_first_image"].tolist() == [
+        0.0,
+        float(interval_days),
+        float(2 * interval_days),
+        float(3 * interval_days),
+    ]
+    assert np.isfinite(estimates["bayesian_height_cm"]).all()
+
+
+def test_each_camera_can_have_a_different_plant_count() -> None:
+    metadata = pd.DataFrame(
+        {
+            "filename": ["A_1.jpg", "A_2.jpg", "B_1.jpg", "B_2.jpg"],
+            "capture_datetime": pd.to_datetime(
+                ["2021-07-01", "2021-07-02", "2021-07-01", "2021-07-02"]
+            ),
+            "camera_id": ["A", "A", "B", "B"],
+        }
+    )
+    rows = []
+    for record in metadata.itertuples(index=False):
+        rows.append(
+            _candidate(
+                record.filename,
+                0,
+                120,
+                camera_id=record.camera_id,
+                when=record.capture_datetime,
+                x_fraction=0.3,
+            )
+        )
+        if record.camera_id == "B":
+            rows.append(
+                _candidate(
+                    record.filename,
+                    1,
+                    135,
+                    camera_id="B",
+                    when=record.capture_datetime,
+                    x_fraction=0.7,
+                )
+            )
+    estimates, _, warnings = analyze_candidate_table(
+        metadata,
+        pd.DataFrame(rows),
+        pd.DataFrame(),
+        AnalysisConfig(
+            expected_plants=6,
+            expected_plants_by_camera={"A": 1, "B": 2},
+            particles=1000,
+        ),
+    )
+    assert not warnings
+    assert estimates.groupby("camera_id")["plant_uid"].nunique().to_dict() == {
+        "A": 1,
+        "B": 2,
+    }
+    assert len(estimates) == 6
+
+
+def test_height_trajectory_plot_is_a_valid_png() -> None:
+    metadata = _metadata(["07-01", "07-02", "07-04"])
+    candidates = pd.DataFrame(
+        [
+            _candidate(filename, 0, height)
+            for filename, height in zip(metadata["filename"], [120, 140, 180])
+        ]
+    )
+    estimates, _, _ = analyze_candidate_table(
+        metadata,
+        candidates,
+        pd.DataFrame(),
+        AnalysisConfig(expected_plants=1, particles=1000),
+    )
+    plots = make_height_trajectory_plots(estimates)
+    assert set(plots) == {"camera_1_height_by_day.png"}
+    assert plots["camera_1_height_by_day.png"].startswith(b"\x89PNG\r\n\x1a\n")
+
+    artifacts = AnalysisArtifacts(
+        height_estimates=estimates,
+        image_summary=pd.DataFrame(),
+        candidates=candidates,
+        calibrations=pd.DataFrame(),
+        annotated_images={},
+        trajectory_plots=plots,
+        run_metadata={"test": True},
+    )
+    with ZipFile(BytesIO(package_results(artifacts))) as archive:
+        assert "plots/camera_1_height_by_day.png" in archive.namelist()
+        exported = pd.read_csv(archive.open("height_estimates.csv"))
+        assert "days_after_first_image" in exported.columns
 
 
 def test_automatic_red_band_calibration_on_clean_reference(tmp_path: Path) -> None:

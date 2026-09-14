@@ -12,12 +12,18 @@ The repository now includes a local browser application that accepts fixed-camer
 images and their dates, detects plant tops and roots, maintains plant identity through
 time, applies physical calibration, and returns a height for each tracked plant at each
 uploaded image date. Results include 80% and 95% uncertainty intervals, growth-rate
-estimates, quality flags, and annotated images.
+estimates, quality flags, annotated images, and height-versus-day plots. Daily imaging
+at a similar time is the preferred prospective schedule; wider and irregular intervals
+are also supported. Different cameras can have different visible-plant counts.
 
 On Windows, double-click `START_PLANT_HEIGHT_APP.bat`. The first start creates an
 isolated Python environment and installs the required components; later starts reuse
 that environment. Instructions, calibration choices, batch-command usage, and output
 definitions are in `plant_height_app/README.md`.
+
+The app includes two ready-to-run longitudinal examples. C-024 is a clean four-date
+demonstration with all 16 current-image measurements used; C-004 is a five-date
+demonstration with one prediction-only recovery after a missed detection.
 
 ## Principal results
 

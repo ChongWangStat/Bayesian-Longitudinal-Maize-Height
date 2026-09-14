@@ -1,0 +1,5 @@
+camera_id,capture_datetime,date,days_after_first_image,filename,plant_candidates,assigned_tracks,measurements_used,prediction_only,red_bands_detected,pole_calibration_pass
+C-024,2021-07-02 12:00:00,2021-07-02,0.0,C-024_2021-07-02.JPG,5,4,4,0,0,True
+C-024,2021-07-11 12:00:00,2021-07-11,9.0,C-024_2021-07-11.JPG,4,4,4,0,0,True
+C-024,2021-07-18 12:00:00,2021-07-18,16.0,C-024_2021-07-18.JPG,4,4,4,0,0,True
+C-024,2021-07-30 12:00:00,2021-07-30,28.0,C-024_2021-07-30.JPG,4,4,4,0,0,True

@@ -1,50 +1,55 @@
-# Plant-scientist application release v1.3.0
+# Collaborator-ready plant-height application v1.4.0
 
-This repository release adds Bayesian Plant Height application v1.0.0, a complete
-local browser application for turning dated, fixed-camera maize images into
-longitudinal plant-height estimates.
+This repository release adds Bayesian Plant Height application v1.1.0, prepared for
+sharing with plant scientists who want to turn dated fixed-camera maize images into
+longitudinal height estimates without writing code.
 
-## Image-to-height application
+## Collaborator workflow
 
-- Added a Streamlit interface that accepts multiple images, infers dates from
-  filenames or EXIF metadata, and provides an editable date/camera table.
-- Added one-click Windows startup plus macOS/Linux startup scripts. The first run
-  creates an isolated environment; subsequent runs reuse it.
-- Retained the released YOLOv8-pose checkpoint for top/root detection and the exact
-  robust particle-filter state update used by the reproducibility analysis.
-- Added prior-guided candidate assignment: the running plant-position state and
-  predicted height distribution score current-image candidates before measurement.
-- Added three physical-calibration routes: the published 2021 scale, a user-supplied
-  centimetres-per-pixel scale, and automatic regularly spaced red-band detection with
-  a pole-to-plant depth correction.
-- Added stable within-camera plant IDs, prior-updated root positions, explicit quality
-  flags, and prediction-only output when a plant is missed after its track is initialized.
-- Added downloadable CSV output, 80% and 95% posterior intervals, growth-rate estimates,
-  annotated images, calibration diagnostics, model/input hashes, settings, and software
-  versions in one result ZIP.
-- Added a command-line batch interface using the same analysis engine.
+- Added two built-in longitudinal examples that run directly in the browser app.
+  C-024 is a clean four-date series with 16 of 16 current-image measurements used.
+  C-004 is a harder five-date series with 29 measurements and one prediction-only
+  recovery after a missed detection.
+- Bundled the nine source images, date tables, expected output tables, image-quality
+  summaries, and example height-versus-day plots in the standalone package.
+- Added `days_after_first_image` to every height row, starting at day 0 separately
+  for each camera.
+- Added an interactive choice of study day or calendar date for the horizontal axis.
+- Added downloadable height-versus-day PNGs with Bayesian trajectories, 95% uncertainty
+  bands, and current-image measurements, both individually and in the complete result ZIP.
+- Added separate visible-plant counts for each camera or plot in the browser and batch
+  interfaces.
+- Documented one image per camera per day, taken at a similar time, as the preferred
+  prospective schedule while retaining support for wider and irregular intervals.
+- Replaced obsolete Streamlit width settings so the current interface runs without
+  deprecation warnings.
 
-## Validation
+## Expanded validation
 
-- Seven focused tests cover date parsing, physical calibration, height-prior candidate
-  selection, prediction-only behavior, exact agreement with the released particle-filter
-  implementation, and prefix causality when future images are appended.
-- A full image-to-height run on five released C-004 dates detected six tracks and emitted
-  30 plant-image rows. Twenty-nine rows used current-image measurements and the one missed
-  detection correctly produced a prediction-only row.
-- The browser application loads without exceptions and exposes both image and date-table
-  upload controls.
-- Python compilation and Ruff source checks pass.
+- Ran fresh pose inference on all 49 released longitudinal field images from 12 camera
+  series, yielding 253 geometrically valid candidates.
+- Replayed every series under its true irregular dates and under daily, three-day,
+  seven-day, and 30-day schedules. Every schedule completed with 248 finite height rows:
+  241 current-image updates and seven prediction-only rows.
+- Confirmed that the independently supplied 0.415886 cm-per-pixel route exactly matches
+  the published 2021 calibration route.
+- Tested the automatic red-band route on all 49 field images. It completed without error
+  and conservatively withheld calibration when a pole fit failed; only four field frames
+  passed. The included examples therefore use the validated published 2021 scale.
+- Twelve focused tests pass, including exact released-filter equivalence, prefix
+  causality, daily/three-day/seven-day timing, per-camera plant counts, plot generation,
+  and result-ZIP contents.
+- Both built-in examples complete through the actual Streamlit interface with zero
+  application exceptions.
 
 ## Manuscript package
 
 The journal-ready *The Plant Phenome Journal* manuscript, supplement, submission files,
-analysis code, curated images, annotations, derived data, and model provenance from v1.2.1
-remain included unchanged.
+analysis code, curated annotations, derived data, and model provenance remain included.
 
 ## Scope and rights
 
 The pose checkpoint is intended for field maize imagery resembling the released data.
-Annotated-image review remains part of the application workflow. The MIT License applies
-to repository code; the model card records the Ultralytics dependency and the available
-checkpoint provenance.
+Annotated-image and calibration-QC review remain part of the workflow. The MIT License
+applies to repository code; the model card records the Ultralytics dependency and the
+available checkpoint provenance.

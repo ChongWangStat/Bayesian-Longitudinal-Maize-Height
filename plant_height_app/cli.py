@@ -28,6 +28,25 @@ except ImportError:
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def _camera_plant_counts(values: list[str] | None) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for value in values or []:
+        if "=" not in value:
+            raise ValueError("Use --camera-plants CAMERA_ID=COUNT.")
+        camera_id, raw_count = value.rsplit("=", 1)
+        camera_id = camera_id.strip()
+        if not camera_id:
+            raise ValueError("Camera ID in --camera-plants cannot be blank.")
+        try:
+            count = int(raw_count)
+        except ValueError as error:
+            raise ValueError(f"Invalid plant count in {value!r}.") from error
+        if not 1 <= count <= 100:
+            raise ValueError("Camera plant counts must be between 1 and 100.")
+        counts[camera_id] = count
+    return counts
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Estimate longitudinal maize height from dated fixed-camera images."
@@ -53,6 +72,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--red-band-interval-cm", type=float, default=30.48)
     parser.add_argument("--pole-to-plant-depth-factor", type=float, default=0.85)
     parser.add_argument("--expected-plants", type=int, default=6)
+    parser.add_argument(
+        "--camera-plants",
+        action="append",
+        metavar="CAMERA_ID=COUNT",
+        help=(
+            "Override the plant count for a camera; repeat for multiple cameras, "
+            "for example --camera-plants C-004=6"
+        ),
+    )
     parser.add_argument(
         "--numbering-direction",
         choices=["left_to_right", "right_to_left"],
@@ -82,6 +110,7 @@ def main() -> None:
         red_band_interval_cm=args.red_band_interval_cm,
         pole_to_plant_depth_factor=args.pole_to_plant_depth_factor,
         expected_plants=args.expected_plants,
+        expected_plants_by_camera=_camera_plant_counts(args.camera_plants),
         numbering_direction=args.numbering_direction,
         particles=args.particles,
     )

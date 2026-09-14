@@ -28,7 +28,7 @@ from PIL import ExifTags, Image, ImageDraw, ImageFont
 from scipy.optimize import linear_sum_assignment
 from scipy.special import logsumexp
 
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 SUPPORTED_IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
 PUBLISHED_2021_CM_PER_PIXEL = 0.415886
 
@@ -42,6 +42,7 @@ class AnalysisConfig:
     red_band_interval_cm: float = 30.48
     pole_to_plant_depth_factor: float = 0.85
     expected_plants: int = 6
+    expected_plants_by_camera: dict[str, int] = field(default_factory=dict)
     numbering_direction: str = "left_to_right"
     image_size: int = 640
     confidence_threshold: float = 0.05
@@ -84,6 +85,15 @@ class AnalysisConfig:
             )
         if self.expected_plants < 1 or self.expected_plants > 100:
             raise ValueError("Expected plants must be between 1 and 100.")
+        for camera_id, count in self.expected_plants_by_camera.items():
+            if not str(camera_id).strip():
+                raise ValueError(
+                    "Camera identifiers in the plant layout cannot be blank."
+                )
+            if int(count) < 1 or int(count) > 100:
+                raise ValueError(
+                    "Expected plants for every camera must be between 1 and 100."
+                )
         if self.numbering_direction not in {"left_to_right", "right_to_left"}:
             raise ValueError(
                 "Numbering direction must be left_to_right or right_to_left."
@@ -111,6 +121,7 @@ class AnalysisArtifacts:
     candidates: pd.DataFrame
     calibrations: pd.DataFrame
     annotated_images: dict[str, bytes]
+    trajectory_plots: dict[str, bytes]
     run_metadata: dict[str, object]
     warnings: list[str] = field(default_factory=list)
 
@@ -988,6 +999,9 @@ def analyze_candidate_table(
     rows: list[dict[str, object]] = []
     warnings: list[str] = []
     for camera_id, camera_images in metadata.groupby("camera_id", sort=True):
+        expected_plants = int(
+            config.expected_plants_by_camera.get(str(camera_id), config.expected_plants)
+        )
         tracks: list[_Track] | None = None
         camera_images = camera_images.sort_values(
             ["capture_datetime", "filename"], kind="mergesort"
@@ -1003,8 +1017,8 @@ def analyze_candidate_table(
                 else None
             )
             if tracks is None:
-                initial_indices = _initial_candidates(frame, config.expected_plants)
-                if len(initial_indices) != config.expected_plants:
+                initial_indices = _initial_candidates(frame, expected_plants)
+                if len(initial_indices) != expected_plants:
                     continue
                 initial = frame.loc[initial_indices].copy()
                 initial = initial.sort_values(
@@ -1153,11 +1167,28 @@ def analyze_candidate_table(
 
         if tracks is None:
             warnings.append(
-                f"{camera_id}: no image contained {config.expected_plants} distinct "
+                f"{camera_id}: no image contained {expected_plants} distinct "
                 "plant detections, so tracking could not start."
             )
     result = pd.DataFrame(rows)
     if not result.empty:
+        first_image_by_camera = (
+            metadata.assign(
+                capture_datetime=pd.to_datetime(metadata["capture_datetime"])
+            )
+            .groupby("camera_id")["capture_datetime"]
+            .min()
+        )
+        first_image = result["camera_id"].map(first_image_by_camera)
+        days_after_first = (
+            pd.to_datetime(result["capture_datetime"]) - pd.to_datetime(first_image)
+        ).dt.total_seconds() / 86400
+        date_position = result.columns.get_loc("date") + 1
+        result.insert(
+            date_position,
+            "days_after_first_image",
+            days_after_first.round(6),
+        )
         result = result.sort_values(
             ["camera_id", "plant_number", "capture_datetime", "filename"],
             kind="mergesort",
@@ -1267,6 +1298,11 @@ def _image_summary(
     config: AnalysisConfig,
 ) -> pd.DataFrame:
     rows = []
+    first_image_by_camera = (
+        metadata.assign(capture_datetime=pd.to_datetime(metadata["capture_datetime"]))
+        .groupby("camera_id")["capture_datetime"]
+        .min()
+    )
     for record in metadata.itertuples(index=False):
         frame_candidates = candidates[candidates["filename"].eq(record.filename)]
         frame_estimates = (
@@ -1284,6 +1320,14 @@ def _image_summary(
                 "camera_id": record.camera_id,
                 "capture_datetime": record.capture_datetime,
                 "date": pd.Timestamp(record.capture_datetime).date().isoformat(),
+                "days_after_first_image": round(
+                    (
+                        pd.Timestamp(record.capture_datetime)
+                        - pd.Timestamp(first_image_by_camera.loc[record.camera_id])
+                    ).total_seconds()
+                    / 86400,
+                    6,
+                ),
                 "filename": record.filename,
                 "plant_candidates": len(frame_candidates),
                 "assigned_tracks": int(
@@ -1425,6 +1469,83 @@ def _annotate_images(
     return outputs
 
 
+def make_height_trajectory_plots(estimates: pd.DataFrame) -> dict[str, bytes]:
+    """Render one publication-ready height-versus-day PNG for each camera."""
+
+    if estimates.empty or "days_after_first_image" not in estimates:
+        return {}
+    from matplotlib import colormaps
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.figure import Figure
+
+    outputs: dict[str, bytes] = {}
+    for camera_id, frame in estimates.groupby("camera_id", sort=True):
+        frame = frame.dropna(subset=["bayesian_height_cm"]).copy()
+        if frame.empty:
+            continue
+        figure = Figure(figsize=(9.2, 5.6), constrained_layout=True)
+        canvas = FigureCanvasAgg(figure)
+        axis = figure.subplots()
+        colors = colormaps["tab10"]
+        for series_index, (plant_uid, plant) in enumerate(
+            frame.groupby("plant_uid", sort=True)
+        ):
+            plant = plant.sort_values(
+                ["days_after_first_image", "capture_datetime", "filename"],
+                kind="mergesort",
+            )
+            day = plant["days_after_first_image"].to_numpy(dtype=float)
+            height = plant["bayesian_height_cm"].to_numpy(dtype=float)
+            low = plant["height_95_low_cm"].to_numpy(dtype=float)
+            high = plant["height_95_high_cm"].to_numpy(dtype=float)
+            color = colors(series_index % 10)
+            label = str(plant["plant_id"].iloc[0]) or str(plant_uid)
+            axis.fill_between(day, low, high, color=color, alpha=0.10, linewidth=0)
+            axis.plot(
+                day,
+                height,
+                color=color,
+                marker="o",
+                markersize=4.5,
+                linewidth=1.8,
+                label=label,
+            )
+            measured = plant["measurement_used"].astype(bool).to_numpy()
+            image_height = plant["image_measurement_cm"].to_numpy(dtype=float)
+            valid = measured & np.isfinite(image_height)
+            if valid.any():
+                axis.scatter(
+                    day[valid],
+                    image_height[valid],
+                    color=color,
+                    marker="x",
+                    s=30,
+                    linewidths=1.2,
+                    zorder=4,
+                )
+        axis.set_title(f"Longitudinal plant height — {camera_id}")
+        axis.set_xlabel("Days after first image (day 0 = first uploaded image)")
+        axis.set_ylabel("Plant height (cm)")
+        axis.grid(True, color="#d9dfda", linewidth=0.7, alpha=0.85)
+        axis.spines[["top", "right"]].set_visible(False)
+        axis.legend(title="Plant", ncols=min(3, frame["plant_uid"].nunique()))
+        axis.text(
+            0.995,
+            0.01,
+            "Line: Bayesian estimate   Shading: 95% interval   ×: image measurement",
+            transform=axis.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=8,
+            color="#405047",
+        )
+        buffer = BytesIO()
+        canvas.print_png(buffer)
+        safe_camera = re.sub(r"[^A-Za-z0-9._-]+", "_", str(camera_id)).strip("._")
+        outputs[f"{safe_camera or 'camera'}_height_by_day.png"] = buffer.getvalue()
+    return outputs
+
+
 def analyze_images(
     image_paths: Mapping[str, Path],
     metadata: pd.DataFrame,
@@ -1457,6 +1578,7 @@ def analyze_images(
     annotated = _annotate_images(
         clean_metadata, candidates, estimates, calibration_points
     )
+    trajectory_plots = make_height_trajectory_plots(estimates)
     try:
         import torch
         import ultralytics
@@ -1507,6 +1629,7 @@ def analyze_images(
         candidates=candidates,
         calibrations=calibrations,
         annotated_images=annotated,
+        trajectory_plots=trajectory_plots,
         run_metadata=run_metadata,
         warnings=warnings,
     )
@@ -1544,12 +1667,16 @@ def package_results(artifacts: AnalysisArtifacts) -> bytes:
             "README_RESULTS.txt",
             (
                 "Use bayesian_height_cm as the estimated plant height. The 80% and 95% "
-                "columns report posterior uncertainty. measurement_used indicates whether "
-                "that image contributed a detected, calibrated measurement; prediction-only "
-                "rows use preceding images. Review the annotated images and QC columns before "
-                "biological analysis. No estimate at a date uses a later image.\n"
+                "columns report posterior uncertainty. days_after_first_image is elapsed "
+                "time from the first uploaded image for that camera, with the first image at "
+                "day 0. measurement_used indicates whether that image contributed a detected, "
+                "calibrated measurement; prediction-only rows use preceding images. Review "
+                "the trajectory plots, annotated images, and QC columns before biological "
+                "analysis. No estimate at a date uses a later image.\n"
             ),
         )
+        for name, payload in artifacts.trajectory_plots.items():
+            archive.writestr(f"plots/{name}", payload)
         for name, payload in artifacts.annotated_images.items():
             archive.writestr(f"annotated_images/{name}", payload)
     return buffer.getvalue()
@@ -1571,6 +1698,10 @@ def write_artifacts(artifacts: AnalysisArtifacts, output_directory: Path) -> Non
         artifacts.calibrations.to_csv(
             output_directory / "red_band_calibrations.csv", index=False
         )
+    plot_directory = output_directory / "plots"
+    plot_directory.mkdir(exist_ok=True)
+    for name, payload in artifacts.trajectory_plots.items():
+        (plot_directory / name).write_bytes(payload)
     (output_directory / "run_metadata.json").write_text(
         json.dumps(artifacts.run_metadata, indent=2, default=str), encoding="utf-8"
     )
