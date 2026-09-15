@@ -1,0 +1,279 @@
+\documentclass[review,12pt,authoryear]{elsarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,array}
+\usepackage{lineno}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\input{numbers.tex}
+\input{numbers_2024.tex}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\journal{Plant Phenomics}
+
+\begin{document}
+\begin{frontmatter}
+\title{Prior-guided image analysis for Bayesian longitudinal maize height phenotyping with fixed cameras}
+\begin{abstract}
+Affordable longitudinal field phenotyping requires interpretable image measurements under overlap and changing camera geometry. We developed a Bayesian longitudinal method for fixed RGB cameras in which the state from earlier images guides association and candidate selection during each added image. A robust particle filter updates height, growth, and uncertainty from the available image prefix. The temporal validation was developed from 61 matched 2021 image--manual records in six camera rows and evaluated against 166 later-year manual heights from 34 new maize plants in four biological rows and six views. No 2024 manual outcome was used for fitting or tuning. Bayesian estimates reduced single-frame mean absolute error from 18.10 to 17.36 cm and root mean squared error from 23.54 to 22.41 cm; correlation increased from 0.813 to 0.847. A Gaussian filter with matched priors had mean absolute error 17.35 cm and root mean squared error 22.42 cm, effectively tying the particle estimate. The 0.74-cm gain over single frames had a biological-row cluster interval of -0.44 to 1.30 cm, indicating a modest, uncertain advantage. Transfer-aware 80\%, 90\%, and 95\% intervals covered 78.9\%, 90.4\%, and 97.0\% of manual heights. In controlled candidate ambiguity, placing the prior inside image analysis reduced root mean squared error from 8.61 to 6.01 cm relative to filtering preselected measurements. Released code and a browser application convert dated images into daily height trajectories with uncertainty.
+\end{abstract}
+\begin{keyword}
+affordable phenotyping \sep Bayesian longitudinal analysis \sep fixed camera \sep maize height \sep prior-guided image analysis \sep temporal validation \sep uncertainty calibration
+\end{keyword}
+\end{frontmatter}
+\doublespacing
+\linenumbers
+
+\section*{Plain Language Summary}
+Fixed cameras can measure the same field plants repeatedly, but overlap and camera scale can make any one picture misleading. Our method lets the history of a plant guide analysis of each new picture, then reports height, growth, and uncertainty immediately after that picture is added. We developed the cross-camera conversion on 2021 data and tested it against 166 manual measurements from new plants in 2024 without using those manual values to fit the predictions. The time-aware estimate had slightly lower average error and higher correlation than measuring each image alone. Its uncertainty covered the manual values at approximately the intended rates, although the intervals were wide. We also found that an automatic red-mark sequence sometimes implied a pole longer than the documented pole, so we excluded that scale from the manual-height test. The released application lets plant scientists upload dated images and obtain height-versus-day curves with quality checks.
+
+\section{Introduction}
+
+Longitudinal plant height records growth rate, developmental timing, and environmental response more directly than a single mature measurement. Repeated manual measurement is labor intensive, whereas fixed red--green--blue cameras can observe the same field view at short intervals with modest hardware. Accessible phenotyping also requires reproducible calibration, clear uncertainty, and tools that plant scientists can run without rebuilding a computer-vision pipeline \cite{hoyosvillegas2025affordable}. These needs align with smart-agriculture systems that turn frequent, heterogeneous field observations into timely measurements.
+
+Time-series phenotyping has recovered maize growth curves from ground and aerial imagery \cite{ge2016temporal,liang2018timeseries,wang2020functional,rodene2022uav}. In-scene scales can provide physical units \cite{mano2017precise,manoigawa2017nondestructive}, while stereo and structured systems can improve geometry at the cost of additional hardware or acquisition constraints \cite{cai2018stereo,tabb2019cass}. Other maize systems pool images, impose nondecreasing growth, or reuse early positions to guide later segmentation \cite{guo2021kat4ia,guo2023sscnn,gao2022individual,li2023multisource}. These studies show the value of temporal context, but the conventional workflow still often commits to one measurement from an image before the longitudinal model receives it.
+
+Our methodological question is whether the predictive state can participate earlier, while the current image is still being analyzed. Bayesian inference necessarily contains prior information; that fact alone is not novel. Here, \emph{prior-guided} describes image analysis: the state predicted from earlier images guides current plant association and, when alternatives exist, scores competing top candidates before measurement extraction. \emph{Bayesian longitudinal} describes the height-growth model that supplies and updates this predictive state. Related state-space methods have been used for sequential crop estimation and tracking \cite{gordon1993particle,west1997bayesian,durbin2012time,yang2022ricepf,li2022kalman,shimda2026bayesianheight}. The new element is the explicit feedback across the image/model boundary together with physical calibration and auditable uncertainty.
+
+We call the sequential computation filtering because it recursively estimates the current latent height and growth distribution after each new observation. At date $t$, the algorithm uses images available through $t$; a future image is appended only when it arrives and starts the next update. It does not revise an earlier reported value. This is the operational online setting required when plant scientists want a height result as soon as a new image enters the pool.
+
+The study makes four contributions. First, it specifies and tests prior-guided image association and candidate choice within a Bayesian longitudinal pipeline. Second, it audits physical-reference definitions and rejects an automatic red-band enumeration when its inferred span conflicts with the recorded pole length. Third, it develops the transfer on 2021 data and evaluates it against later-year 2024 manual heights from newly grown plants without fitting to those outcomes. Fourth, it releases code, derived validation data, and a point-and-click application that returns height as a function of study day. The evidence distinguishes mechanism, temporal transfer, calibration, and operational claims so that each conclusion is tied to its appropriate reference.
+
+\section{Materials and Methods}
+
+\subsection{Study design and evidence separation}
+
+Figure~\ref{fig:workflow} summarizes the information flow. Let $\mathcal I_{\leq t}$ contain only images acquired through time $t$. The predictive state from $t-1$ guides association and candidate evaluation in image $t$, the selected extent is converted to centimeters, and the posterior height-growth distribution is returned after the image is incorporated. Images acquired later are absent from that calculation.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{online_bayesian_workflow.pdf}
+\caption{Prefix-causal workflow. The feedback arrows place longitudinal information inside analysis of the current image. The running position state was executed in the field pipeline; the stronger height-candidate branch was evaluated in controlled ambiguity and a matched field audit. Each output uses only images available through the displayed time.}
+\label{fig:workflow}
+\end{figure}
+
+The data sources have prespecified roles (Table~\ref{tab:design}). The 2021 manual records supply development calibration and internal comparator analyses. The primary temporal validation uses later-year 2024 manual measurements that were opened for scoring only after the analysis code was locked at Git commit \texttt{59b42b74596c598017fdb0cd4b80af1aec7649d6}. The 2024 images had previously been used without their manual labels during pipeline development, so this is a later-year, subject-disjoint, label-held-out validation rather than an external-site validation. Plants were newly grown each year.
+
+\begin{table}[htbp]
+\caption{Evidence sources and boundaries.}
+\label{tab:design}
+\centering\small
+\begin{tabular}{L{2.4cm}L{3.2cm}L{7.0cm}}
+\toprule
+Source & Units & Role and boundary \\
+\midrule
+2021 manual heights & 132 records; 33 plants; 12 camera rows & Development-era estimator comparison; 61 recovered-source matches in six rows fit the later-year transfer; leave-one-row-out error quantifies transfer uncertainty \\
+2024 manual heights & 247 workbook records; 166 matched records; 34 plants; four biological rows; six camera views & Primary later-year validation; manual outcomes never fit or tune a prediction \\
+2021 human masks & 150 plant instances & Detector extent agreement; not an agronomic landmark reference \\
+2021 support poles & 199 traces in 61 images & Reference stability and installation geometry; not red-band truth \\
+Candidate experiment & 60 plants in each of eight scenarios & Prior-in-image mechanism under known candidate ambiguity \\
+2025 image stream & 372 forecasts; 11 plant tracks; two cameras & Secondary transfer of prediction intervals to the next image-derived measurement \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{2024 biological rows, paired camera views, and manual reference}
+
+The Camera layout worksheet defines four biological rows. Each row is covered by a paired right and left camera view rather than two independent row replicates (Table~\ref{tab:cameras}). Plants are numbered across the biological row from right to left. Right-camera local identities 1--6 map to global plants 1--6; left-camera local identities 1--6 map to global plants 7--12. Both views and all repeated dates from a row remain together whenever a row is resampled.
+
+\begin{table}[htbp]
+\caption{Paired cameras for the four 2024 biological rows.}
+\label{tab:cameras}
+\centering\small
+\begin{tabular}{lllll}
+\toprule
+Biological row & Left camera & Left plants & Right camera & Right plants \\
+\midrule
+M-0006 & NL5RH & 7--12 & NGGJK & 1--6 \\
+M-0013 & NH888 & 7--12 & NGFZT & 1--6 \\
+W-0010 & NH88X & 7--12 & NJQMT$^{a}$ & 1--6 \\
+W-0015 & NGFY5$^{b}$ & 7--12 & NH88L & 1--6 \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize $^{a}$No pose output in the analysis archive. $^{b}$No quality-controlled pose output.}
+\end{tabular}
+\end{table}
+
+The workbook contains 247 nonmissing heights from 45 plants. The M rows were measured on 5, 10, 15, 18, 23, and 28 July 2024; the W rows on 6, 15, 18, 23, and 28 July. Exact local times are retained in the released table. The source protocol defines two possible pre-tasseling endpoints---the topmost point touching the meter stick and the topmost fully visible collar---and a post-tasseling flag-leaf endpoint that excludes the tassel. The workbook stores one value per plant-date but does not identify which pre-tasseling endpoint was used. We therefore call the outcome \emph{manual field height} and do not infer its anatomical landmark.
+
+Manual records were joined to the closest quality-controlled image on the same calendar date by biological row, camera side, and global plant identity. Absolute time lag had median 2.78 h, mean 2.69 h, and maximum 6.90 h. Of 247 workbook records, 54 belonged to the two camera halves without usable automated output and 27 more lacked a quality-controlled output on that date, leaving 166 comparisons from 34 plants, four biological rows, six contributing cameras, and seven distinct calendar dates.
+
+\subsection{Physical references and scale transfer}
+
+The 2021 support-pole annotations run from ground contact to the nominal 5-ft camera mount or optical-center height. They provide an installation audit and a temporal-stability measure (Figure~\ref{fig:supportpole}). The 2024 reference is a different approximately vertical 8--10-ft pole with red marks spaced exactly 1 ft edge-to-edge; its visible bottom is not assumed to be ground.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{pole_annotation_2021.pdf}
+\caption{Representative 2021 support-pole annotations. Each trace connects ground contact to the nominal 5-ft camera mounting or optical-center height. The horizontal field-layout marks are not vertical pole graduations. Personal identifiers have been removed for double-anonymized review.}
+\label{fig:supportpole}
+\end{figure}
+
+Before the 2024 manual outcomes were scored, we fit
+\begin{equation}
+H_{\mathrm{manual}}=\beta_0+\beta_1(P\times 0.415886),
+\label{eq:transfer}
+\end{equation}
+using 61 matched 2021 development records, where $P$ is image extent in pixels and 0.415886 cm/pixel is the recorded 2021 geometric scale. Transfer to the 2024 layout used the recorded distance ratio $8.5/10.25=0.829268$. The 2021 leave-one-camera-row-out root mean squared error was retained as a nonshrinking calibration-transfer component.
+
+We did not use the automatic red-component sequence for the 2024 manual-height comparison. An audit of 237 accepted candidate fits found 89 implying more than 10 one-foot intervals; 1,296 of 1,302 filtered records used a selected span greater than the documented 10-ft maximum. A small within-image interpolation residual can establish regular spacing but cannot verify physical band identity. This audit was completed before interpreting the manual-height comparison.
+
+\subsection{Prior-guided image analysis}
+
+At the first complete view, detections are sorted horizontally to initialize plant identities. For each later image, a minimum-total-distance assignment links current detections to the running horizontal states; assignments beyond a normalized-distance gate of 0.16 are rejected. After a match, horizontal position and base row are updated with fixed gain 0.5. This fixed-gain location update is not itself a full Bayesian posterior, but it lets earlier images guide current association and base refinement.
+
+The stronger candidate branch uses the predicted height distribution before the current measurement is fixed. Candidate $j$ with confidence $q_j$ and calibrated height $h_j$ receives
+\begin{equation}
+\ell_j=\log(q_j+\epsilon)-\frac{(h_j-\mu_{t\mid t-1})^2}{2(s_{t\mid t-1}^2+\sigma_j^2)}.
+\label{eq:candidate}
+\end{equation}
+The candidate maximizing $\ell_j$ enters the update. Thus the method can reject a visually confident but longitudinally implausible top before that choice is hidden inside a scalar observation. The field result uses the executed association/base-feedback branch; the top-candidate mechanism is assessed separately in simulation and in a matched real-image audit.
+
+\subsection{Bayesian longitudinal height and growth}
+
+The latent state is $x_t=(h_t,r_t)^\top$, where $h_t$ is height and $r_t$ is growth rate. For the primary 2024 transfer and elapsed time $\Delta_t$,
+\begin{align}
+h_t &= h_{t-1}+r_{t-1}\Delta_t+\eta_{h,t},\\
+r_t &= r_{t-1}+\eta_{r,t},
+\end{align}
+with height truncated to 0--450 cm and growth to -4--15 cm/day. The first-image growth distribution is $N(3,2^2)$ cm/day, and the height and growth process scales are 8.78 cm/$\sqrt{\mathrm{day}}$ and 0.35 cm/day/$\sqrt{\mathrm{day}}$. The measurement likelihood is the robust mixture
+\begin{equation}
+p(Y_t\mid h_t)=(1-\pi)\phi(Y_t;h_t,\sigma_t^2)+\pi\phi(Y_t;h_t,\sigma_{\mathrm{out}}^2).
+\label{eq:mixture}
+\end{equation}
+A bootstrap particle filter with 5,000 particles, outlier probability 0.08, and outlier scale 60 cm propagates, weights, and resamples when effective sample size falls below half the particle count \cite{gordon1993particle}. We use \emph{filtering} in its state-space sense: the posterior after image $t$ conditions on observations through $t$, not on future observations.
+
+For 2024 transfer-aware agreement intervals, the 2021 leave-one-row-out calibration root mean squared error is added in quadrature as a nonshrinking component, and Student-$t$ quantiles with five degrees of freedom reflect the six development camera rows. This prevents the longitudinal posterior from becoming spuriously narrow as images accumulate while a cross-layout calibration error remains.
+
+\subsection{Temporal validation and statistical analysis}
+
+All 2024 predictions were generated before joining manual outcomes. Single-frame and Bayesian estimates were compared by signed error, mean absolute error (MAE), root mean squared error (RMSE), and Pearson correlation. Fixed prefix-causal comparators were EWMA with $\alpha=0.5$, a three-image running median, Holt level--trend with $\alpha=0.5$ and $\beta=0.2$, and a Gaussian local-linear filter. The Gaussian filter received the same $N(3,2^2)$ initial growth distribution and process scales as the particle filter; its observation variance used the same 2021 transfer RMSE. Thus its comparison isolates the robust likelihood and particle representation rather than a different prior. The paired MAE gain is a comparator's record-level absolute error minus Bayesian absolute error. Its 95\% interval uses 20,000 bootstrap samples of the four biological rows, retaining both cameras, plants, and dates within each sampled row. Because there are only four row clusters, the interval is treated as a descriptive pilot uncertainty estimate rather than a high-powered significance test. Agreement intervals were evaluated at 50\%, 80\%, 90\%, and 95\% levels with coverage and mean width reported together.
+
+The controlled candidate experiment used 60 simulated plants in each of eight growth, missingness, and observation scenarios. Every method received the same candidates and state dynamics; only the location of prior use differed. Five-fold human-mask validation measured detector extent agreement. Prefix causality was verified by recomputing every camera-time prefix and comparing outputs already emitted with the corresponding complete-run rows.
+
+\subsection{Reproducibility and plant-scientist delivery}
+
+The anonymous review archive contains executable analysis scripts, fixed seeds, imported manual data, camera-pair mapping, matched validation records, bootstrap draws, figure sources, the released pose checkpoint, curated images, and checksums. The browser application accepts dated images, permits a separate visible-plant count for each camera, and returns current-image height, Bayesian mean, 80\% and 95\% intervals, quality flags, annotated frames, and height versus study day. Daily images acquired at a similar time are the preferred prospective schedule; irregular intervals are supported through $\Delta_t$.
+
+\section{Results}
+
+\subsection{Development calibration and physical-reference audit}
+
+The 61 matched 2021 records from six camera rows gave $\widehat\beta_0=\TransferCalibrationIntercept{}$ cm and $\widehat\beta_1=\TransferCalibrationSlope{}$ in Equation~\ref{eq:transfer}. Leave-one-camera-row-out MAE was \TransferDevCVMAE{} cm and RMSE was \TransferDevCVRMSE{} cm. Across the larger 2021 development-era comparison, the single-frame and robust Bayesian estimates had MAE \FieldSingleMAE{} and \FieldBayesMAE{} cm, respectively. This comparison supports algorithm development and internal checking; because 2021 labels now calibrate the later-year transfer, it is not presented as the primary independent validation.
+
+The 172 usable support-pole annotations formed 39 repeated row--pole series across 12 camera rows. Median within-series coefficient of variation was \PoleRepeatabilityMedianCV{}\% (95\% whole-row bootstrap interval, \PoleRepeatabilityMedianCVLo{}--\PoleRepeatabilityMedianCVHi{}\%), supporting temporal stability of projected reference geometry. It does not establish that automatically enumerated red components have the correct physical identities. The red-span audit described above is why those automatic sequences were excluded from the 2024 manual-height calibration.
+
+\subsection{Later-year 2024 manual-height validation}
+
+The primary validation contained \TransferValidationN{} matched records from \TransferValidationPlants{} newly grown plants in \TransferValidationRows{} biological rows and \TransferValidationCameras{} contributing camera views. Single-frame estimates had bias \TransferSingleBias{} cm, MAE \TransferSingleMAE{} cm, RMSE \TransferSingleRMSE{} cm, and correlation \TransferSingleCorrelation{}. Bayesian longitudinal estimates had corresponding values \TransferBayesBias{}, \TransferBayesMAE{}, \TransferBayesRMSE{} cm, and \TransferBayesCorrelation{} (Table~\ref{tab:performance}; Figure~\ref{fig:transfer}).
+
+The paired MAE gain over single frames was \TransferMAEGain{} cm. Its 95\% biological-row cluster interval, \TransferMAEGainLo{} to \TransferMAEGainHi{} cm, included zero. Three of four rows favored the longitudinal estimate; the W-0015 row did not. The Bayesian estimate improved on EWMA by \TransferEWMAGain{} cm (row-cluster interval, \TransferEWMAGainLo{}--\TransferEWMAGainHi{}) and the running median by \TransferMedianGain{} cm (\TransferMedianGainLo{}--\TransferMedianGainHi{}). Its \TransferHoltGain{}-cm improvement over Holt was uncertain (\TransferHoltGainLo{}--\TransferHoltGainHi{}). The matched-prior Gaussian filter had MAE \TransferGaussianMAE{} cm, only 0.01 cm below the Bayesian value, and RMSE \TransferGaussianRMSE{} cm, 0.01 cm above it. We interpret these two filters as practically tied.
+
+\begin{table}[htbp]
+\caption{Fixed prefix-causal estimators in the primary 2024 later-year, label-held-out validation. The Gaussian and particle filters use the same initial growth prior and process scales. Uncertainty resamples four biological rows rather than six camera views.}
+\label{tab:performance}
+\centering\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llrrrrr}
+\toprule
+Year and role & Estimator & $n$ & Bias (cm) & MAE (cm) & RMSE (cm) & $r$ \\
+\midrule
+2024 validation & Single frame & \TransferValidationN & \TransferSingleBias & \TransferSingleMAE & \TransferSingleRMSE & \TransferSingleCorrelation \\
+ & EWMA & \TransferValidationN & \TransferEWMABias & \TransferEWMAMAE & \TransferEWMARMSE & \TransferEWMACorrelation \\
+ & Running median & \TransferValidationN & \TransferMedianBias & \TransferMedianMAE & \TransferMedianRMSE & \TransferMedianCorrelation \\
+ & Holt level--trend & \TransferValidationN & \TransferHoltBias & \TransferHoltMAE & \TransferHoltRMSE & \TransferHoltCorrelation \\
+ & Gaussian local-linear & \TransferValidationN & \TransferGaussianBias & \TransferGaussianMAE & \TransferGaussianRMSE & \TransferGaussianCorrelation \\
+ & Bayesian longitudinal & \TransferValidationN & \TransferBayesBias & \TransferBayesMAE & \TransferBayesRMSE & \TransferBayesCorrelation \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{manual_height_transfer_2024.pdf}
+\caption{Temporal transfer from 2021 development to 2024 validation. (a) Development calibration fitted only on 2021 records. (b,c) Single-frame and Bayesian longitudinal estimates against later-year manual field height; equality is dashed. (d) Biological-row mean trajectories, with the paired left/right camera views retained inside the same row. The 2024 manual outcomes were joined only after predictions were generated.}
+\label{fig:transfer}
+\end{figure}
+
+Transfer-aware 50\%, 80\%, 90\%, and 95\% intervals covered 53.0\%, \TransferCoverageEighty{}\%, 90.4\%, and \TransferCoverageNinetyFive{}\% of the manual heights. The corresponding mean widths were 27.6, \TransferWidthEighty{}, 76.4, and \TransferWidthNinetyFive{} cm. Coverage was close to nominal from 80\% through 95\%, but the upper-level intervals were wide, exposing the cross-layout calibration uncertainty rather than hiding it.
+
+\subsection{Prior-guided candidate mechanism}
+
+In controlled ambiguity, single-frame selection had plant-level RMSE \PriorNoneRMSE{} cm, filtering after selection reduced it to \PriorPostRMSE{} cm, and allowing the predicted height distribution to score candidates before the update reduced it further to \PriorInsideRMSE{} cm (Figure~\ref{fig:priorsim}). The within-plant reduction relative to post-selection filtering was \PriorVsPostGain{} cm (95\% plant-bootstrap interval, \PriorVsPostGainLo{}--\PriorVsPostGainHi{}), and prior-guided scoring selected the truth-closest candidate \PriorTruthSelectionRate{}\% of the time.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{prior_in_detection_sim.pdf}
+\caption{Controlled candidate-ambiguity experiment. All methods received the same candidates and state dynamics. Only the prior-guided method let the predicted height distribution participate before a top candidate was committed.}
+\label{fig:priorsim}
+\end{figure}
+
+In the matched real-image audit, post-selection filtering and height-prior candidate scoring chose the same candidate for all \RealAuditN{} evaluated plant-dates and consequently had identical MAE, \RealAuditPostMAE{} cm. This is a negative control: the released natural candidate subset did not contain a conflict for the prespecified rule to resolve. The field evidence therefore supports prior-guided association and base refinement, while the top-candidate accuracy benefit remains demonstrated under controlled ambiguity.
+
+\subsection{Uncertainty, detector agreement, and prefix causality}
+
+The 2024 manual-height agreement intervals are summarized in Table~\ref{tab:uncertainty}. As a distinct secondary task, parameters estimated from 2024 image increments produced \UncertaintyTestCoverageNinetyFive{}\% coverage with mean width \UncertaintyTestWidthNinetyFive{} cm on \UncertaintyTestN{} next-image forecasts from 11 newly grown 2025 plant tracks at two cameras. That result supports year-forward interval transfer for those installations; it is not a manual-height validation.
+
+\begin{table}[htbp]
+\caption{Uncertainty evaluations. Coverage and width are reported together because nominal coverage alone can be achieved by uninformatively wide intervals.}
+\label{tab:uncertainty}
+\centering\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llrrrr}
+\toprule
+Target & Data & Nominal (\%) & $n$ & Coverage (\%) & Mean width (cm) \\
+\midrule
+Manual field height & 2024 validation & 50 & \TransferValidationN & 53.0 & 27.6 \\
+ & & 80 & \TransferValidationN & \TransferCoverageEighty & \TransferWidthEighty \\
+ & & 90 & \TransferValidationN & 90.4 & 76.4 \\
+ & & 95 & \TransferValidationN & \TransferCoverageNinetyFive & \TransferWidthNinetyFive \\
+Next image measurement & 2025 temporal test & 95 & \UncertaintyTestN & \UncertaintyTestCoverageNinetyFive & \UncertaintyTestWidthNinetyFive \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+Five-fold detector validation matched \PixelMatched{} of \PixelInstances{} human masks. Mean top and root errors were \PixelTopMAEPx{} and \PixelRootMAEPx{} pixels; extent error was \PixelHeightMAEPx{} pixels with correlation \PixelHeightCorr{}. These values measure agreement with mask extent, not an independently clicked collar. All \CausalPrefixes{} prefix recomputations matched their complete-run counterparts, with \CausalMismatches{} mismatches among \CausalRows{} cumulative comparisons, verifying that a later image does not alter an earlier output under fixed settings.
+
+\section{Discussion}
+
+The later-year manual data materially improve the evidentiary design. Development uses 2021 records, while 2024 predictions are generated without their manual outcomes and are then evaluated on newly grown plants. This is temporal, subject-disjoint, label-held-out validation. It is stronger than scoring the same year used to establish the transfer, although it is not fully external because the unlabeled 2024 images contributed to earlier pipeline development.
+
+The paired-camera layout changes the effective sample size. Six contributing camera views do not constitute six independent field rows: they belong to four biological rows, with left and right views observing different halves of the same row. Resampling the biological row preserves camera pairing and repeated plant dates. This choice produces a wider and more credible interval than treating 166 records or six views as independent. With only four clusters, the result should be read through its effect estimate and uncertainty rather than a binary significance claim.
+
+The point-estimate evidence is favorable against single images and simple smoothers but modest against the strongest state-space comparator. Relative to a single image, MAE fell by 0.74 cm, RMSE by 1.13 cm, and correlation increased by 0.034. The biological-row interval includes zero and one row favored the single-frame estimate. With matched priors and process scales, the Gaussian and particle filters differed in MAE and RMSE by about 0.01 cm in opposite directions. These findings do not support a claim that particle filtering itself yields a meaningful accuracy advantage over a Gaussian filter. They show that longitudinal state estimation reduced aggregate error relative to single images, EWMA, and the running median while the robust Bayesian formulation supplied mixture-based uncertainty and the state used by prior-guided image analysis.
+
+The methodological contribution remains the location at which longitudinal information acts. A conventional analysis can extract one height independently from every image and connect those fixed values afterward. Here the state returned by the Bayesian longitudinal model guides association and base refinement during the next image analysis, while the candidate experiment isolates the stronger top-choice mechanism. The simulation demonstrates why this architecture can matter when candidates conflict; the all-agreement field audit prevents us from claiming that the released natural subset demonstrates the same top-choice benefit.
+
+The physical-reference audit also changes the interpretation constructively. Automatic red components often implied a marked span longer than the documented pole, even when their interpolation residual was small. We therefore excluded that enumeration from the 2024 manual comparison and transferred the independently recorded 2021 scale through camera distance. This choice increases internal validity at the cost of a visible negative bias and wide transfer intervals. A future deployment should encode band identity explicitly, constrain the number of physical intervals, and include a ground-referenced landmark in the camera field.
+
+The 2024 transfer-aware intervals were near nominal at 80\%, 90\%, and 95\%, but their 95\% mean width was 97.5 cm. This width is scientifically important: frequent images reduce sequential noise but cannot erase a cross-layout calibration component. The released application reports these intervals and quality flags rather than only a smooth curve. It can process one image per day, plot height against days after the first image, and handle irregular dates, which makes the algorithm directly usable by plant scientists while keeping its limitations visible.
+
+Several limitations remain. The primary validation has four biological rows at one site, two camera halves have no usable automated output, and manual and image acquisitions differ by up to 6.9 h. The workbook does not encode which pre-tasseling manual endpoint was used. Bias increases at taller plants, suggesting residual scale or landmark mismatch. The top-candidate field audit contains no natural conflict. The released checkpoint has incomplete original training-image provenance, and the larger raw image archive is not redistributed. These limits motivate evaluation across more camera layouts and explicit landmark protocols, but the current data are sufficient to test a later-year transfer without outcome leakage.
+
+\subsection{Conclusions}
+
+Prior-guided image analysis and Bayesian longitudinal updating convert accumulating fixed-camera images into as-of maize height trajectories. In later-year, label-held-out validation, the longitudinal estimate modestly reduced aggregate error and increased correlation relative to single images; uncertainty calibrated near nominal levels while remaining wide enough to reveal scale-transfer limitations. The work contributes an auditable feedback architecture, a physically grounded calibration audit, paired-row inference, and a plant-scientist application. It supports affordable longitudinal field phenotyping while stating where additional camera layouts and explicit anatomical references are still needed.
+
+\section*{Data Availability Statement}
+The anonymous review archive supplied with this submission contains the analysis code, imported 2024 manual-height table, camera-pair map, matched validation records, bootstrap output, figure sources, curated images and annotations used for reproducibility, and cryptographic checksums. A public versioned repository is identified to the editor on the separate title page and will remain available with the article. The larger raw-image archive remains in institutional storage; the derived records needed to reproduce the reported analyses are included. No separate reuse license has been confirmed for non-code image and annotation materials; code is distributed under the MIT License.
+
+\section*{Conflict of Interest}
+The authors declare no conflict of interest.
+
+\section*{Author Contributions, Funding, and Acknowledgments}
+Provided on the separate title page and removed here for double-anonymized review.
+
+\section*{Declaration of Generative AI and AI-Assisted Technologies}
+During preparation of this work, the authors used Claude (Anthropic) and Codex (OpenAI) to assist with data exploration, code review, figure and manuscript preparation, and language editing. The authors reviewed and edited all assisted content, verified the reported results against the included analysis code, and take full responsibility for the manuscript.
+
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{references}
+\end{document}

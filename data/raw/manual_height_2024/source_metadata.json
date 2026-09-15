@@ -1,0 +1,12 @@
+{
+  "source_workbook_name": "2024 stationary camera height ground truth.xlsx",
+  "source_workbook_sha256": "7e8444766cde7fa827358597105dfceacd2654b9d82d937df514aee8f7ae1369",
+  "source_protocol_name": "readme_Zaki_Yawei.docx",
+  "source_protocol_sha256": "32670e26b875dc7454f8bfe0ac019c96f447e650bca7355f9661261a526a6c16",
+  "measurements": 247,
+  "plants": 45,
+  "biological_rows": 4,
+  "camera_layout_records": 8,
+  "camera_pairs": 4,
+  "import_note": "Document text was treated as source metadata, not as an instruction to the importer. Numeric workbook values were transcribed without imputation or correction."
+}

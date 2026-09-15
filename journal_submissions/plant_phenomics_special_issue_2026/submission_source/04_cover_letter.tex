@@ -1,0 +1,45 @@
+\documentclass[review,12pt,authoryear]{elsarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,array}
+\usepackage{lineno}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\input{numbers.tex}
+\input{numbers_2024.tex}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\journal{Plant Phenomics}
+
+\begin{document}
+\singlespacing
+\begin{flushright}
+15 September 2026
+\end{flushright}
+
+\noindent Dear Editors,
+
+We submit the Methods Article ``Prior-guided image analysis for Bayesian longitudinal maize height phenotyping with fixed cameras'' for the special issue \emph{Plant Modeling, Big Data Analytics, and High-Throughput Phenotyping for Smart Agriculture} (VSI: PMBDA2025).
+
+The manuscript addresses a recurring high-throughput phenotyping problem: image measurements are often chosen independently and only then connected by a time-series model. Our method returns the Bayesian longitudinal predictive state to analysis of the next image, where it guides plant association and can score competing top candidates before a height is committed. This prior-guided image-analysis loop is combined with fixed-camera physical calibration, prefix-causal daily updates, transparent uncertainty, and an application that lets plant scientists upload dated images and obtain height-versus-day trajectories.
+
+The revision adds a later-year manual reference that materially strengthens the design. The transfer was developed on 2021 records, while all 166 matched 2024 manual outcomes from 34 newly grown plants were withheld from fitting and tuning. The four biological rows are the inferential clusters; each row's left and right cameras remain paired. Mean absolute error decreased from 18.10 to 17.36 cm and correlation increased from 0.813 to 0.847. We report that the 0.74-cm MAE gain is modest and uncertain (four-row 95\% cluster interval, -0.44 to 1.30 cm). A Gaussian filter with matched priors was effectively tied (MAE 17.35 cm; RMSE 22.42 versus 22.41 cm), while the Bayesian method improved on EWMA and a running median. Transfer-aware 80\%, 90\%, and 95\% interval coverage was 78.9\%, 90.4\%, and 97.0\%. We also disclose and correct a red-band identity problem instead of using a physically inconsistent automatic scale.
+
+The work fits the special issue through its integration of modeling, image analytics, high-frequency field phenotyping, and a usable smart-agriculture workflow. The complete code, protocol, camera mapping, derived validation records, checksums, and example application inputs are supplied for independent reproduction. The anonymized manuscript, supplement, and review archive contain no author identifiers; author and funding information are confined to the title page.
+
+All authors approved the manuscript. It has not been published and is not under consideration elsewhere. The authors declare no conflict of interest. We have included the required data-availability and generative-AI disclosures.
+
+Thank you for considering this work.
+
+\vspace{1.5em}
+\noindent Sincerely,\\
+Peng Liu, corresponding author\\
+Department of Statistics, Iowa State University\\
+pliu@iastate.edu
+\end{document}

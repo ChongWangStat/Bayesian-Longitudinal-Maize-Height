@@ -308,7 +308,85 @@ def main() -> None:
         for scenario in collaborator_validation["interval_scenarios"].values()
     )
     citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
-    assert "version: 1.4.0" in citation
+    assert "version: 2.0.0" in citation
+
+    transfer_2024 = json.loads(
+        (
+            ROOT / "outputs/manual_height_transfer_2024/validation_summary.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert (
+        transfer_2024["design"]["manual_2024_outcomes_used_for_fitting_or_tuning"]
+        is False
+    )
+    assert transfer_2024["design"]["resampling_unit"] == (
+        "biological row containing a left/right camera pair"
+    )
+    counts_2024 = transfer_2024["validation_counts"]
+    assert counts_2024 == {
+        "manual_workbook_records": 247,
+        "manual_workbook_plants": 45,
+        "matched_records": 166,
+        "matched_plants": 34,
+        "biological_rows": 4,
+        "camera_views": 6,
+        "unique_calendar_dates": 7,
+        "manual_records_without_qc_eligible_image_output": 81,
+    }
+    near(transfer_2024["single_frame"]["mae_cm"], 18.103121, 1e-6)
+    near(transfer_2024["bayesian_longitudinal"]["mae_cm"], 17.361216, 1e-6)
+    near(transfer_2024["bayesian_longitudinal"]["rmse_cm"], 22.409280, 1e-6)
+    near(transfer_2024["bayesian_longitudinal"]["pearson_r"], 0.846653, 1e-6)
+    near(
+        transfer_2024["fixed_causal_baselines"]["gaussian_kalman"]["mae_cm"],
+        17.348330,
+        1e-6,
+    )
+    near(transfer_2024["paired_mae_gain_cm"], 0.741905, 1e-6)
+
+    journal_source = (
+        ROOT
+        / "journal_submissions/plant_phenomics_special_issue_2026/submission_source"
+    )
+    anonymous_tex = (journal_source / "01_anonymized_manuscript.tex").read_text(
+        encoding="utf-8"
+    )
+    journal_abstract = re.search(
+        r"\\begin\{abstract\}(.*?)\\end\{abstract\}",
+        anonymous_tex,
+        flags=re.DOTALL,
+    ).group(1)
+    journal_words = re.findall(
+        r"\b[\w%.-]+\b", re.sub(r"\\[A-Za-z]+", " ", journal_abstract)
+    )
+    assert len(journal_words) <= 250
+    assert anonymous_tex.count(r"\begin{figure}") == 4
+    assert anonymous_tex.count(r"\begin{table}") == 4
+    assert "Prior-guided image analysis for Bayesian longitudinal" in anonymous_tex
+    assert not any(
+        name in anonymous_tex
+        for name in (
+            "Haoming Wang",
+            "Chong Wang",
+            "Yawei Li",
+            "Cheng-Ting Yeh",
+            "Patrick S. Schnable",
+            "Peng Liu",
+            "Iowa State University",
+            "ChongWangStat",
+        )
+    )
+    for name in (
+        "01_anonymized_manuscript.pdf",
+        "02_title_page.pdf",
+        "03_anonymized_supplement.pdf",
+        "04_cover_letter.pdf",
+        "elsarticle.cls",
+        "elsarticle-harv.bst",
+    ):
+        assert (journal_source / name).is_file()
+    assert (ROOT / "protocols/Manual_Height_Protocol_2024_Audited.docx").is_file()
+    assert (ROOT / "protocols/Manual_Height_Protocol_2024_Audited.pdf").is_file()
 
     forbidden = ("C:" + "\\Users\\", "gh" + "o_", "file:" + "//")
     text_suffixes = {
@@ -381,9 +459,28 @@ def main() -> None:
             "median_cv_percent"
         ],
         "primary_validation_status": (
-            "2021 independent manual-reference physical-height validation: 132 records, "
-            "33 plants, 12 stationary-camera rows, five dates; labels excluded "
-            "from fitting and tuning"
+            "2021 development calibration and 2024 later-year, subject-disjoint, "
+            "label-held-out manual validation: 166 matched records, 34 plants, "
+            "four biological rows, and six paired-layout camera views"
+        ),
+        "primary_2024_bayesian_mae_cm": transfer_2024["bayesian_longitudinal"][
+            "mae_cm"
+        ],
+        "primary_2024_bayesian_rmse_cm": transfer_2024["bayesian_longitudinal"][
+            "rmse_cm"
+        ],
+        "primary_2024_bayesian_correlation": transfer_2024["bayesian_longitudinal"][
+            "pearson_r"
+        ],
+        "primary_2024_gaussian_mae_cm": transfer_2024["fixed_causal_baselines"][
+            "gaussian_kalman"
+        ]["mae_cm"],
+        "primary_2024_row_clusters": counts_2024["biological_rows"],
+        "plant_phenomics_abstract_words": len(journal_words),
+        "plant_phenomics_template": "Elsevier elsarticle 3.5 (2026-01-09)",
+        "legacy_2021_validation_status": (
+            "132 manual-reference records, 33 plants, 12 stationary-camera rows, "
+            "and five dates; labels excluded from fitting and tuning"
         ),
         "heldout_2025_coverage_95": test95["empirical_coverage"],
         "heldout_2025_mean_width_cm": test95["mean_width_cm"],

@@ -17,6 +17,10 @@
 *.bat text eol=crlf
 *.ps1 text eol=crlf
 
+# Preserve the official Elsevier vendor files without rewriting their spacing.
+journal_submissions/**/elsarticle.cls text eol=lf whitespace=-blank-at-eol,-blank-at-eof
+journal_submissions/**/elsarticle-harv.bst text eol=lf whitespace=-blank-at-eol,-blank-at-eof
+
 *.jpg binary
 *.JPG binary
 *.png binary

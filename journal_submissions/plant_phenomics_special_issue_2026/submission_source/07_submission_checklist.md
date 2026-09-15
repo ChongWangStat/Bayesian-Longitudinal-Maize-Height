@@ -1,0 +1,21 @@
+# Plant Phenomics submission checklist
+
+- [x] Official Elsevier `elsarticle` class v3.5 (CTAN release dated 9 January 2026) is bundled.
+- [x] Main manuscript and supplement are double anonymized.
+- [x] Title page contains author names, affiliations, CRediT roles, funding, conflict declaration, ORCID, and corresponding-author details.
+- [x] Methods Article length is below 15,000 words.
+- [x] Abstract is at most 250 words and includes no citations.
+- [x] Seven keywords are supplied.
+- [x] Main text has four figures and four tables, below the combined limit of ten.
+- [x] Reference list is below 40 entries.
+- [x] Figures are also supplied as separate files.
+- [x] Tables remain editable in LaTeX.
+- [x] All 2024 manual outcomes were withheld from fitting and tuning.
+- [x] The four biological rows, not six camera views or 166 records, are the resampling clusters.
+- [x] Complete 247-to-166 record accounting and exact camera IDs are reported.
+- [x] Data Availability Statement avoids “available on reasonable request.”
+- [x] Generative-AI disclosure appears before the references.
+- [x] No author identifiers or public repository URL occur in anonymized files.
+- [x] All submission fields are complete.
+- [x] Select `VSI: PMBDA2025` during portal submission.
+- [x] Upload `.tex`, `.bib`, `.bst`, `.cls`, and figures as editable source; the system-generated PDF is the review file.

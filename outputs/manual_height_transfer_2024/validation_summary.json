@@ -1,0 +1,126 @@
+{
+  "design": {
+    "development_year": 2021,
+    "validation_year": 2024,
+    "source_code_commit_locked_before_workbook_review": "59b42b74596c598017fdb0cd4b80af1aec7649d6",
+    "manual_2024_outcomes_used_for_fitting_or_tuning": false,
+    "camera_distance_transfer_ratio": 0.8292682926829268,
+    "resampling_unit": "biological row containing a left/right camera pair",
+    "interpretation": "Later-year, subject-disjoint, label-held-out validation. The 2024 image tracks were previously used in unlabeled pipeline development, so this is not a fully external site validation."
+  },
+  "development_calibration": {
+    "records": 61,
+    "camera_rows": 6,
+    "intercept_cm": 4.513784047426962,
+    "slope": 1.0590572140839067,
+    "leave_one_row_out_mae_cm": 11.216776316695597,
+    "leave_one_row_out_rmse_cm": 15.576904037723354
+  },
+  "validation_counts": {
+    "manual_workbook_records": 247,
+    "manual_workbook_plants": 45,
+    "matched_records": 166,
+    "matched_plants": 34,
+    "biological_rows": 4,
+    "camera_views": 6,
+    "unique_calendar_dates": 7,
+    "manual_records_without_qc_eligible_image_output": 81
+  },
+  "single_frame": {
+    "n": 166,
+    "bias_cm": -13.486271470056074,
+    "mae_cm": 18.103121159354387,
+    "rmse_cm": 23.538578067039087,
+    "pearson_r": 0.8129118617114264
+  },
+  "fixed_causal_baselines": {
+    "single_frame": {
+      "n": 166,
+      "bias_cm": -13.486271470056074,
+      "mae_cm": 18.103121159354387,
+      "rmse_cm": 23.538578067039087,
+      "pearson_r": 0.8129118617114264
+    },
+    "ewma": {
+      "n": 166,
+      "bias_cm": -16.455860412916092,
+      "mae_cm": 19.69762233036266,
+      "rmse_cm": 24.442040166083192,
+      "pearson_r": 0.8469020317622451
+    },
+    "running_median3": {
+      "n": 166,
+      "bias_cm": -16.264142527494986,
+      "mae_cm": 19.936899513205624,
+      "rmse_cm": 24.657855693122062,
+      "pearson_r": 0.8350327837865485
+    },
+    "holt": {
+      "n": 166,
+      "bias_cm": -13.650554764180582,
+      "mae_cm": 17.60324879328215,
+      "rmse_cm": 22.633671506359708,
+      "pearson_r": 0.8429040812770048
+    },
+    "gaussian_kalman": {
+      "n": 166,
+      "bias_cm": -13.224322844034694,
+      "mae_cm": 17.34833000218012,
+      "rmse_cm": 22.422673774297344,
+      "pearson_r": 0.8456548624999167
+    }
+  },
+  "bayesian_longitudinal": {
+    "n": 166,
+    "bias_cm": -13.244724947639103,
+    "mae_cm": 17.361216293310193,
+    "rmse_cm": 22.40928043503168,
+    "pearson_r": 0.8466529380330096
+  },
+  "paired_mae_gain_cm": 0.7419048660441945,
+  "paired_mae_gain_95pct_row_cluster_interval_cm": [
+    -0.44194919210100636,
+    1.3022976185238804
+  ],
+  "transfer_aware_intervals": {
+    "50": {
+      "level_percent": 50,
+      "covered": 88,
+      "n": 166,
+      "coverage_percent": 53.01204819277109,
+      "mean_width_cm": 27.560266407219178
+    },
+    "80": {
+      "level_percent": 80,
+      "covered": 131,
+      "n": 166,
+      "coverage_percent": 78.91566265060241,
+      "mean_width_cm": 55.97425895320311
+    },
+    "90": {
+      "level_percent": 90,
+      "covered": 150,
+      "n": 166,
+      "coverage_percent": 90.36144578313254,
+      "mean_width_cm": 76.42256147399547
+    },
+    "95": {
+      "level_percent": 95,
+      "covered": 161,
+      "n": 166,
+      "coverage_percent": 96.98795180722891,
+      "mean_width_cm": 97.49167859077761
+    }
+  },
+  "red_band_metadata_audit": {
+    "documented_pole_length_ft": "8-10",
+    "documented_mark_spacing_ft": 1.0,
+    "passing_candidate_images": 237,
+    "passing_candidates_exceeding_10ft": 89,
+    "passing_candidates_exceeding_10ft_percent": 37.552742616033754,
+    "filtered_image_records_using_reference_span_over_10ft": 1296,
+    "filtered_image_records": 1302,
+    "filtered_image_records_reference_span_over_10ft_percent": 99.53917050691244,
+    "decision": "The 2024 manual-height transfer analysis does not use the automatic red-component scale because the inferred number of one-foot intervals conflicts with the recorded 8-10-ft pole length. It uses the 2021 development calibration and recorded camera-distance ratio instead."
+  }
+}

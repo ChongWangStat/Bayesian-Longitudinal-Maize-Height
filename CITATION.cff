@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use this code, data, or model, please cite the accompanying manuscript and this repository."
 title: "Prior-guided image analysis for Bayesian longitudinal maize height phenotyping with fixed cameras"
 type: software
-version: 1.4.0
-date-released: 2026-09-14
+version: 2.0.0
+date-released: 2026-09-15
 authors:
   - family-names: Wang
     given-names: Haoming

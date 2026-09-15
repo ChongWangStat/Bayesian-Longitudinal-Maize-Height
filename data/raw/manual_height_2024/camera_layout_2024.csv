@@ -1,0 +1,9 @@
+biological_row_id,row_id_long,row_id_short,camera_id,camera_position,source_sheet,source_row
+M-0006,C-M-0006,M6,NL5RH,L,Camera layout,64
+M-0006,C-M-0006,M6,NGGJK,R,Camera layout,65
+M-0013,C-M-0013,M13,NH888,L,Camera layout,71
+M-0013,C-M-0013,M13,NGFZT,R,Camera layout,70
+W-0010,C-W-0010,W10,NH88X,L,Camera layout,44
+W-0010,C-W-0010,W10,NJQMT,R,Camera layout,45
+W-0015,C-W-0015,W15,NGFY5,L,Camera layout,26
+W-0015,C-W-0015,W15,NH88L,R,Camera layout,27

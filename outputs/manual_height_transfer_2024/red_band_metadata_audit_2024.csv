@@ -1,0 +1,7 @@
+camera_setup_id,passing_candidate_images,minimum_inferred_span_ft,median_inferred_span_ft,maximum_inferred_span_ft,candidates_exceeding_10ft
+C-M-0006-L.21-M1744-4,41,5.0,9.0,15.0,3
+C-M-0006-R.21-M1744-4,38,4.0,7.0,15.0,9
+C-M-0013-L.23-M1619-4_M1619-8,41,6.0,11.0,17.0,25
+C-M-0013-R.23-M1619-4_M1619-8,42,6.0,12.0,16.0,32
+C-W-0010-L.21-M1745-1,36,4.0,8.0,14.0,7
+C-W-0015-R.23-M1619-5_M1619-8,39,4.0,8.0,15.0,13

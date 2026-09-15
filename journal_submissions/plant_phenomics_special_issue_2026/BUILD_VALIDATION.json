@@ -1,0 +1,58 @@
+{
+  "validated_on": "2026-09-15",
+  "template": {
+    "class": "elsarticle",
+    "version": "3.5",
+    "release_date": "2026-01-09"
+  },
+  "manuscript": {
+    "pages": 19,
+    "abstract_words": 225,
+    "keywords": 7,
+    "main_figures": 4,
+    "main_tables": 4,
+    "unique_cited_references": 19,
+    "undefined_citations": 0,
+    "undefined_references": 0,
+    "overfull_boxes": 0,
+    "visual_review": "passed"
+  },
+  "supplement": {
+    "pages": 25,
+    "undefined_references": 0,
+    "overfull_boxes": 0,
+    "visual_review": "passed"
+  },
+  "title_page": {
+    "pages": 2,
+    "visual_review": "passed"
+  },
+  "cover_letter": {
+    "pages": 1,
+    "visual_review": "passed"
+  },
+  "manual_height_protocol": {
+    "pages": 5,
+    "page_size": "US Letter",
+    "visual_review": "passed"
+  },
+  "reproduction": {
+    "working_tree_analysis": "passed",
+    "fresh_anonymous_archive_analysis": "passed",
+    "fresh_anonymous_latex_source_compile": "passed",
+    "fresh_identified_latex_source_compile": "passed"
+  },
+  "anonymization": {
+    "anonymous_manuscript_text_audit": "passed",
+    "anonymous_supplement_text_audit": "passed",
+    "anonymous_code_data_archive_text_audit": "passed"
+  },
+  "package": {
+    "version": "2.0.0",
+    "files": 21,
+    "manifest_mismatches": 0,
+    "nested_review_archive_files": 232,
+    "nested_review_archive_manifest_mismatches": 0,
+    "sha256": "b003422faa5fc868b1681ef1a248a0b432885287df7d3a42d2018fd33d5d3d6d"
+  }
+}

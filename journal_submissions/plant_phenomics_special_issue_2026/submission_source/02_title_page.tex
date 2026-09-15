@@ -1,0 +1,63 @@
+\documentclass[review,12pt,authoryear]{elsarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,array}
+\usepackage{lineno}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\input{numbers.tex}
+\input{numbers_2024.tex}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\journal{Plant Phenomics}
+
+\begin{document}
+\singlespacing
+\begin{frontmatter}
+\title{Prior-guided image analysis for Bayesian longitudinal maize height phenotyping with fixed cameras}
+\author[stat]{Haoming Wang}
+\author[stat,vet]{Chong Wang}
+\author[psi,igg,agron]{Yawei Li}
+\author[psi,agron]{Cheng-Ting Yeh}
+\author[psi,igg,agron]{Patrick S. Schnable}
+\author[stat]{Peng Liu\corref{cor1}}
+\ead{pliu@iastate.edu}
+\cortext[cor1]{Corresponding author: Peng Liu, Department of Statistics, Iowa State University, 2117 Snedecor Hall, 2438 Osborn Drive, Ames, IA 50011-1090, USA.}
+\affiliation[stat]{organization={Department of Statistics, Iowa State University}, addressline={2438 Osborn Drive}, city={Ames}, state={Iowa}, postcode={50011-1090}, country={USA}}
+\affiliation[vet]{organization={Department of Veterinary Diagnostic and Production Animal Medicine, Iowa State University}, addressline={1809 South Riverside Drive}, city={Ames}, state={Iowa}, postcode={50011-1134}, country={USA}}
+\affiliation[psi]{organization={Plant Sciences Institute, Iowa State University}, addressline={1111 WOI Road}, city={Ames}, state={Iowa}, postcode={50011-1085}, country={USA}}
+\affiliation[igg]{organization={Interdepartmental Genetics and Genomics Graduate Program, Iowa State University}, addressline={2014 Molecular Biology Building, 2437 Pammel Drive}, city={Ames}, state={Iowa}, postcode={50011-1079}, country={USA}}
+\affiliation[agron]{organization={Department of Agronomy, Iowa State University}, addressline={Agronomy Hall, 716 Farm House Lane}, city={Ames}, state={Iowa}, postcode={50011-1051}, country={USA}}
+\end{frontmatter}
+
+\noindent\textbf{Article type:} Methods Article.
+
+\noindent\textbf{Special issue:} Plant Modeling, Big Data Analytics, and High-Throughput Phenotyping for Smart Agriculture (submission category: VSI: PMBDA2025).
+
+\section*{Author Contributions}
+Haoming Wang: Conceptualization, Data curation, Formal analysis, Investigation, Methodology, Physical-reference annotation, Software, Validation, Visualization, Writing--original draft, Writing--review and editing. Chong Wang: Conceptualization, Data curation, Formal analysis, Methodology, Software, Simulation, Validation, Visualization, Writing--original draft, Writing--review and editing. Yawei Li: Data curation, Field investigation, Resources, Validation, Writing--review and editing. Cheng-Ting Yeh: Validation, Writing--review and editing. Patrick S. Schnable: Conceptualization, Experimental design, Funding acquisition, Resources, Supervision, Writing--review and editing. Peng Liu: Conceptualization, Data curation, Formal analysis, Methodology, Project administration, Software, Simulation, Supervision, Validation, Visualization, Writing--original draft, Writing--review and editing. All authors approved the final manuscript.
+
+\section*{Funding}
+This work was supported by the Plant Sciences Institute at Iowa State University and funds from the Laurence H. Baker Center for Bioinformatics and Biological Statistics.
+
+\section*{Acknowledgments}
+The authors thank the field and annotation teams whose contributions are represented in the CRediT statement.
+
+\section*{Conflict of Interest}
+The authors declare no conflict of interest.
+
+\section*{ORCID}
+Peng Liu: \href{https://orcid.org/0000-0002-2093-8018}{0000-0002-2093-8018}.
+
+\section*{Data and Code}
+Public repository: \href{https://github.com/ChongWangStat/Bayesian-Longitudinal-Maize-Height}{github.com/ChongWangStat/Bayesian-Longitudinal-Maize-Height}. A self-contained anonymous review archive accompanies the double-anonymized files. Code is MIT licensed. No separate reuse license has been confirmed for non-code data, images, annotations, model weights, figures, or manuscript materials.
+
+\section*{Author Approval and Originality}
+All authors approved submission. The manuscript and method have not been published previously, are not under consideration elsewhere, and no conflict of interest is declared.
+\end{document}

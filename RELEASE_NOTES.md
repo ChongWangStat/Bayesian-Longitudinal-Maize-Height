@@ -1,55 +1,51 @@
-# Collaborator-ready plant-height application v1.4.0
+# Plant Phenomics special-issue submission v2.0.0
 
-This repository release adds Bayesian Plant Height application v1.1.0, prepared for
-sharing with plant scientists who want to turn dated fixed-camera maize images into
-longitudinal height estimates without writing code.
+This release adds the strongest supportable Plant Phenomics manuscript and a
+reproducible later-year manual-height validation.
 
-## Collaborator workflow
+## 2024 temporal validation
 
-- Added two built-in longitudinal examples that run directly in the browser app.
-  C-024 is a clean four-date series with 16 of 16 current-image measurements used.
-  C-004 is a harder five-date series with 29 measurements and one prediction-only
-  recovery after a missed detection.
-- Bundled the nine source images, date tables, expected output tables, image-quality
-  summaries, and example height-versus-day plots in the standalone package.
-- Added `days_after_first_image` to every height row, starting at day 0 separately
-  for each camera.
-- Added an interactive choice of study day or calendar date for the horizontal axis.
-- Added downloadable height-versus-day PNGs with Bayesian trajectories, 95% uncertainty
-  bands, and current-image measurements, both individually and in the complete result ZIP.
-- Added separate visible-plant counts for each camera or plot in the browser and batch
-  interfaces.
-- Documented one image per camera per day, taken at a similar time, as the preferred
-  prospective schedule while retaining support for wider and irregular intervals.
-- Replaced obsolete Streamlit width settings so the current interface runs without
-  deprecation warnings.
+- Imported 247 manual field heights from 45 plants without imputation or correction.
+- Parsed the Camera layout sheet as four biological rows, each covered by a paired
+  left/right camera layout. The biological row is the independent resampling unit.
+- Locked the existing code before outcome review and used no 2024 manual height for
+  fitting, tuning, candidate selection, or calibration.
+- Matched 166 records from 34 plants, four biological rows, six contributing camera
+  views, and seven dates after explicit exclusion accounting.
+- Added fixed causal comparisons: single frame, EWMA, running median, Holt
+  level-trend, and a Gaussian local-linear model with the same prior and process
+  scales as the particle method.
+- Obtained 17.36 cm MAE, 22.41 cm RMSE, and correlation 0.847 for the Bayesian
+  longitudinal estimate. The matched Gaussian model was practically tied at 17.35
+  cm MAE and 22.42 cm RMSE.
+- Estimated a 0.74 cm MAE gain over single frames with a four-row 95% cluster
+  interval of -0.44 to 1.30 cm.
+- Reported transfer-aware 80%, 90%, and 95% coverage of 78.9%, 90.4%, and 97.0%,
+  together with mean widths of 56.0, 76.4, and 97.5 cm.
+- Audited the 8–10 ft red-marked pole and excluded automatic band enumeration from
+  absolute 2024 calibration because inferred spans conflicted with the recorded
+  physical length.
 
-## Expanded validation
+## Manuscript and journal package
 
-- Ran fresh pose inference on all 49 released longitudinal field images from 12 camera
-  series, yielding 253 geometrically valid candidates.
-- Replayed every series under its true irregular dates and under daily, three-day,
-  seven-day, and 30-day schedules. Every schedule completed with 248 finite height rows:
-  241 current-image updates and seven prediction-only rows.
-- Confirmed that the independently supplied 0.415886 cm-per-pixel route exactly matches
-  the published 2021 calibration route.
-- Tested the automatic red-band route on all 49 field images. It completed without error
-  and conservatively withheld calibration when a pole fit failed; only four field frames
-  passed. The included examples therefore use the validated published 2021 scale.
-- Twelve focused tests pass, including exact released-filter equivalence, prefix
-  causality, daily/three-day/seven-day timing, per-camera plant counts, plot generation,
-  and result-ZIP contents.
-- Both built-in examples complete through the actual Streamlit interface with zero
-  application exceptions.
+- Reframed the contribution around prior-guided image analysis within Bayesian
+  longitudinal phenotyping.
+- Added the 2024 design, camera-pair map, complete record accounting, causal
+  comparators, cluster uncertainty, limitations, and data provenance throughout the
+  title, abstract, introduction, methods, results, discussion, supplement, and cover
+  letter.
+- Built separate double-anonymized manuscript and supplement files plus an identified
+  title page using the official Elsevier `elsarticle` class v3.5.
+- Added a five-page audited manual-height and camera-pair protocol in Word and PDF.
+- Added deterministic package generation with an anonymized code/data archive,
+  source archives, separate figures, upload instructions, and SHA-256 manifests.
 
-## Manuscript package
+## Validation
 
-The journal-ready *The Plant Phenome Journal* manuscript, supplement, submission files,
-analysis code, curated annotations, derived data, and model provenance remain included.
-
-## Scope and rights
-
-The pose checkpoint is intended for field maize imagery resembling the released data.
-Annotated-image and calibration-QC review remain part of the workflow. The MIT License
-applies to repository code; the model card records the Ultralytics dependency and the
-available checkpoint provenance.
+- The full 2024 analysis reproduces from the anonymous review archive.
+- Both anonymous and identified LaTeX source archives compile independently.
+- The main manuscript is 19 pages with a 225-word abstract, four figures, four
+  tables, and 19 cited references.
+- The anonymous text audit found no author names, institutional identifiers,
+  workstation paths, or public repository links.
+- Package and anonymous-archive SHA-256 manifests verify without mismatch.

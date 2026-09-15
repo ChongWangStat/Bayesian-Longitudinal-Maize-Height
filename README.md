@@ -1,58 +1,94 @@
-# Bayesian longitudinal maize height from fixed cameras
+# Prior-guided image analysis for Bayesian longitudinal maize height phenotyping
 
-This repository accompanies the Methods and Techniques manuscript prepared for submission to *The Plant Phenome Journal*, **“Prior-guided image analysis for Bayesian longitudinal maize height phenotyping with fixed cameras.”** It releases the manuscript, analysis code, canonical derived data, 61 curated 2021 field images, 12 human-annotated support-pole XML files, a pose checkpoint, and cached predictions.
+This repository accompanies a Methods Article prepared for *Plant Phenomics* and
+the special issue **Plant Modeling, Big Data Analytics, and High-Throughput
+Phenotyping for Smart Agriculture**. The title is **“Prior-guided image analysis
+for Bayesian longitudinal maize height phenotyping with fixed cameras.”**
 
-The methodological distinction is where the longitudinal information acts. A conventional two-stage workflow chooses a measurement from each image and only then links those measurements in a longitudinal model. Here the predictive state is returned to current-image analysis: running position guides plant association and base refinement, while the stronger candidate branch lets the predicted height distribution score competing plant-top candidates before the measurement is finalized.
+The methodological contribution is the location of the longitudinal prior. A
+usual two-stage workflow selects a height independently from each image and then
+links the measurements in a longitudinal model. Here the predictive state from
+earlier images is returned to analysis of the newly added image: it guides plant
+association and can score competing top candidates before a height is committed.
+Each reported value is prefix-causal and uses only the image available at that
+date and earlier images.
 
-The workflow treats “online” as an as-of analysis. When an image arrives, it is added to the available pool and the algorithm returns a measurement and height-growth distribution using that image and earlier images. Later images trigger later updates and do not revise earlier outputs.
+## Later-year manual-height validation
+
+The primary temporal validation develops the transfer on 61 matched 2021 records
+from six camera rows and evaluates it against 166 matched 2024 manual field heights
+from 34 newly grown plants. No 2024 manual outcome was used for fitting or tuning.
+
+The 2024 workbook contains four biological rows. Each biological row is covered
+by a paired left/right camera layout, so the two camera views are kept together
+and are not counted as independent biological samples. All uncertainty resampling
+uses the four biological rows as clusters.
+
+| Estimator | Bias (cm) | MAE (cm) | RMSE (cm) | Pearson r |
+|---|---:|---:|---:|---:|
+| Single frame | -13.49 | 18.10 | 23.54 | 0.813 |
+| EWMA | -16.46 | 19.70 | 24.44 | 0.847 |
+| Running median, 3 images | -16.26 | 19.94 | 24.66 | 0.835 |
+| Holt level-trend | -13.65 | 17.60 | 22.63 | 0.843 |
+| Gaussian local-linear | -13.22 | 17.35 | 22.42 | 0.846 |
+| Bayesian longitudinal particle method | -13.24 | 17.36 | 22.41 | 0.847 |
+
+The Bayesian estimate reduced MAE by 0.74 cm relative to single-frame estimates;
+the 95% biological-row cluster interval was -0.44 to 1.30 cm. The particle and
+matched Gaussian filters were practically tied. This comparison focuses the paper
+on prior-guided image association, causal longitudinal measurement, physical
+calibration, and transparent uncertainty rather than on a claim that particle
+computation is universally superior.
+
+Transfer-aware interval coverage was 78.9%, 90.4%, and 97.0% for nominal 80%,
+90%, and 95% intervals, with mean widths of 56.0, 76.4, and 97.5 cm. The broad
+upper-level intervals retain the 2021 leave-one-camera-row-out transfer error.
+
+The imported workbook has 247 nonmissing values from 45 plants. Fifty-four values
+belong to two unavailable camera halves, and 27 more lack a same-date QC-eligible
+automated output, leaving 166 matches. Manual and image times differ by a median
+2.78 hours and a maximum 6.90 hours. The workbook does not encode which of the two
+documented pre-tasseling endpoints was used, so the outcome is described as
+“manual field height.”
+
+Field notes document an 8–10 ft 2024 calibration pole with 1 ft red-mark spacing.
+The automatic red-component sequence often implied more than the documented pole
+length and is therefore retained as a diagnostic rather than used for absolute
+2024 calibration. The validation uses the 2021 development calibration and the
+recorded 8.5/10.25 camera-distance ratio.
 
 ## Plant-scientist application
 
-The repository now includes a local browser application that accepts fixed-camera
-images and their dates, detects plant tops and roots, maintains plant identity through
-time, applies physical calibration, and returns a height for each tracked plant at each
-uploaded image date. Results include 80% and 95% uncertainty intervals, growth-rate
-estimates, quality flags, annotated images, and height-versus-day plots. Daily imaging
-at a similar time is the preferred prospective schedule; wider and irregular intervals
-are also supported. Different cameras can have different visible-plant counts.
+The local browser application accepts dated fixed-camera images, detects plant
+tops and roots, maintains plant identity through time, applies physical
+calibration, and returns height as a function of study day or calendar date.
+Outputs include 80% and 95% intervals, growth estimates, quality flags, annotated
+images, tables, and downloadable trajectory plots.
 
-On Windows, double-click `START_PLANT_HEIGHT_APP.bat`. The first start creates an
-isolated Python environment and installs the required components; later starts reuse
-that environment. Instructions, calibration choices, batch-command usage, and output
-definitions are in `plant_height_app/README.md`.
+On Windows, double-click `START_PLANT_HEIGHT_APP.bat`. Instructions and batch
+usage are in `plant_height_app/README.md`. The built-in C-024 and C-004 examples
+provide four- and five-date longitudinal demonstrations; the application also
+supports different visible-plant counts for different cameras. One image per
+camera per day at a similar time is the preferred prospective schedule, while
+wider and irregular intervals remain supported.
 
-The app includes two ready-to-run longitudinal examples. C-024 is a clean four-date
-demonstration with all 16 current-image measurements used; C-004 is a five-date
-demonstration with one prediction-only recovery after a missed detection.
+## Journal files
 
-## Principal results
+The journal-specific source is in
+`journal_submissions/plant_phenomics_special_issue_2026/submission_source/`.
+It uses the official Elsevier `elsarticle` class version 3.5 dated 9 January 2026
+and contains separate anonymous manuscript, title page, anonymous supplement,
+cover letter, highlights, portal metadata, and compiled PDFs. The complete upload
+package is built with:
 
-- The primary independent physical-height validation retained all 132 manual measurements from 33 plants across 12 stationary-camera rows and five dates in 2021. Its plant subjects and reference outcomes were separate from the 2024–2025 longitudinal-model development data. Manual height was reserved for evaluation and excluded from model and comparator tuning. Mean absolute error was 12.03 cm for the single-frame image extent and 10.97 cm for the robust Bayesian particle filter. The within-record reduction was 1.06 cm (95% camera-row-cluster bootstrap interval, -0.16 to 2.39 cm). Across the 99 observations after a plant's first image, the reduction was 1.44 cm (-0.21 to 3.26 cm). Median absolute error decreased from 8.74 to 7.30 cm (whole-row bootstrap reduction, 1.43 cm; 0.29–3.70 cm), and the mean-error gain stayed positive under all 12 leave-one-camera-row-out omissions (0.61–1.42 cm).
-- The particle filter had the lowest point-estimate error among the fixed causal comparisons. The Gaussian local-linear Kalman filter reached 11.62 cm MAE; its within-record difference from the particle filter was 0.66 cm (-0.43 to 1.79 cm). Improvements over EWMA, the running median, and Holt were 4.01, 7.80, and 3.08 cm, and all three whole-row bootstrap intervals excluded zero.
-- Central 80% and 95% latent-height posterior intervals covered 87.1% and 94.7% of the held-out 2021 manual heights, with mean widths of 47.9 and 75.4 cm. Their whole-row bootstrap coverage intervals were 79.3–93.6% and 89.4–98.6%, respectively.
-- In a secondary temporal uncertainty check, settings estimated from 36 plant tracks in 2024 achieved 94.9% coverage with a 97.8 cm mean 95% predictive width on 372 forecasts from 11 evaluated plant tracks at two cameras in 2025. Annual replanting makes this a temporally later, subject-disjoint cohort with no plant subject shared across years. This result supports transfer for those installations rather than broad camera generalization.
-- In the controlled ambiguity simulation, root mean squared error was 10.48 cm for single-frame selection, 8.61 cm for filtering after selection, and 6.01 cm when the predicted height distribution participated in candidate scoring.
-- In the matched 2021 real-image audit, the two temporal candidate rules selected the same candidate on all 63 evaluated plant-dates. This is a negative control: those natural candidate sets contained no conflict under the fixed gates.
-- The 172 usable support-pole annotations formed 39 repeated row–pole series across all 12 camera rows. Median within-series pixel-length coefficient of variation was 1.24% (95% whole-row bootstrap interval, 0.78–1.99%); 38 of 39 series were below 5%.
+```bash
+python analysis/build_plant_phenomics_special_issue.py
+python analysis/package_plant_phenomics_submission.py
+```
 
-These estimates describe a pilot study. The field advantage over the strongest comparators is uncertain. The primary independent manual-reference validation spans 12 stationary-camera rows, while the secondary subject-disjoint 2025 predictive evaluation has only two cameras. The manual reference series and newly annotated pole images are from 2021; the final manual reference was recorded at the end of that season. The external 2024–2025 growth field used no 2021 manual labels. Forecasts repeat within plant tracks and cameras and are not treated as independent biological subjects. Human evidence includes 150 plant masks, 132 manual field-height records, and Haoming Wang's 199 physical-reference traces across 61 images.
+The audited field protocol is available in both Word and PDF under `protocols/`.
 
-Source-frame matching recovered coordinates for 87 archived plant crops across seven camera rows. Sixty-three of these map to the primary validation across six rows; the other 69 primary records preserve the derived segmentation extent without a reconstructable raw-image-to-extent chain. The released crop-position table records the recoverable coordinates and match scores.
-
-## Repository map
-
-- `manuscript/`: final LaTeX source, editable figures, main PDF, and supplementary PDF.
-- The main source follows the official June 2026 *The Plant Phenome Journal* submission template in standard LaTeX: 12-point Times-family type, US-letter paper, 1-inch margins, double spacing, continuous line numbers, the journal's front-matter order, full postal affiliations, and APA author–year references. The journal supplies a Word template rather than a LaTeX class, so the source uses the journal's official LaTeX submission route.
-- `analysis/`: canonical scripts used for the reported calculations and physical-reference import.
-- `data/raw/pole_calibration_images/`: 61 curated 2021 images. `C-039_2021-07-30.JPG` is retained; the confirmed duplicate spelling is omitted.
-- `data/manual_annotations/poles_2021/`: Haoming Wang's support-pole annotations, one XML file per camera row.
-- `data/processed/`: public derived measurements and candidate tables with workstation paths and server links removed.
-- `outputs/`: canonical summaries, bootstrap results, prediction tables, and audit figures.
-- `outputs/manual_height_uncertainty_2021/`: manual-reference posterior coverage and width at 80% and 95%, with per-date and whole-row bootstrap summaries.
-- `outputs/pole_repeatability_2021/`: temporal repeatability of all usable repeated support-pole series.
-- `models/`: released pose checkpoint and its model card.
-
-## Reproduce the core tables
+## Reproduce the 2024 validation
 
 Python 3.12 or 3.13 is recommended.
 
@@ -61,31 +97,39 @@ python -m venv .venv
 # Windows: .venv\Scripts\activate
 # macOS/Linux: source .venv/bin/activate
 python -m pip install -r requirements-core.txt
-python reproduce_core.py
+python analysis/validate_manual_height_transfer_2024.py
 ```
 
-This fast path recalculates the all-plant summary, fixed field baselines, manual-height interval audit, support-pole repeatability, matched real-image audit, multi-level uncertainty summary, and generated LaTeX numbers from the released prediction tables. It also runs integrity checks.
+The canonical inputs are in `data/raw/manual_height_2024/`,
+`data/raw/heights_compare_2021.csv`, `data/processed/`, and the two supporting
+2021 output directories used by the validation script. The generated results,
+row-cluster bootstrap replicates, comparator table, accounting table, figure, and
+numerical LaTeX macros are in `outputs/manual_height_transfer_2024/`.
 
-To rerun the two 5,000-particle daily filters from the released depth-corrected measurement table:
+For the earlier released analyses, run `python reproduce_core.py`. To rerun pose
+inference on the 61 curated 2021 images, install `requirements.txt` and run
+`python analysis/cache_pose_candidates_annotation_set.py`.
 
-```bash
-python reproduce_core.py --full-filter
-```
+## Repository map
 
-To rerun pose inference on all 61 curated images, install `requirements.txt` and run:
+- `analysis/`: analysis, validation, figure, manuscript-build, and package scripts.
+- `data/raw/manual_height_2024/`: imported manual heights, camera-pair map, and source hashes.
+- `data/raw/pole_calibration_images/`: 61 curated 2021 images; the duplicate spelling of `C-039_2021-07-30.JPG` is omitted.
+- `data/manual_annotations/poles_2021/`: 12 CVAT XML files containing the support-pole annotations.
+- `data/processed/`: released derived image measurements and calibration records.
+- `outputs/manual_height_transfer_2024/`: primary later-year validation outputs.
+- `plant_height_app/`: browser and command-line application, examples, and tests.
+- `models/`: pose checkpoint and available provenance.
+- `protocols/`: audited 2024 manual-height and paired-camera protocol.
 
-```bash
-python analysis/cache_pose_candidates_annotation_set.py
-```
+## Scope and rights
 
-The larger 2024–2025 raw-image archive is not included. The released derived table is sufficient to rerun the uncertainty analysis from its measurement-level input. The checkpoint's embedded training seed, deterministic setting, software version, training arguments, and summary metrics are preserved in `models/checkpoint_metadata.json`. The referenced dataset file, exact original training-image manifest, original training masks, source commit, and full cross-fitting image set were not recoverable from the project archive; see `models/MODEL_CARD.md`.
+The 2024 result is later-year, subject-disjoint, label-held-out temporal field
+validation. The image tracks had previously been used without their manual labels
+during pipeline development, so it is not a fully external-site validation. Its
+four biological rows limit precision, and the point-estimate advantage over the
+strongest matched comparator is negligible.
 
-## Physical and annotation definitions
-
-Haoming Wang manually traced 199 physical references across the 61 curated 2021 images; 172 traces are marked usable and 27 unusable in the XML audit. The labels `pole1` through `pole4` identify different visible camera-support poles. Each annotated segment runs from ground contact to the nominal camera mounting or optical-center height: 5 ft (152.4 cm). Across repeated usable row–pole series, the median temporal coefficient of variation in projected length is 1.24%. This supports temporal stability of the fixed-camera annotations and does not by itself establish absolute scale accuracy. Four 35 in intervals describe horizontal field layout, totaling 140 in between adjacent rows; they are not vertical pole marks. The 2024–2025 reference is a separate 8–10 ft pole whose adjacent red-band edges are 1 ft (30.48 cm) apart.
-
-The primary 2021 manual field-height column comes from `_ft(cm)` measurement 1: ground to the topmost plant point that touches a meter stick before tasseling, and ground to the flag leaves after tasseling, excluding the tassel.
-
-## Rights and citation
-
-Code is released under the MIT License. No separate reuse license has been confirmed for the data, images, annotations, model weights, figures, or manuscript materials; see `DATA_RIGHTS.md`. Please cite the accompanying manuscript and repository metadata in `CITATION.cff`.
+Code is released under the MIT License. No separate reuse license has been
+confirmed for data, images, annotations, model weights, figures, or manuscript
+materials; see `DATA_RIGHTS.md` and `models/MODEL_CARD.md`.

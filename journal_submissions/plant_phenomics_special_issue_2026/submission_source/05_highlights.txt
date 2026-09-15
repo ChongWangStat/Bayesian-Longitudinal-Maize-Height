@@ -1,0 +1,5 @@
+• A Bayesian longitudinal state guides association inside each newly added image.
+• Later-year validation withheld all 166 manual outcomes from fitting and tuning.
+• Paired left/right cameras are analyzed within four biological-row clusters.
+• MAE decreased from 18.10 to 17.36 cm and correlation rose to 0.847.
+• A browser app returns daily plant-height trajectories and transparent uncertainty.

@@ -1,0 +1,9 @@
+biological_row_id,row_id_long,row_id_short,camera_id,camera_position,source_sheet,source_row,camera_genotype,automated_pose_output,global_plant_numbers,analysis_status
+M-0006,C-M-0006,M6,NL5RH,L,Camera layout,64,C-M-0006-L.21-M1744-4,True,7-12,included when a manual date passes image QC
+M-0006,C-M-0006,M6,NGGJK,R,Camera layout,65,C-M-0006-R.21-M1744-4,True,1-6,included when a manual date passes image QC
+M-0013,C-M-0013,M13,NH888,L,Camera layout,71,C-M-0013-L.23-M1619-4_M1619-8,True,7-12,included when a manual date passes image QC
+M-0013,C-M-0013,M13,NGFZT,R,Camera layout,70,C-M-0013-R.23-M1619-4_M1619-8,True,1-6,included when a manual date passes image QC
+W-0010,C-W-0010,W10,NH88X,L,Camera layout,44,C-W-0010-L.21-M1745-1,True,7-12,included when a manual date passes image QC
+W-0010,C-W-0010,W10,NJQMT,R,Camera layout,45,,False,1-6,no automated pose output in the analysis archive
+W-0015,C-W-0015,W15,NGFY5,L,Camera layout,26,,False,7-12,no automated pose output in the analysis archive
+W-0015,C-W-0015,W15,NH88L,R,Camera layout,27,C-W-0015-R.23-M1619-5_M1619-8,True,1-6,included when a manual date passes image QC
